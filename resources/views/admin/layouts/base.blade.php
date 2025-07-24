@@ -8,6 +8,7 @@
   <title>@yield('title', 'MyTest')</title>
 @include('admin.includes.css-plugins')
  @stack('custom-css')
+ @livewireStyles
 </head>
 <body>
   <!--  Body Wrapper -->
@@ -31,6 +32,7 @@
   </div>
 @include('admin.includes.js-plguins')
  @stack('custom-js')
+   @livewireScripts
 </body>
 
 </html>

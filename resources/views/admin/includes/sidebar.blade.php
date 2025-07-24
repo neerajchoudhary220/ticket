@@ -12,20 +12,27 @@
         <!-- Sidebar navigation-->
         <nav class="sidebar-nav scroll-sidebar" data-simplebar="">
           <ul id="sidebarnav">
-            <li class="nav-small-cap">
+            {{-- <li class="nav-small-cap">
               <iconify-icon icon="solar:menu-dots-linear" class="nav-small-cap-icon fs-4"></iconify-icon>
               <span class="hide-menu">Home</span>
-            </li>
+            </li> --}}
             <li class="sidebar-item">
-              <a class="sidebar-link" href="./index.html" aria-expanded="false">
+              <a class="sidebar-link" href="{{ route('admin.dashboard') }}" aria-expanded="false">
                 <i class="ti ti-atom"></i>
                 <span class="hide-menu">Dashboard</span>
+              </a>
+            </li>
+
+            <li class="sidebar-item">
+              <a class="sidebar-link" href="{{route('admin.shopkeepers') }}" aria-expanded="false">
+                <i class="ti ti-users"></i>
+                <span class="hide-menu">Shopkeepers</span>
               </a>
             </li>
             <!-- ---------------------------------- -->
             <!-- Dashboard -->
             <!-- ---------------------------------- -->
-            <li class="sidebar-item">
+            {{-- <li class="sidebar-item">
               <a class="sidebar-link justify-content-between"  
                 href="#" aria-expanded="false">
                 <div class="d-flex align-items-center gap-3">
@@ -48,8 +55,8 @@
                 </div>
                 
               </a>
-            </li>
-            <li class="sidebar-item">
+            </li> --}}
+            {{-- <li class="sidebar-item">
               <a class="sidebar-link justify-content-between has-arrow" href="javascript:void(0)" aria-expanded="false">
                 <div class="d-flex align-items-center gap-3">
                   <span class="d-flex">
@@ -145,9 +152,9 @@
                   </a>
                 </li>
               </ul>
-            </li>
+            </li> --}}
 
-            <li>
+            {{-- <li>
               <span class="sidebar-divider lg"></span>
             </li>
             <li class="nav-small-cap">
@@ -1757,7 +1764,7 @@
                 <i class="ti ti-file"></i>
                 <span class="hide-menu">Sample Page</span>
               </a>
-            </li>
+            </li> --}}
           </ul>
         </nav>
         <!-- End Sidebar navigation -->

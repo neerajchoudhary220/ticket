@@ -26,34 +26,35 @@
                   <img src="./assets/images/logos/logo.svg" alt="">
                 </a> --}}
                 <p class="text-center">Hello, Admin</p>
-                <form>
+                <form action="{{ route('admin.login') }}" method="POST">
                  @csrf
                   <div class="mb-3">
-                    <label for="exampleInputEmail1" class="form-label">email</label>
-                    <input type="email" class="form-control" id="exampleInputEmail1" value="{{ old('email') }}" aria-describedby="emailHelp">
+                    <label for="exampleInputEmail1" class="form-label">Email</label>
+                    <input type="email" class="form-control" name="email" id="exampleInputEmail1" value="{{ old('email') }}" aria-describedby="emailHelp">
                     @error('email')
-                       <div class="form-text" id="passwordError"><i class="fa fa-exclamation-triangle form-text"></i>
+                       <div class="text-danger" id="passwordError"><i class="fa fa-exclamation-triangle text-danger"></i>
                         {{ $message }}</div>
                     @enderror
                   </div>
                   <div class="mb-4">
                     <label for="exampleInputPassword1" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="exampleInputPassword1">
+                    <input type="password" class="form-control" name="password" id="exampleInputPassword1">
+                     @error('password')
+                      <div class="text-danger" id="passwordError"><i class="fa fa-exclamation-triangle text-danger"></i>
+                        {{ $message }}</div>
+                    @enderror
                   </div>
                   <div class="d-flex align-items-center justify-content-between mb-4">
                     <div class="form-check">
                       <input class="form-check-input primary" type="checkbox" value="" id="flexCheckChecked" checked>
                       <label class="form-check-label text-dark" for="flexCheckChecked">
-                        Remeber
+                        Remember
                       </label>
                     </div>
                   </div>
 
-                   @error('password')
-                       <div class="form-text" id="passwordError"><i class="fa fa-exclamation-triangle form-text"></i>
-                        {{ $message }}</div>
-                    @enderror
-                  <a href="./index.html" class="btn btn-primary w-100 py-8 fs-4 mb-4 rounded-2">Log In</a>
+                  
+                  <button type="submit" class="btn btn-primary w-100 py-8 fs-4 mb-4 rounded-2">Log In</button>
                 </form>
               </div>
             </div>

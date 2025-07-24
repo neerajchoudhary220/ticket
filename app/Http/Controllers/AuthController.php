@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\UserLoginRequest;
+use App\Http\Requests\LoginRequest;
 use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
@@ -12,24 +12,15 @@ class AuthController extends Controller
         return view('web.auth.login');
     }
 
-    public function login(UserLoginRequest $userLoginRequest)
+    public function login(LoginRequest $loginRequest)
     {
-        $credentials = $userLoginRequest->only('email', 'password');
+        $credentials = $loginRequest->only('email', 'password');
         if (! Auth::attempt($credentials)) {
             return back()->withErrors(['email' => 'The provided credentials do not match our records. '])->withInput();
         }
-        $userLoginRequest->session()->regenerate();
+        $loginRequest->session()->regenerate();
 
-        return redirect()->intended('home');
+        return redirect()->route('dashboard');
 
-    }
-
-    public function logout()
-    {
-        Auth::logout();
-        request()->session()->invalidate();
-        request()->session()->regenerateToken();
-
-        return redirect('/');
     }
 }
