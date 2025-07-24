@@ -16,12 +16,12 @@ class AuthController extends Controller
     public function login(LoginRequest $request)
     {
         $credentials = $request->only('email', 'password');
-        if (! Auth::attempt($credentials)) {
+        if (! Auth::guard('admin')->attempt($credentials)) {
             return back()->withErrors(['email' => 'The provided credentials do not match our records. '])->withInput();
         }
         $request->session()->regenerate();
 
-        return redirect()->intended('home');
+        return redirect()->intended('/admin/dashboard');
 
     }
 }
