@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\ShopKeeperController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -16,7 +16,7 @@ Route::middleware(['auth:admin'])->group(function () {
         Route::get('/', 'index')->name('admin.dashboard');
     });
 
-    Route::controller(UserController::class)->prefix('shopkeepers')->group(function () {
+    Route::controller(ShopKeeperController::class)->prefix('shopkeepers')->group(function () {
         Route::get('/', 'index')->name('admin.shopkeepers');
         Route::get('add', 'showAddForm')->name('admin.shopkeeper_form');
 

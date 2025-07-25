@@ -3,6 +3,8 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -22,8 +24,10 @@ class User extends Authenticatable
     protected $fillable = [
         'first_name', 'last_name', 'mobile_number',
         'email',
-        'password',
+        'password', 'name',
     ];
+
+    protected $appends = ['name'];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -51,5 +55,20 @@ class User extends Authenticatable
     protected function password(): Attribute
     {
         return Attribute::make(set: fn (string $password) => Hash::make($password)); // This return hash password
+    }
+
+    protected function name(): Attribute
+    {
+        return Attribute::get(
+            fn () => "{$this->first_name} {$this->last_name}"
+        );
+    }
+
+    public function scopeForName(Builder $query, string $name): Builder
+    {
+        return $query->where(function ($q) use ($name) {
+            $q->where('first_name', 'like', "%{$name}%")
+                ->orWhere('last_name', 'like', "%{$name}%");
+        });
     }
 }
