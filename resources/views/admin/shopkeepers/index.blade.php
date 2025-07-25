@@ -1,8 +1,5 @@
 @extends('admin.layouts.base')
 @section('title','Shopkeeper')
-@push('custom-css')
-    @include('admin.includes.datatable-css-plugins')
-@endpush
 @section('contents')
 <div class="container-fluid">
     <h2>Dashboard</h2>

@@ -8,8 +8,9 @@
         <ul class="navbar-nav me-3">
           @if(Auth::check())
           <li class="nav-item"><a class="nav-link" href="{{ route('dashboard') }}">Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ route('ticket') }}">Tickets</a></li>
+
           @endif
-          <li class="nav-item"><a class="nav-link" href="#">Games</a></li>
           <li class="nav-item"><a class="nav-link" href="#">About</a></li>
           <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
         </ul>

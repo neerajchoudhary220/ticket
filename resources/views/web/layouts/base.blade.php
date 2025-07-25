@@ -14,10 +14,7 @@
 @include('web.includes.header')
 
  @yield('contents')
-  <!-- Features Section -->
- @include('web.includes.feature-section')
-  <!-- Footer -->
- @include('web.includes.footer')
+
    @stack('custom-js')
    @livewireScripts
 </body>
