@@ -29,6 +29,12 @@
                 <span class="hide-menu">Shopkeepers</span>
               </a>
             </li>
+             <li class="sidebar-item">
+              <a class="sidebar-link" href="{{route('admin.draw') }}" aria-expanded="false">
+                <i class="ti ti-plus"></i>
+                <span class="hide-menu">Draw</span>
+              </a>
+            </li>
             <!-- ---------------------------------- -->
             <!-- Dashboard -->
             <!-- ---------------------------------- -->

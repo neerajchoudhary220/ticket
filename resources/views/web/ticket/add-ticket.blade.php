@@ -6,7 +6,7 @@
         <h5 class="me-auto">New Ticket</h5>
     </div>
     <div class="card-body">
-        this ticket body
+        @livewire('add-ticket-form')
     </div>
 </div>
 @endsection
