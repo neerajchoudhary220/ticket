@@ -18,8 +18,8 @@ return new class extends Migration
             $table->string('end_time');
             $table->enum('status', ['PENDING', 'ACTIVE', 'RUNNING', 'INACTIVE'])->nullable()->default(null);
             $table->string('total_collection')->nullable();
+            $table->string('result')->nullable();
             $table->string('total_rewards')->nullable();
-
             $table->timestamps();
         });
     }

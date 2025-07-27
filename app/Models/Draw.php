@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 
@@ -11,10 +13,27 @@ class Draw extends Model
 
     protected $fillable = ['price', 'start_time', 'end_time', 'status', 'total_collection', 'total_rewards'];
 
+    protected $appends = ['draw_number'];
+
     protected function price(): Attribute
     {
         return Attribute::set(
             fn () => self::PRICE
         );
+    }
+
+    protected function drawNumber(): Attribute
+    {
+        return Attribute::get(
+            fn () => 'DN - '.$this->id
+        );
+    }
+
+    public function scopeRunningDraw(Builder $draw)
+    {
+        $currentTime = Carbon::now()->setTimezone('Asia/Kolkata')->format('H:i');
+
+        return $draw->where('start_time', '<=', $currentTime)
+            ->where('end_time', '>=', $currentTime);
     }
 }

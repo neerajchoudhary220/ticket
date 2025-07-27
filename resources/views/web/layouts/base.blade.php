@@ -15,7 +15,9 @@
 
  @yield('contents')
 
+ @include('web.includes.js-plugins')
    @stack('custom-js')
    @livewireScripts
+ 
 </body>
 </html>

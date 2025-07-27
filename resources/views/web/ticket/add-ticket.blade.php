@@ -9,4 +9,31 @@
         @livewire('add-ticket-form')
     </div>
 </div>
+@push('custom-js')
+    <script>
+      document.addEventListener('livewire:init', () => {
+        console.log("working livewire/..")
+    })
+
+    $(document).ready(function(){
+         $(document).on('input', '.zeroToNineNumber', function () {
+    let original = $(this).val();
+
+    // Remove non-digit characters
+    let cleaned = original.replace(/\D/g, '');
+
+    // Remove duplicates
+    let uniqueDigits = '';
+    for (let i = 0; i < cleaned.length; i++) {
+      if (!uniqueDigits.includes(cleaned[i])) {
+        uniqueDigits += cleaned[i];
+      }
+    }
+
+    // Update the input field
+    $(this).val(uniqueDigits);
+  });
+    })
+    </script>
+@endpush
 @endsection

@@ -24,6 +24,13 @@ class DrawDataTable extends DataTable
             ->editColumn('id', function ($draw) {
                 return "<span>DN - {$draw->id}</span>";
             })
+            ->editColumn('end_time', function ($draw) {
+                return Carbon::createFromFormat('H:i', $draw->end_time)->format('h:i a');
+
+            })
+            ->editColumn('start_time', function ($draw) {
+                return Carbon::createFromFormat('H:i', $draw->start_time)->format('h:i a');
+            })
             ->editColumn('total_collection', function ($draw) {
                 return $draw->total_collection ?: 0;
 
@@ -81,6 +88,7 @@ class DrawDataTable extends DataTable
         return [
             Column::make('id')->title('#Draw No.'),
             Column::make('start_time')->title('Start Time'),
+            Column::make('end_time')->title('End Time'),
             Column::make('total_collection')->title('Total collection'),
             Column::make('total_rewards')->title('Total Rewards'),
             Column::make('created_at'),
