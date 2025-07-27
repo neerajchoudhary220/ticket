@@ -3,7 +3,8 @@
 namespace App\Livewire;
 
 use App\Models\Draw;
-use App\Models\TicketOption;
+use App\Models\Options;
+use App\Models\Ticket;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Livewire\Attributes\On;
@@ -21,11 +22,11 @@ class AddTicketForm extends Component
 
     public $c;
 
-    public $a_qty = 0;
+    public $a_qty = '';
 
-    public $b_qty = 0;
+    public $b_qty = '';
 
-    public $c_qty = 0;
+    public $c_qty = '';
 
     public $total_a = 0;
 
@@ -39,9 +40,14 @@ class AddTicketForm extends Component
 
     public int $duration = 0;
 
+    public $active_draw;
+
+    public $ticket;
+
     public function boot(Request $request)
     {
         $this->auth_user = $request->user();
+
         $this->intialdata();
     }
     // public function mount(Request $request)
@@ -52,34 +58,20 @@ class AddTicketForm extends Component
 
     protected function intialdata()
     {
-        $ticketNumber = 102;
-        $activeDraw = Draw::runningDraw()->first();
-        $this->active_draw_number = $activeDraw->draw_number;
-        $endTime = Carbon::createFromFormat('H:i', $activeDraw->end_time);
+        $ticketNumber = '123';
+        $this->active_draw = Draw::runningDraw()->first();
+        $this->active_draw_number = $this->active_draw->draw_number;
+        $endTime = Carbon::createFromFormat('H:i', $this->active_draw->end_time);
         $current_time = Carbon::now()->setTimezone('Asia/Kolkata')->format('h:i A');
         $this->end_time = $endTime->format('h:i A');
         $this->duration = $endTime->diffInMinutes($current_time, true);
 
-        if ($activeDraw) {
-            $options = [];
+        if ($this->active_draw) {
+            $this->ticket = Ticket::firstOrCreate([
+                'user_id' => $this->auth_user->id,
+                'ticket_number' => $ticketNumber,
+            ]);
 
-            for ($i = 0; $i < 10; $i++) {
-                $options[] = [
-                    'draw_id' => $activeDraw->id,
-                    'user_id' => $this->auth_user->id,
-                    'ticket_number' => $ticketNumber,
-                    'number' => $i,
-                ];
-            }
-
-            foreach ($options as $option) {
-                TicketOption::firstOrCreate([
-                    'draw_id' => $option['draw_id'],
-                    'user_id' => $option['user_id'],
-                    'ticket_number' => $option['ticket_number'],
-                    'number' => $option['number'],
-                ]);
-            }
         }
 
     }
@@ -98,7 +90,29 @@ class AddTicketForm extends Component
 
     public function calculateTotal($row_property)
     {
-        $this->{'total_'.$row_property} = self::PRICE * $this->{$row_property.'_qty'};
+        if ($this->{$row_property.'_qty'}) {
+            $this->{'total_'.$row_property} = self::PRICE * $this->{$row_property.'_qty'};
+
+            return $this->{'total_'.$row_property};
+        }
+    }
+
+    public function keyEnter($row_property)
+    {
+        $total = $this->calculateTotal($row_property);
+        if ($this->active_draw) {
+            $option = Options::create([
+                'user_id' => $this->auth_user->id,
+                'draw_id' => $this->active_draw->id,
+                'ticket_id' => $this->ticket->id,
+                'number' => $this->{$row_property},
+                'option' => ucfirst($row_property),
+                'qty' => $this->{$row_property.'_qty'},
+                'total' => $total,
+            ]);
+
+        }
+
     }
 
     #[On('timer-finished')]

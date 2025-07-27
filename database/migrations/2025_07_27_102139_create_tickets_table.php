@@ -11,15 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('ticket_options', function (Blueprint $table) {
+        Schema::create('tickets', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users');
-            $table->foreignId('draw_id')->constrained('draws');
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->string('ticket_number')->nullable();
-            $table->integer('number')->nullable();
-            $table->string('a_qty')->nullable();
-            $table->string('b_qty')->nullable();
-            $table->string('c_qty')->nullable();
             $table->timestamps();
         });
     }
@@ -29,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('ticket_options');
+        Schema::dropIfExists('tickets');
     }
 };
