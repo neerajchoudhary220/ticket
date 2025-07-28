@@ -87,8 +87,12 @@ class AddTicketForm extends Component
             $this->ticket = Ticket::firstOrCreate([
                 'user_id' => $this->auth_user->id,
                 'ticket_number' => $ticketNumber,
+                'draw_id' => $this->active_draw->id,
+                'status' => 'RUNNING',
+
             ]);
             $this->auth_user->draws()->syncWithoutDetaching($this->active_draw->id);
+
         }
 
     }
