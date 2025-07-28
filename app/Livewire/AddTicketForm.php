@@ -5,13 +5,19 @@ namespace App\Livewire;
 use App\Models\Draw;
 use App\Models\Options;
 use App\Models\Ticket;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Livewire\Attributes\On;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class AddTicketForm extends Component
 {
+    use WithPagination;
+
+    protected $paginationTheme = 'bootstrap'; // For Bootstrap 5
+
     public $auth_user;
 
     public $active_draw_number;
@@ -44,16 +50,27 @@ class AddTicketForm extends Component
 
     public $ticket;
 
-    public function boot(Request $request)
+    public $search = '';
+
+    public $filterOption = '';
+
+    // protected $updatesQueryString = ['search', 'filterOption'];
+
+    public function mount(Request $request)
     {
-        $this->auth_user = $request->user();
+        $this->auth_user = User::find($request->user()->id);
 
         $this->intialdata();
     }
-    // public function mount(Request $request)
+
+    // public function updatingSearch()
     // {
-    //     $this->auth_user = $request->user();
-    //     $this->intialdata();
+    //     $this->resetPage();
+    // }
+
+    // public function updatingFilterOption()
+    // {
+    //     $this->resetPage();
     // }
 
     protected function intialdata()
@@ -71,7 +88,7 @@ class AddTicketForm extends Component
                 'user_id' => $this->auth_user->id,
                 'ticket_number' => $ticketNumber,
             ]);
-
+            $this->auth_user->draws()->syncWithoutDetaching($this->active_draw->id);
         }
 
     }
@@ -91,17 +108,17 @@ class AddTicketForm extends Component
     public function calculateTotal($row_property)
     {
         if ($this->{$row_property.'_qty'}) {
-            $this->{'total_'.$row_property} = self::PRICE * $this->{$row_property.'_qty'};
+            $this->{'total_'.$row_property} = self::PRICE * ($this->{$row_property.'_qty'} * str()->length($this->{$row_property}));
 
             return $this->{'total_'.$row_property};
         }
     }
 
-    public function keyEnter($row_property)
+    public function keyEnter($row_property, $focus)
     {
         $total = $this->calculateTotal($row_property);
         if ($this->active_draw) {
-            $option = Options::create([
+            Options::create([
                 'user_id' => $this->auth_user->id,
                 'draw_id' => $this->active_draw->id,
                 'ticket_id' => $this->ticket->id,
@@ -109,7 +126,12 @@ class AddTicketForm extends Component
                 'option' => ucfirst($row_property),
                 'qty' => $this->{$row_property.'_qty'},
                 'total' => $total,
+                'status' => false,
             ]);
+            $this->dispatch($focus);
+            $this->{$row_property} = '';
+            $this->{$row_property.'_qty'} = '';
+            $this->{'total_'.$row_property} = 0;
 
         }
 
@@ -118,13 +140,44 @@ class AddTicketForm extends Component
     #[On('timer-finished')]
     public function handleTimerFinished()
     {
-        logger()->info('Timer finished!');
+        // logger()->info('Timer finished!');
         // You can redirect, emit events, update data, etc.
         // return redirect()->route('some.route');
     }
 
+    public function deleteOption(Options $option)
+    {
+        $option->delete();
+    }
+
     public function render()
     {
-        return view('livewire.add-ticket-form');
+        // $query = Options::query()
+        //     ->where('draw_id', $this->active_draw->id)
+        //     ->where('ticket_id', $this->ticket->id)
+        //     ->where('user_id', $this->auth_user->id);
+
+        // if ($this->search) {
+        //     dd('working');
+        //     $query->where(function ($q) {
+        //         $q->where('option', 'like', "%{$this->search}%")
+        //             ->orWhere('qty', 'like', "%{$this->search}%")
+        //             ->orWhere('total', 'like', "%{$this->search}%");
+        //     });
+        // }
+
+        // if ($this->filterOption) {
+        //     $query->where('option', $this->filterOption);
+        // }
+
+        // $data = $query->paginate(10);
+
+        $options = Options::where('draw_id', $this->active_draw->id)
+            ->where('ticket_id', $this->ticket->id)
+            ->where('user_id', $this->auth_user->id)->orderBy('id', 'DESC')
+            ->paginate(10);
+
+        return view('livewire.add-ticket-form', ['options' => $options]);
+
     }
 }

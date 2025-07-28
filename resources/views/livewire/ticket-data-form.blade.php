@@ -61,9 +61,9 @@
                             </td>
                             <td>
                                 <input type="text" class="form-control w-25 number_qty" id="input_a_qty"
-                                    wire:model.debounce.250ms="a_qty" wire:keydown.left="move('focus-a','a')"
+                                    wire:model="a_qty" wire:keydown.left="move('focus-a','a')"
                                     wire:keydown.down="move('focus-b_qty','a')" wire:keydown.tab="keyTab('a')"
-                                    wire:keydown.enter="keyEnter('a')">{{-- Qty of A --}}
+                                    wire:keydown.enter="keyEnter('a','focus-a')">{{-- Qty of A --}}
                             </td>
                             <td>11</td>
                             <td>{{ $total_a }}</td>
@@ -77,9 +77,10 @@
 
                             <td>
                                 <input type="text" class="form-control w-25 number_qty" id="input_b_qty"
-                                    wire:model.debounce.250ms="b_qty" wire:keydown.left="move('focus-b','b')"
+                                    wire:model="b_qty" wire:keydown.left="move('focus-b','b')"
                                     wire:keydown.down="move('focus-c_qty','b')" wire:keydown.tab="keyTab('b')"
-                                    wire:keydown.up="move('focus-a_qty','b')" wire:keydown.enter="keyEnter('b')">
+                                    wire:keydown.up="move('focus-a_qty','b')"
+                                    wire:keydown.enter="keyEnter('b','focus-b')">
                             </td>
                             <td>11</td>
                             <td>{{ $total_b }}</td>
@@ -91,9 +92,9 @@
                                     wire:keydown.tab="keyTab('c')" class="form-control w-25 zeroToNineNumber"></td>
                             <td>
                                 <input type="text" class="form-control w-25 number_qty" id="input_c_qty"
-                                    wire:model.debounce.250ms="c_qty" wire:keydown.left="move('focus-c','c')"
+                                    wire:model="c_qty" wire:keydown.left="move('focus-c','c')"
                                     wire:keydown.up="move('focus-b_qty','c')" wire:keydown.tab="keyTab('c')"
-                                    wire:keydown.enter="keyEnter('a')">
+                                    wire:keydown.enter="keyEnter('c','focus-c')">
                             </td>
                             <td>11</td>
                             <td>{{ $total_c }}</td>

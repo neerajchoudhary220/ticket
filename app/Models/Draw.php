@@ -36,4 +36,26 @@ class Draw extends Model
         return $draw->where('start_time', '<=', $currentTime)
             ->where('end_time', '>=', $currentTime);
     }
+
+    public function formatEndTime($format = 'h:i a')
+    {
+        return Carbon::createFromFormat('H:i', $this->end_time)->format($format);
+    }
+
+    public function formatStartTime($format = 'h:i a')
+    {
+        return Carbon::createFromFormat('H:i', $this->start_time)->format($format);
+    }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'user_draws');
+    }
+
+    public function scopeForUser(Builder $draw, $auth_id): Builder
+    {
+        return $draw->whereHas('users', function ($q) use ($auth_id) {
+            return $q->where('user_id', $auth_id);
+        });
+    }
 }

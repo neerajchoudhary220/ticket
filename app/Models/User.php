@@ -71,4 +71,9 @@ class User extends Authenticatable
                 ->orWhere('last_name', 'like', "%{$name}%");
         });
     }
+
+    public function draws()
+    {
+        return $this->belongsToMany(Draw::class, 'user_draws');
+    }
 }

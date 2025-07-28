@@ -11,16 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('options', function (Blueprint $table) {
+        Schema::create('user_draws', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('draw_id')->constrained('draws')->cascadeOnDelete();
-            $table->foreignId('ticket_id')->constrained('tickets')->cascadeOnDelete();
-            $table->string('number')->nullable();
-            $table->enum('option', ['A', 'B', 'C'])->nullable();
-            $table->string('qty')->nullable();
-            $table->string('total')->nullable();
-            $table->boolean('status')->false();
+            $table->string('total_draws')->nullable();
             $table->timestamps();
         });
     }
@@ -30,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('options');
+        Schema::dropIfExists('user_draws');
     }
 };

@@ -1,9 +1,9 @@
 <?php
 
-namespace App\DataTables\Admin;
+namespace App\DataTables;
 
 use App\Models\Draw;
-use Carbon\Carbon;
+use App\Models\Shopkeeper;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Illuminate\Http\Request;
 use Yajra\DataTables\EloquentDataTable;
@@ -14,13 +14,17 @@ use Yajra\DataTables\Services\DataTable;
 
 class DrawDataTable extends DataTable
 {
+    /**
+     * Build the DataTable class.
+     *
+     * @param  QueryBuilder<Shopkeeper>  $query  Results from query() method.
+     */
     public function dataTable(QueryBuilder $query, Request $request): EloquentDataTable
     {
 
+        $query->forUser($request->user()->id);
+
         return (new EloquentDataTable($query))
-            ->addColumn('action', function () {
-                return view('admin.draw.draw-action')->render();
-            })
             ->editColumn('id', function ($draw) {
                 return "<span>DN - {$draw->id}</span>";
             })
@@ -31,22 +35,11 @@ class DrawDataTable extends DataTable
             ->editColumn('start_time', function ($draw) {
                 return $draw->formatStartTime();
             })
-            ->editColumn('total_collection', function ($draw) {
-                return $draw->total_collection ?: 0;
-
-            })
-            ->editColumn('total_rewards', function ($draw) {
-                return $draw->total_rewards ?: 0;
-
-            })
-            ->editColumn('created_at', function ($draw) {
-                return Carbon::parse($draw->created_at)->format('Y-m-d');
-            })
-            ->editColumn('updated_at', function ($draw) {
-                return Carbon::parse($draw->updated_at)->format('Y-m-d');
+            ->addColumn('action', function () {
+                return view('admin.shopkeepers.shopkeeper-action')->render();
             })
             ->setRowId('id')
-            ->rawColumns(['id', 'action']);
+            ->rawColumns(['action', 'id']);
     }
 
     /**
@@ -86,13 +79,14 @@ class DrawDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('id')->title('#Draw No.'),
+            // Column::computed('action')
+            //     ->exportable(false)
+            //     ->printable(false)
+            //     ->width(60)
+            //     ->addClass('text-center'),
+            Column::make('id')->title('#ID'),
             Column::make('start_time')->title('Start Time'),
             Column::make('end_time')->title('End Time'),
-            Column::make('total_collection')->title('Total collection'),
-            Column::make('total_rewards')->title('Total Rewards'),
-            Column::make('created_at'),
-            Column::make('updated_at'),
             Column::make('action'),
 
         ];
@@ -103,6 +97,6 @@ class DrawDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'draw_'.date('YmdHis');
+        return 'Shopkeepers_'.date('YmdHis');
     }
 }
