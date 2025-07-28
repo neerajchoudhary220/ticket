@@ -48,7 +48,7 @@ class AddTicketForm extends Component
 
     public $active_draw;
 
-    public $ticket;
+    public $user_running_ticket;
 
     public $search = '';
 
@@ -84,7 +84,7 @@ class AddTicketForm extends Component
         $this->duration = $endTime->diffInMinutes($current_time, true);
 
         if ($this->active_draw) {
-            $this->ticket = Ticket::firstOrCreate([
+            $this->user_running_ticket = Ticket::firstOrCreate([
                 'user_id' => $this->auth_user->id,
                 'ticket_number' => $ticketNumber,
                 'draw_id' => $this->active_draw->id,
@@ -125,7 +125,7 @@ class AddTicketForm extends Component
             Options::create([
                 'user_id' => $this->auth_user->id,
                 'draw_id' => $this->active_draw->id,
-                'ticket_id' => $this->ticket->id,
+                'ticket_id' => $this->user_running_ticket->id,
                 'number' => $this->{$row_property},
                 'option' => ucfirst($row_property),
                 'qty' => $this->{$row_property.'_qty'},
@@ -154,11 +154,21 @@ class AddTicketForm extends Component
         $option->delete();
     }
 
+    public function submitTicket()
+    {
+        $this->auth_user->tickets()
+            ->where('id', $this->user_running_ticket->id)
+            ->where('draw_id', $this->active_draw->id)
+            ->running()->update([
+                'status' => 'COMPLETED',
+            ]);
+    }
+
     public function render()
     {
         // $query = Options::query()
         //     ->where('draw_id', $this->active_draw->id)
-        //     ->where('ticket_id', $this->ticket->id)
+        //     ->where('ticket_id', $this->user_running_ticket->id)
         //     ->where('user_id', $this->auth_user->id);
 
         // if ($this->search) {
@@ -177,7 +187,7 @@ class AddTicketForm extends Component
         // $data = $query->paginate(10);
 
         $options = Options::where('draw_id', $this->active_draw->id)
-            ->where('ticket_id', $this->ticket->id)
+            ->where('ticket_id', $this->user_running_ticket->id)
             ->where('user_id', $this->auth_user->id)->orderBy('id', 'DESC')
             ->paginate(10);
 

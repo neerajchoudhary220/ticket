@@ -5,7 +5,7 @@
                 <div class="d-flex justify-content-start">
                     <div class="d-flex me-auto">
                         <h5 class="text-left ms-3">{{ $this->active_draw_number }}</h5>
-                        <h5 class="text-left"> (TN - 101) {{ $a }}</h5>
+                        <h5 class="text-left"> (TN - {{ $user_running_ticket->id }}) {{ $a }}</h5>
                     </div>
 
                     <div class="d-flex" x-data="{

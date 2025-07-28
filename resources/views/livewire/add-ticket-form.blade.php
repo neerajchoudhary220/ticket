@@ -56,7 +56,11 @@
                 <div>
                     {{ $options->links() }}
                 </div>
-
+                <div class="row mt-3">
+                    <div class="col-12 text-end">
+                        <button class="btn btn-sm btn-primary" wire:click='submitTicket'>Submit Ticket</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
