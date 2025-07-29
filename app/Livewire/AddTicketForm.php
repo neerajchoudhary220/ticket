@@ -55,20 +55,32 @@ class AddTicketForm extends Component
 
     public $filterOption = '';
 
+    public $ticketNumber = '';
+
+    public $current_ticket_id = '';
+
+    public $draw_id = '';
+
     // protected $updatesQueryString = ['search', 'filterOption'];
 
-    public function mount(Request $request)
+    public function mount(Request $request, $draw_id = null, $ticket_id = null)
     {
-        $this->auth_user = User::find($request->user()->id);
 
-        $this->intialdata();
+        $this->auth_user = User::find($request->user()->id);
+        if ($draw_id == null && $ticket_id == null) {
+            $this->addTicket();
+        } else {
+            // $this-
+        }
     }
 
-    protected function intialdata()
+    protected function addTicket()
     {
         $ticketNumber = random_int(100, 999); // Secure
         $this->active_draw = Draw::runningDraw()->first();
         $this->active_draw_number = $this->active_draw->draw_number;
+        $this->draw_id = $this->active_draw->id;
+
         $endTime = Carbon::createFromFormat('H:i', $this->active_draw->end_time);
         $current_time = Carbon::now()->setTimezone('Asia/Kolkata')->format('h:i A');
         $this->end_time = $endTime->format('h:i A');
@@ -84,7 +96,8 @@ class AddTicketForm extends Component
                 [
                     'ticket_number' => $ticketNumber,
                 ]);
-            $this->auth_user->draws()->syncWithoutDetaching($this->active_draw->id);
+            $this->current_ticket_id = $this->user_running_ticket->id;
+            $this->auth_user->draws()->syncWithoutDetaching($this->draw_id);
 
         }
 
@@ -118,7 +131,7 @@ class AddTicketForm extends Component
             Options::create([
                 'user_id' => $this->auth_user->id,
                 'draw_id' => $this->active_draw->id,
-                'ticket_id' => $this->user_running_ticket->id,
+                'ticket_id' => $this->current_ticket_id,
                 'number' => $this->{$row_property},
                 'option' => ucfirst($row_property),
                 'qty' => $this->{$row_property.'_qty'},
@@ -151,21 +164,25 @@ class AddTicketForm extends Component
     {
         $digitMatrix = []; // Format: [digit][option] = count
 
+        // Update Ticket Status with Completed status
         $this->auth_user->tickets()
-            ->where('id', $this->user_running_ticket->id)
-            ->where('draw_id', $this->active_draw->id)
+            ->where('id', $this->current_ticket_id)
+            ->where('draw_id', $this->draw_id)
             ->running()->update([
                 'status' => 'COMPLETED',
             ]);
+        // update Options Status with Completed status
+        Options::forUser($this->auth_user->id)
+            ->where('draw_id', $this->draw_id)
+            ->where('ticket_id', $this->current_ticket_id)->update(['status' => 'COMPLETED']);
 
-        Options::where('user_id', $this->auth_user->id)
-            ->where('draw_id', $this->active_draw->id)
-            ->where('ticket_id', $this->user_running_ticket->id)->update(['status' => 'COMPLETED']);
+        // Get All Completed Options
+        $last_completed_options = Options::forUser($this->auth_user->id)
+            ->where('draw_id', $this->draw_id)
+            ->where('satus', 'COMPLETED')
+            ->where('ticket_id', $this->current_ticket_id)->get();
 
-        $last_completed_options = Options::where('user_id', $this->auth_user->id)
-            ->where('draw_id', $this->active_draw->id)
-            ->where('ticket_id', $this->user_running_ticket->id)->get();
-
+        //
         $last_completed_options->each(function ($opt) use (&$digitMatrix) {
             $option = strtoupper($opt->option); // 'A', 'B', 'C'
             $digits = str_split((string) $opt->number);
@@ -193,44 +210,38 @@ class AddTicketForm extends Component
         foreach ($digitMatrix as $digit => $options) {
             TicketOption::create([
                 'user_id' => $this->auth_user->id,
-                'draw_id' => $this->active_draw->id,
-                'ticket_id' => $this->user_running_ticket->id,
+                'draw_id' => $this->draw_id,
+                'ticket_id' => $this->current_ticket_id,
                 'number' => $digit,
                 'a_qty' => $options['A'],
                 'b_qty' => $options['B'],
                 'c_qty' => $options['C'],
             ]);
+            // TicketOption::updateOrCreate([
+            //     'option_id' => $option_id, // ,
+            //     'user_id' => $this->auth_user->id,
+
+            // ],
+            //     [
+            //         'draw_id' => $this->draw_id,
+            //         'ticket_id' => $this->current_ticket_id,
+            //         'number' => $digit,
+            //         'a_qty' => $options['A'],
+            //         'b_qty' => $options['B'],
+            //         'c_qty' => $options['C'],
+            //     ]);
         }
 
         // Generate new Ticket
-        $this->intialdata();
+        $this->addTicket();
 
     }
 
     public function render()
     {
-        // $query = Options::query()
-        //     ->where('draw_id', $this->active_draw->id)
-        //     ->where('ticket_id', $this->user_running_ticket->id)
-        //     ->where('user_id', $this->auth_user->id);
 
-        // if ($this->search) {
-        //     dd('working');
-        //     $query->where(function ($q) {
-        //         $q->where('option', 'like', "%{$this->search}%")
-        //             ->orWhere('qty', 'like', "%{$this->search}%")
-        //             ->orWhere('total', 'like', "%{$this->search}%");
-        //     });
-        // }
-
-        // if ($this->filterOption) {
-        //     $query->where('option', $this->filterOption);
-        // }
-
-        // $data = $query->paginate(10);
-
-        $options = Options::where('draw_id', $this->active_draw->id)
-            ->where('ticket_id', $this->user_running_ticket->id)
+        $options = Options::where('draw_id', $this->draw_id)
+            ->where('ticket_id', $this->current_ticket_id)
             ->where('user_id', $this->auth_user->id)->orderBy('id', 'DESC')
             ->paginate(10);
 

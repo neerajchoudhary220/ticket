@@ -21,11 +21,6 @@ class TicketDetailsDataTable extends DataTable
      */
     public function dataTable(QueryBuilder $query, Request $request): EloquentDataTable
     {
-        // $searchValue = $request->input('search.value');
-        // $searchColumn = $request->input('data');
-        // $query->when($searchColumn === 'name' && $searchValue, function ($q) use ($searchValue) {
-        //     $q->forName($searchValue);
-        // });
         $query->forUser($request->user()->id)->where('draw_id', $request->draw_id);
 
         return (new EloquentDataTable($query))
@@ -41,14 +36,14 @@ class TicketDetailsDataTable extends DataTable
                 if ($status === 'COMPLETED') {
                     return <<<'HTML'
                     <div class="d-flex justify-content-center">
-                   <div class="bg-success text-white p-0 w-50 text-center">Completed</div>
+                   <div class="bg-success text-white p-0 w-50 text-center rounded h5 px-0">Completed</div>
                 </div>
                 HTML;
                 }
 
                 return <<<'HTML'
                     <div class="d-flex justify-content-center">
-                   <div class="bg-warning text-white p-0 w-50 text-center">Running</div>
+                   <div class="bg-warning text-white p-0 w-50 text-center rounded h5 px-0">Not Submit</div>
                 </div>
                 HTML;
 

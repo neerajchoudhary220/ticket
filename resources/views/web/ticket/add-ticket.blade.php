@@ -6,7 +6,7 @@
             <h5 class="me-auto">New Ticket</h5>
         </div>
         <div class="card-body">
-            @livewire('add-ticket-form')
+            @livewire('add-ticket-form', ['draw_id' => 1])
         </div>
     </div>
     @push('custom-js')
