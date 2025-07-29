@@ -123,7 +123,7 @@ class AddTicketForm extends Component
                 'option' => ucfirst($row_property),
                 'qty' => $this->{$row_property.'_qty'},
                 'total' => $total,
-                'status' => false,
+                'status' => 'RUNNING',
             ]);
             $this->dispatch($focus);
             $this->{$row_property} = '';
@@ -157,6 +157,10 @@ class AddTicketForm extends Component
             ->running()->update([
                 'status' => 'COMPLETED',
             ]);
+
+        Options::where('user_id', $this->auth_user->id)
+            ->where('draw_id', $this->active_draw->id)
+            ->where('ticket_id', $this->user_running_ticket->id)->update(['status' => 'COMPLETED']);
 
         $last_completed_options = Options::where('user_id', $this->auth_user->id)
             ->where('draw_id', $this->active_draw->id)

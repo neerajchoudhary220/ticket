@@ -12,7 +12,7 @@ use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Services\DataTable;
 
-class DrawDataTable extends DataTable
+class UserDrawDataTable extends DataTable
 {
     /**
      * Build the DataTable class.
@@ -22,7 +22,8 @@ class DrawDataTable extends DataTable
     public function dataTable(QueryBuilder $query, Request $request): EloquentDataTable
     {
 
-        $query->forUser($request->user()->id);
+        $auth_user_id = $request->user()->id;
+        $query->forUser($auth_user_id);
 
         return (new EloquentDataTable($query))
             ->editColumn('id', function ($draw) {
@@ -35,11 +36,25 @@ class DrawDataTable extends DataTable
             ->editColumn('start_time', function ($draw) {
                 return $draw->formatStartTime();
             })
-            ->addColumn('action', function () {
-                return view('admin.shopkeepers.shopkeeper-action')->render();
+            ->addColumn('total_tickets', function ($draw) use ($auth_user_id) {
+                return $draw->tickets()->forUser($auth_user_id)->count();
             })
+            ->addColumn('total_completed_tickets', function ($draw) use ($auth_user_id) {
+                return $draw->tickets()->forUser($auth_user_id)->completed()->count();
+            })
+            ->addColumn('total_running_tickets', function ($draw) use ($auth_user_id) {
+                return $draw->tickets()->forUser($auth_user_id)->running()->count();
+            })
+            ->addColumn('action', function ($draw) {
+                $url = route('dashboard.option.list', ['draw_id' => $draw->id]);
+
+                return <<<HTML
+        <a href="{$url}" class="btn btn-primary">Details</a>
+    HTML;
+            })
+
             ->setRowId('id')
-            ->rawColumns(['action', 'id']);
+            ->rawColumns(['action', 'id', 'total_completed_tickets', 'total_running_tickets', 'total_tickets']);
     }
 
     /**
@@ -87,6 +102,10 @@ class DrawDataTable extends DataTable
             Column::make('id')->title('#ID'),
             Column::make('start_time')->title('Start Time'),
             Column::make('end_time')->title('End Time'),
+            Column::make('total_completed_tickets')->title('Total Completed Tickets'),
+            Column::make('total_running_tickets')->title('Total Running Tickets'),
+            Column::make('total_tickets')->title('Total Tickets'),
+
             Column::make('action'),
 
         ];

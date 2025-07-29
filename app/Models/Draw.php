@@ -47,6 +47,16 @@ class Draw extends Model
         return Carbon::createFromFormat('H:i', $this->start_time)->format($format);
     }
 
+    public function options()
+    {
+        return $this->hasMany(Options::class);
+    }
+
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class);
+    }
+
     public function users()
     {
         return $this->belongsToMany(User::class, 'user_draws');

@@ -2,8 +2,8 @@
 
 namespace App\DataTables;
 
-use App\Models\Options;
 use App\Models\Shopkeeper;
+use App\Models\Ticket;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Illuminate\Http\Request;
 use Yajra\DataTables\EloquentDataTable;
@@ -12,7 +12,7 @@ use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Services\DataTable;
 
-class OptionDataTable extends DataTable
+class TicketDetailsDataTable extends DataTable
 {
     /**
      * Build the DataTable class.
@@ -26,20 +26,43 @@ class OptionDataTable extends DataTable
         // $query->when($searchColumn === 'name' && $searchValue, function ($q) use ($searchValue) {
         //     $q->forName($searchValue);
         // });
-        $query->where('user_id', $request->user()->id);
+        $query->forUser($request->user()->id)->where('draw_id', $request->draw_id);
 
         return (new EloquentDataTable($query))
-            ->addColumn('ticket_no', function ($query) {
-                return $query->ticket->ticket_number;
+            ->addColumn('draw_id', function ($ticket) {
+                $draw_id = $ticket->draw_id;
+
+                return <<<HTML
+                <span>{$draw_id}</span>
+                HTML;
             })
-            ->addColumn('draw_no', function ($query) {
-                return $query->draw->id;
+            ->addColumn('status', function ($ticket) {
+                $status = $ticket->status;
+                if ($status === 'COMPLETED') {
+                    return <<<'HTML'
+                    <div class="d-flex justify-content-center">
+                   <div class="bg-success text-white p-0 w-50 text-center">Completed</div>
+                </div>
+                HTML;
+                }
+
+                return <<<'HTML'
+                    <div class="d-flex justify-content-center">
+                   <div class="bg-warning text-white p-0 w-50 text-center">Running</div>
+                </div>
+                HTML;
+
             })
             ->addColumn('action', function () {
-                return view('admin.shopkeepers.shopkeeper-action')->render();
+                return <<<'HTML'
+                <div class="d-flex justify-content-center">
+                <!-- <a href="#" class="btn btn-secondary"><i class="fa fa-eye"></i> View Details</a> -->
+                <a href="#" class="btn btn-warning ms-3 text-white"><i class="fa fa-pencil"></i> Edit</a>
+                </div>
+                HTML;
             })
             ->setRowId('id')
-            ->rawColumns(['action']);
+            ->rawColumns(['action', 'draw_id', 'status']);
     }
 
     /**
@@ -47,7 +70,7 @@ class OptionDataTable extends DataTable
      *
      * @return QueryBuilder<Shopkeeper>
      */
-    public function query(Options $model): QueryBuilder
+    public function query(Ticket $model): QueryBuilder
     {
         return $model->newQuery();
     }
@@ -85,13 +108,16 @@ class OptionDataTable extends DataTable
             //     ->width(60)
             //     ->addClass('text-center'),
             Column::make('id')->title('#ID'),
-            Column::make('ticket_no')->title('Ticket No.'),
-            Column::make('draw_no')->title('Draw No.'),
-            Column::make('option'),
-            Column::make('number'),
-            Column::make('qty'),
-            Column::make('total'),
-            Column::make('action'),
+            Column::make('full_ticket_no')->title('Ticket No.'),
+            Column::make('draw_id')->title('Draw No.'),
+            Column::make('status')->addClass('text-center'),
+            // Column::make('option'),
+            // Column::make('number'),
+            // Column::make('total'),
+            // Column::make('Total of A'),
+            // Column::make('Total of B'),
+            // Column::make('Total of C'),
+            Column::make('action')->addClass('text-center'),
 
         ];
     }

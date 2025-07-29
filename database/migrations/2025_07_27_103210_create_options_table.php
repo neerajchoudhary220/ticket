@@ -20,7 +20,7 @@ return new class extends Migration
             $table->enum('option', ['A', 'B', 'C'])->nullable();
             $table->string('qty')->nullable();
             $table->string('total')->nullable();
-            $table->boolean('status')->false();
+            $table->enum('status', ['RUNNING', 'COMPLETED', 'LOCK'])->nullable();
             $table->timestamps();
         });
     }

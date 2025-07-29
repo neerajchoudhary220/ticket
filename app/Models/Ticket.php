@@ -2,12 +2,25 @@
 
 namespace App\Models;
 
+use App\Traits\AuthUser;
 use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 
 class Ticket extends Model
 {
+    use AuthUser;
+
     protected $fillable = ['ticket_number', 'user_id', 'status', 'draw_id'];
+
+    protected $appends = ['full_ticket_no'];
+
+    protected function fullTicketNo(): Attribute
+    {
+        return Attribute::get(
+            fn () => "TN-{$this->ticket_number}"
+        );
+    }
 
     public function scopeRunning(Builder $ticket): Builder
     {

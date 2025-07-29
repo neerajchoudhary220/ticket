@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\DataTables\DrawDataTable;
-use App\DataTables\OptionDataTable;
+use App\DataTables\TicketDetailsDataTable;
+use App\DataTables\UserDrawDataTable;
+use App\Models\Draw;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function index(DrawDataTable $dataTable)
+    public function index(UserDrawDataTable $dataTable)
     {
         // return view('web.dashboard.index');
 
@@ -15,9 +17,10 @@ class DashboardController extends Controller
 
     }
 
-    public function optionList(OptionDataTable $dataTable)
+    public function optionList(TicketDetailsDataTable $dataTable, Request $request)
     {
-        // return view('web.dashboard.index');
-        // return $dataTable->render('web.dashboard.index');
+        $draw = Draw::find($request->draw_id);
+
+        return $dataTable->render('web.dashboard.option-list', compact('draw'));
     }
 }

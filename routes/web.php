@@ -20,6 +20,7 @@ Route::middleware('auth')->group(function () {
 
     Route::controller(DashboardController::class)->prefix('dashboard')->group(function () {
         Route::get('/', 'index')->name('dashboard');
+        Route::get('/option-list', 'optionList')->name('dashboard.option.list');
     });
 
     // Tickets Route
