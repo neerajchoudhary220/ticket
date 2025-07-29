@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\Draw;
 use App\Models\Options;
 use App\Models\Ticket;
+use App\Models\TicketOption;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -63,19 +64,9 @@ class AddTicketForm extends Component
         $this->intialdata();
     }
 
-    // public function updatingSearch()
-    // {
-    //     $this->resetPage();
-    // }
-
-    // public function updatingFilterOption()
-    // {
-    //     $this->resetPage();
-    // }
-
     protected function intialdata()
     {
-        $ticketNumber = '123';
+        $ticketNumber = random_int(100, 999); // Secure
         $this->active_draw = Draw::runningDraw()->first();
         $this->active_draw_number = $this->active_draw->draw_number;
         $endTime = Carbon::createFromFormat('H:i', $this->active_draw->end_time);
@@ -86,11 +77,13 @@ class AddTicketForm extends Component
         if ($this->active_draw) {
             $this->user_running_ticket = Ticket::firstOrCreate([
                 'user_id' => $this->auth_user->id,
-                'ticket_number' => $ticketNumber,
                 'draw_id' => $this->active_draw->id,
                 'status' => 'RUNNING',
 
-            ]);
+            ],
+                [
+                    'ticket_number' => $ticketNumber,
+                ]);
             $this->auth_user->draws()->syncWithoutDetaching($this->active_draw->id);
 
         }
@@ -156,12 +149,58 @@ class AddTicketForm extends Component
 
     public function submitTicket()
     {
+        $digitMatrix = []; // Format: [digit][option] = count
+
         $this->auth_user->tickets()
             ->where('id', $this->user_running_ticket->id)
             ->where('draw_id', $this->active_draw->id)
             ->running()->update([
                 'status' => 'COMPLETED',
             ]);
+
+        $last_completed_options = Options::where('user_id', $this->auth_user->id)
+            ->where('draw_id', $this->active_draw->id)
+            ->where('ticket_id', $this->user_running_ticket->id)->get();
+
+        $last_completed_options->each(function ($opt) use (&$digitMatrix) {
+            $option = strtoupper($opt->option); // 'A', 'B', 'C'
+            $digits = str_split((string) $opt->number);
+            $qty = $opt->qty;
+            $length = count($digits);
+
+            if ($length === 0) {
+                return;
+            } // Safety check to avoid division by zero
+
+            $distributedQty = $qty / $length;
+
+            foreach ($digits as $digit) {
+                if (! isset($digitMatrix[$digit])) {
+                    $digitMatrix[$digit] = ['A' => 0, 'B' => 0, 'C' => 0];
+                }
+
+                if (isset($digitMatrix[$digit][$option])) {
+                    $digitMatrix[$digit][$option] += $distributedQty;
+                }
+            }
+        });
+
+        // Insert each digit row into the database
+        foreach ($digitMatrix as $digit => $options) {
+            TicketOption::create([
+                'user_id' => $this->auth_user->id,
+                'draw_id' => $this->active_draw->id,
+                'ticket_id' => $this->user_running_ticket->id,
+                'number' => $digit,
+                'a_qty' => $options['A'],
+                'b_qty' => $options['B'],
+                'c_qty' => $options['C'],
+            ]);
+        }
+
+        // Generate new Ticket
+        $this->intialdata();
+
     }
 
     public function render()
