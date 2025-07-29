@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Ticket;
+use Illuminate\Http\Request;
+
 class TicketController extends Controller
 {
     public function index()
@@ -9,8 +12,16 @@ class TicketController extends Controller
         return view('web.ticket.ticket-list');
     }
 
-    public function addTicket()
+    public function addTicket(Request $request)
     {
-        return view('web.ticket.add-ticket');
+        $ticket = null;
+
+        if ($request->ticket_id) {
+            $ticket = Ticket::where('id', $request->ticket_id)
+                ->where('user_id', $request->user()->id)
+                ->firstOrFail();
+        }
+
+        return view('web.ticket.add-ticket', compact('ticket'));
     }
 }

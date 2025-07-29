@@ -3,10 +3,21 @@
 @section('contents')
     <div class="card">
         <div class="card-header d-flex justify-content-start">
-            <h5 class="me-auto">New Ticket</h5>
+            @if ($ticket)
+                <a href="{{ route('dashboard.option.list', ['draw_id' => $ticket->draw->id]) }}"
+                    class="btn btn-dark text-white">
+                    <i class="fa fa-arrow-circle-left"></i> Ticket List
+                </a>
+            @else
+                <h5 class="me-auto">New Ticket</h5>
+            @endif
         </div>
         <div class="card-body">
-            @livewire('add-ticket-form', ['draw_id' => 1])
+            @if ($ticket)
+                @livewire('add-ticket-form', ['ticket' => $ticket])
+            @else
+                @livewire('add-ticket-form')
+            @endif
         </div>
     </div>
     @push('custom-js')

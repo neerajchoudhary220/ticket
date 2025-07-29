@@ -6,6 +6,7 @@ use App\Traits\AuthUser;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Ticket extends Model
 {
@@ -20,6 +21,14 @@ class Ticket extends Model
         return Attribute::get(
             fn () => "TN-{$this->ticket_number}"
         );
+    }
+
+    /**
+     * Get the user that owns the Ticket
+     */
+    public function draw(): BelongsTo
+    {
+        return $this->belongsTo(draw::class);
     }
 
     public function scopeRunning(Builder $ticket): Builder

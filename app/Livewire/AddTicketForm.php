@@ -61,16 +61,21 @@ class AddTicketForm extends Component
 
     public $draw_id = '';
 
+    public $is_edit_mode = false;
+
     // protected $updatesQueryString = ['search', 'filterOption'];
 
-    public function mount(Request $request, $draw_id = null, $ticket_id = null)
+    public function mount(Request $request, $ticket = null)
     {
-
         $this->auth_user = User::find($request->user()->id);
-        if ($draw_id == null && $ticket_id == null) {
-            $this->addTicket();
+        if ($ticket) {
+            $this->draw_id = $ticket->draw->id;
+            $this->current_ticket_id = $ticket->id;
+            $this->user_running_ticket = $ticket;
+            $this->is_edit_mode = true;
         } else {
-            // $this-
+            $this->addTicket();
+
         }
     }
 
@@ -127,10 +132,10 @@ class AddTicketForm extends Component
     public function keyEnter($row_property, $focus)
     {
         $total = $this->calculateTotal($row_property);
-        if ($this->active_draw) {
+        if ($this->draw_id) {
             Options::create([
                 'user_id' => $this->auth_user->id,
-                'draw_id' => $this->active_draw->id,
+                'draw_id' => $this->draw_id,
                 'ticket_id' => $this->current_ticket_id,
                 'number' => $this->{$row_property},
                 'option' => ucfirst($row_property),
@@ -179,7 +184,7 @@ class AddTicketForm extends Component
         // Get All Completed Options
         $last_completed_options = Options::forUser($this->auth_user->id)
             ->where('draw_id', $this->draw_id)
-            ->where('satus', 'COMPLETED')
+            ->where('status', 'COMPLETED')
             ->where('ticket_id', $this->current_ticket_id)->get();
 
         //
@@ -187,6 +192,7 @@ class AddTicketForm extends Component
             $option = strtoupper($opt->option); // 'A', 'B', 'C'
             $digits = str_split((string) $opt->number);
             $qty = $opt->qty;
+            $optionId = $opt->id;
             $length = count($digits);
 
             if ($length === 0) {
@@ -196,44 +202,39 @@ class AddTicketForm extends Component
             $distributedQty = $qty / $length;
 
             foreach ($digits as $digit) {
-                if (! isset($digitMatrix[$digit])) {
-                    $digitMatrix[$digit] = ['A' => 0, 'B' => 0, 'C' => 0];
+                // Initialize if not already
+                if (! isset($digitMatrix[$digit][$optionId])) {
+                    $digitMatrix[$digit][$optionId] = ['A' => 0, 'B' => 0, 'C' => 0];
                 }
 
-                if (isset($digitMatrix[$digit][$option])) {
-                    $digitMatrix[$digit][$option] += $distributedQty;
-                }
+                $digitMatrix[$digit][$optionId][$option] += $distributedQty;
             }
         });
 
-        // Insert each digit row into the database
-        foreach ($digitMatrix as $digit => $options) {
-            TicketOption::create([
-                'user_id' => $this->auth_user->id,
-                'draw_id' => $this->draw_id,
-                'ticket_id' => $this->current_ticket_id,
-                'number' => $digit,
-                'a_qty' => $options['A'],
-                'b_qty' => $options['B'],
-                'c_qty' => $options['C'],
-            ]);
-            // TicketOption::updateOrCreate([
-            //     'option_id' => $option_id, // ,
-            //     'user_id' => $this->auth_user->id,
-
-            // ],
-            //     [
-            //         'draw_id' => $this->draw_id,
-            //         'ticket_id' => $this->current_ticket_id,
-            //         'number' => $digit,
-            //         'a_qty' => $options['A'],
-            //         'b_qty' => $options['B'],
-            //         'c_qty' => $options['C'],
-            //     ]);
+        // updateOrCreate each digit row into the database
+        foreach ($digitMatrix as $digit => $optionsByOptionId) {
+            foreach ($optionsByOptionId as $optionId => $options) {
+                TicketOption::updateOrCreate(
+                    [
+                        'user_id' => $this->auth_user->id,
+                        'draw_id' => $this->draw_id,
+                        'ticket_id' => $this->current_ticket_id,
+                        'number' => $digit,
+                        'option_id' => $optionId,
+                    ],
+                    [
+                        'a_qty' => $options['A'],
+                        'b_qty' => $options['B'],
+                        'c_qty' => $options['C'],
+                    ]
+                );
+            }
         }
 
-        // Generate new Ticket
-        $this->addTicket();
+        if (! $this->is_edit_mode) {
+            // Generate new Ticket
+            $this->addTicket();
+        }
 
     }
 

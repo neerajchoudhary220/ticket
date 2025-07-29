@@ -26,7 +26,7 @@ Route::middleware('auth')->group(function () {
     // Tickets Route
     Route::controller(TicketController::class)->prefix('ticket')->group(function () {
         Route::get('/', 'index')->name('ticket');
-        Route::get('add-ticket', 'addTicket')->name('ticket.add');
+        Route::get('add-ticket/{ticket_id?}', 'addTicket')->name('ticket.add');
 
     });
 

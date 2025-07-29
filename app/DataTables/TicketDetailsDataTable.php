@@ -48,11 +48,13 @@ class TicketDetailsDataTable extends DataTable
                 HTML;
 
             })
-            ->addColumn('action', function () {
-                return <<<'HTML'
+            ->addColumn('action', function ($ticket) {
+                $add_ticket_url = route('ticket.add', $ticket->id);
+
+                return <<<HTML
                 <div class="d-flex justify-content-center">
                 <!-- <a href="#" class="btn btn-secondary"><i class="fa fa-eye"></i> View Details</a> -->
-                <a href="#" class="btn btn-warning ms-3 text-white"><i class="fa fa-pencil"></i> Edit</a>
+                <a href="$add_ticket_url" class="btn btn-warning ms-3 text-white"><i class="fa fa-pencil"></i> Edit</a>
                 </div>
                 HTML;
             })
