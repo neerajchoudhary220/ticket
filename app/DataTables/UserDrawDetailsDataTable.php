@@ -2,8 +2,8 @@
 
 namespace App\DataTables;
 
-use App\Models\Draw;
 use App\Models\Shopkeeper;
+use App\Models\TicketOption;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Illuminate\Http\Request;
 use Yajra\DataTables\EloquentDataTable;
@@ -12,7 +12,7 @@ use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Services\DataTable;
 
-class UserDrawDataTable extends DataTable
+class UserDrawDetailsDataTable extends DataTable
 {
     /**
      * Build the DataTable class.
@@ -26,37 +26,16 @@ class UserDrawDataTable extends DataTable
         $query->forUser($auth_user_id);
 
         return (new EloquentDataTable($query))
-            ->editColumn('id', function ($draw) {
-                return "<span>DN - {$draw->id}</span>";
-            })
-            ->editColumn('end_time', function ($draw) {
-                return $draw->formatEndTime();
-
-            })
-            ->editColumn('start_time', function ($draw) {
-                return $draw->formatStartTime();
-            })
-            ->addColumn('total_tickets', function ($draw) use ($auth_user_id) {
-                return $draw->tickets()->forUser($auth_user_id)->count();
-            })
-            ->addColumn('total_completed_tickets', function ($draw) use ($auth_user_id) {
-                return $draw->tickets()->forUser($auth_user_id)->completed()->count();
-            })
-            ->addColumn('total_running_tickets', function ($draw) use ($auth_user_id) {
-                return $draw->tickets()->forUser($auth_user_id)->running()->count();
-            })
             ->addColumn('action', function ($draw) {
-                $url = route('dashboard.option.list', ['draw_id' => $draw->id]);
-                $draw_details = route('dashboard.draw.details.list', ['draw_id' => $draw->id]);
+                $url = '#';
 
                 return <<<HTML
         <a href="{$url}" class="btn btn-primary">Details</a>
-        <!-- <a href="{$draw_details}" class ="btn btn-secondary">Draw Details List</a> -->
     HTML;
             })
 
             ->setRowId('id')
-            ->rawColumns(['action', 'id', 'total_completed_tickets', 'total_running_tickets', 'total_tickets']);
+            ->rawColumns(['action']);
     }
 
     /**
@@ -64,7 +43,7 @@ class UserDrawDataTable extends DataTable
      *
      * @return QueryBuilder<Shopkeeper>
      */
-    public function query(Draw $model): QueryBuilder
+    public function query(TicketOption $model): QueryBuilder
     {
         return $model->newQuery();
     }
@@ -102,11 +81,11 @@ class UserDrawDataTable extends DataTable
             //     ->width(60)
             //     ->addClass('text-center'),
             Column::make('id')->title('#ID'),
-            Column::make('start_time')->title('Start Time'),
-            Column::make('end_time')->title('End Time'),
-            Column::make('total_completed_tickets')->title('Total Completed Tickets'),
-            Column::make('total_running_tickets')->title('Total Running Tickets'),
-            Column::make('total_tickets')->title('Total Tickets'),
+            // Column::make('start_time')->title('Start Time'),
+            // Column::make('end_time')->title('End Time'),
+            // Column::make('total_completed_tickets')->title('Total Completed Tickets'),
+            // Column::make('total_running_tickets')->title('Total Running Tickets'),
+            // Column::make('total_tickets')->title('Total Tickets'),
 
             Column::make('action'),
 

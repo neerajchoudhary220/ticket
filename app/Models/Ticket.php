@@ -23,6 +23,13 @@ class Ticket extends Model
         );
     }
 
+    public function scopeForTicketNumber(Builder $query, string $ticket_no): Builder
+    {
+        return $query->where(function ($q) use ($ticket_no) {
+            $q->where('ticket_number', 'like', "%{$ticket_no}%");
+        });
+    }
+
     /**
      * Get the user that owns the Ticket
      */

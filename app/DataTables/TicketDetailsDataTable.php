@@ -48,6 +48,9 @@ class TicketDetailsDataTable extends DataTable
                 HTML;
 
             })
+            ->filterColumn('full_ticket_no', function ($ticket, $keyword) {
+                return $ticket->forTicketNumber($keyword);
+            })
             ->addColumn('action', function ($ticket) {
                 $add_ticket_url = route('ticket.add', $ticket->id);
 
