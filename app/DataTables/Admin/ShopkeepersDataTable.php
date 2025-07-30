@@ -32,7 +32,14 @@ class ShopkeepersDataTable extends DataTable
                 return $query->forName($keyword);
             })
             ->addColumn('action', function () {
-                return view('admin.shopkeepers.shopkeeper-action')->render();
+                // $shopkeeprEditUrl = route('ticket.add', $ticket->id);
+
+                return <<<'HTML'
+                <div class="d-flex justify-content-center">
+                <!-- <a href="#" class="btn btn-secondary"><i class="fa fa-eye"></i> View Details</a> -->
+                <a href="#" class="btn btn-warning ms-3 text-white"><i class="fa fa-pencil"></i> Edit</a>
+                </div>
+                HTML;
             })
             ->setRowId('id')
             ->rawColumns(['action']);
@@ -86,7 +93,7 @@ class ShopkeepersDataTable extends DataTable
             Column::make('mobile_number'),
             Column::make('created_at'),
             Column::make('updated_at'),
-            Column::make('action'),
+            Column::make('action')->addClass('text-center'),
 
         ];
     }

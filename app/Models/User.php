@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -61,6 +62,20 @@ class User extends Authenticatable
     {
         return Attribute::get(
             fn () => "{$this->first_name} {$this->last_name}"
+        );
+    }
+
+    protected function CreatedAt(): Attribute
+    {
+        return Attribute::get(
+            fn ($created_at) => Carbon::parse($created_at)->format('Y-m-d')
+        );
+    }
+
+    protected function UpdatedAt(): Attribute
+    {
+        return Attribute::get(
+            fn ($updated_at) => Carbon::parse($updated_at)->format('Y-m-d')
         );
     }
 
