@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\DataTables\Admin\ShopkeepersDataTable;
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Http\Request;
 
 class ShopKeeperController extends Controller
 {
@@ -12,8 +14,13 @@ class ShopKeeperController extends Controller
         return $dataTable->render('admin.shopkeepers.index');
     }
 
-    public function showAddForm()
+    public function addEditShopKeeper(Request $request)
     {
-        return view('admin.shopkeepers.add');
+        $user = null;
+        if ($request->user_id) {
+            $user = User::findOrfail($request->user_id);
+        }
+
+        return view('admin.shopkeepers.add', compact('user'));
     }
 }

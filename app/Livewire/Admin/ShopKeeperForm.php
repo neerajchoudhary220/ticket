@@ -23,6 +23,10 @@ class ShopKeeperForm extends Component
 
     public $showConfirmPassword = false;
 
+    public $existingUser = null;
+
+    // public $userId;
+
     public $rules = [
         'first_name' => 'required|string|min:3|max:25',
         'last_name' => 'required|string|min:3|max:25',
@@ -30,6 +34,27 @@ class ShopKeeperForm extends Component
         'mobile_number' => ['required', 'string', 'min:10', 'max:12', 'unique:users,mobile_number'],
         'password' => ['required', 'string', 'min:6', 'max:20', 'confirmed'],
     ];
+
+    public function getUser($user_id)
+    {
+        return User::where('id', $user_id)->first();
+    }
+
+    public function mount($user = null)
+    {
+        if ($user) {
+            $this->first_name = $user->first_name;
+            $this->last_name = $user->last_name;
+            $this->email = $user->email;
+            $this->mobile_number = $user->mobile_number;
+            $this->rules['email'] = [
+                'required',
+                'string',
+                'email', 'unique:users,email,'.$user->id];
+            $this->rules['mobile_number'] = ['required', 'string', 'min:10', 'max:12', 'unique:users,mobile_number,'.$user->id];
+            $this->existingUser = $user;
+        }
+    }
 
     public function togglePasswordVisibility($field)
     {
@@ -43,7 +68,12 @@ class ShopKeeperForm extends Component
     public function save()
     {
         $shop_keeper_input_data = $this->validate($this->rules);
-        User::create($shop_keeper_input_data);
+        if ($this->existingUser) {
+            logger()->info($this->existingUser);
+            $this->existingUser->update($shop_keeper_input_data);
+        } else {
+            User::create($shop_keeper_input_data);
+        }
 
         return redirect()->route('admin.shopkeepers');
 

@@ -21,28 +21,25 @@ class ShopkeepersDataTable extends DataTable
      */
     public function dataTable(QueryBuilder $query, Request $request): EloquentDataTable
     {
-        // $searchValue = $request->input('search.value');
-        // $searchColumn = $request->input('data');
-        // $query->when($searchColumn === 'name' && $searchValue, function ($q) use ($searchValue) {
-        //     $q->forName($searchValue);
-        // });
 
         return (new EloquentDataTable($query))
             ->filterColumn('name', function ($query, $keyword) {
                 return $query->forName($keyword);
             })
-            ->addColumn('action', function () {
-                // $shopkeeprEditUrl = route('ticket.add', $ticket->id);
+            ->addColumn('total_draws', function ($user) {
+                return $user->draws->count();
+            })
+            ->addColumn('action', function ($shopKeeper) {
+                $shopkeeprEditUrl = route('admin.shopkeeper_form', ['user_id' => $shopKeeper->id]);
 
-                return <<<'HTML'
+                return <<<HTML
                 <div class="d-flex justify-content-center">
-                <!-- <a href="#" class="btn btn-secondary"><i class="fa fa-eye"></i> View Details</a> -->
-                <a href="#" class="btn btn-warning ms-3 text-white"><i class="fa fa-pencil"></i> Edit</a>
+                <a href="$shopkeeprEditUrl" class="btn btn-warning ms-3 text-white"><i class="fa fa-pencil"></i> Edit</a>
                 </div>
                 HTML;
             })
             ->setRowId('id')
-            ->rawColumns(['action']);
+            ->rawColumns(['action', 'total_draws']);
     }
 
     /**
@@ -91,9 +88,10 @@ class ShopkeepersDataTable extends DataTable
             Column::make('name')->title('Name'),
             Column::make('email'),
             Column::make('mobile_number'),
-            Column::make('created_at'),
-            Column::make('updated_at'),
-            Column::make('action')->addClass('text-center'),
+            Column::make('total_draws')->title('Draws'),
+            // Column::make('created_at'),
+            // Column::make('updated_at'),
+            Column::make('action')->addClass('text-center')->width(200),
 
         ];
     }
