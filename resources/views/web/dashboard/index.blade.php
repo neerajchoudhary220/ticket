@@ -12,7 +12,7 @@
             <div class="row">
                 <div class="col-12">
                     <div class="card">
-                        <div class="card-header d-flex justify-content-end">
+                        <div class="card-header d-flex justify-content-center">
                             <h5>Draw List</h5>
                         </div>
                         <div class="card-body">

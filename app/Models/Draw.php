@@ -52,6 +52,11 @@ class Draw extends Model
         return $this->hasMany(Options::class);
     }
 
+    public function ticketOptions()
+    {
+        return $this->hasMany(TicketOption::class, 'draw_id');
+    }
+
     public function tickets()
     {
         return $this->hasMany(Ticket::class);

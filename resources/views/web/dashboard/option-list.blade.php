@@ -14,7 +14,7 @@
             <div class="row">
                 <div class="col-12">
                     <div class="card">
-                        <div class="card-header d-flex justify-content-start">
+                        <div class="card-header d-flex justify-content-center">
                             <h5 class="ms-2">
                                 Draw Details (Draw No:{{ $draw->id }})
                             </h5>

@@ -17,7 +17,6 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('draw_id')->constrained('draws')->cascadeOnDelete();
             $table->foreignId('ticket_id')->constrained('tickets')->cascadeOnDelete();
-            $table->foreignId('option_id')->constrained('options')->cascadeOnDelete();
             $table->integer('number')->nullable();
             $table->string('a_qty')->nullable();
             $table->string('b_qty')->nullable();

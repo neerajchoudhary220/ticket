@@ -51,7 +51,7 @@ class UserDrawDataTable extends DataTable
 
                 return <<<HTML
         <a href="{$url}" class="btn btn-primary">Details</a>
-        <!-- <a href="{$draw_details}" class ="btn btn-secondary">Draw Details List</a> -->
+        <a href="{$draw_details}" class ="btn btn-secondary">Distribution & Collections</a>
     HTML;
             })
 

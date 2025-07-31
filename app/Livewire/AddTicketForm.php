@@ -187,90 +187,49 @@ class AddTicketForm extends Component
             ->where('status', 'COMPLETED')
             ->where('ticket_id', $this->current_ticket_id)->get();
 
-        //
-
+        TicketOption::forUser($this->auth_user->id)->forTicket($this->current_ticket_id)->forDraw($this->draw_id)
+            ->delete();
         $digitMatrix = [];
-        $optionTotals = []; // New array: ['A1' => total, 'B2' => total, ...]
 
         $last_completed_options->each(function ($opt) use (&$digitMatrix) {
-            $option = strtoupper($opt->option); // 'A', 'B', 'C'
+            $option = $opt->option;
             $digits = str_split((string) $opt->number);
             $qty = $opt->qty;
-            $optionId = $opt->id;
-            $length = count($digits);
-
-            if ($length === 0) {
-                return;
-            }
 
             foreach ($digits as $digit) {
-                // Initialize if not already
-                if (! isset($digitMatrix[$digit][$optionId])) {
-                    $digitMatrix[$digit][$optionId] = ['A' => 0, 'B' => 0, 'C' => 0];
+                if (! isset($digitMatrix[$digit][$option])) {
+                    $digitMatrix[$digit][$option] = 0;
                 }
+                $digitMatrix[$digit][$option] += $qty;
 
-                $digitMatrix[$digit][$optionId][$option] += $qty;
             }
         });
 
-        // Now collect totals grouped by OPTION + NUMBER (e.g., A1, B3)
-        foreach ($digitMatrix as $digit => $optionsByOptionId) {
-            foreach ($optionsByOptionId as $optionId => $options) {
+        ksort($digitMatrix);
+        foreach ($digitMatrix as $number => $options) {
 
-                foreach (['A', 'B', 'C'] as $letter) {
-                    if ($options[$letter] > 0) {
-                        $key = $letter.$digit;
-
-                        if (! isset($optionTotals[$key])) {
-                            $optionTotals[$key] = 0;
-                        }
-
-                        $optionTotals[$key] += $options[$letter];
-                    }
-                }
-
-                // Optional: Still update digit-level DB
-                TicketOption::updateOrCreate(
-                    [
-                        'user_id' => $this->auth_user->id,
-                        'draw_id' => $this->draw_id,
-                        'ticket_id' => $this->current_ticket_id,
-                        'number' => $digit,
-                        'option_id' => $optionId,
-                    ],
-                    [
-                        'a_qty' => $options['A'],
-                        'b_qty' => $options['B'],
-                        'c_qty' => $options['C'],
-                    ]
-                );
+            if (! isset($options['A'])) {
+                $options['A'] = 0;
             }
+            if (! isset($options['B'])) {
+                $options['B'] = 0;
+            }
+            if (! isset($options['C'])) {
+                $options['C'] = 0;
+            }
+            TicketOption::updateOrCreate(
+                [
+                    'user_id' => $this->auth_user->id,
+                    'draw_id' => $this->draw_id,
+                    'ticket_id' => $this->current_ticket_id,
+                    'number' => $number,
+                    'a_qty' => $options['A'],
+                    'b_qty' => $options['B'],
+                    'c_qty' => $options['C'],
+                ]
+            );
+
         }
-
-        // You now have optionTotals like:
-        // foreach ($optionTotals as $groupKey => $sum) {
-        //     echo "$groupKey => $sum\n"; // Example: A1 => 9, B3 => 4
-        // }
-
-        // updateOrCreate each digit row into the database
-        // foreach ($digitMatrix as $digit => $optionsByOptionId) {
-        //     foreach ($optionsByOptionId as $optionId => $options) {
-        //         TicketOption::updateOrCreate(
-        //             [
-        //                 'user_id' => $this->auth_user->id,
-        //                 'draw_id' => $this->draw_id,
-        //                 'ticket_id' => $this->current_ticket_id,
-        //                 'number' => $digit,
-        //                 'option_id' => $optionId,
-        //             ],
-        //             [
-        //                 'a_qty' => $options['A'],
-        //                 'b_qty' => $options['B'],
-        //                 'c_qty' => $options['C'],
-        //             ]
-        //         );
-        //     }
-        // }
 
         if (! $this->is_edit_mode) {
             // Generate new Ticket

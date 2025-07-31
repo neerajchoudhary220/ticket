@@ -26,6 +26,27 @@ class UserDrawDetailsDataTable extends DataTable
         $query->forUser($auth_user_id);
 
         return (new EloquentDataTable($query))
+            ->addColumn('total_collection_of_a', function ($ticket_options) {
+                return $ticket_options->totalCollection($ticket_options->a_qty);
+            })
+            ->addColumn('total_collection_of_b', function ($ticket_options) {
+                return $ticket_options->totalCollection($ticket_options->b_qty);
+            })
+            ->addColumn('total_collection_of_c', function ($ticket_options) {
+                return $ticket_options->totalCollection($ticket_options->c_qty);
+            })
+            ->addColumn('total_distribution_of_a', function ($ticket_options) {
+                return $ticket_options->totalDistributions($ticket_options->a_qty);
+            })
+            ->addColumn('total_distribution_of_b', function ($ticket_options) {
+                return $ticket_options->totalDistributions($ticket_options->b_qty);
+            })
+            ->addColumn('total_distribution_of_c', function ($ticket_options) {
+                return $ticket_options->totalDistributions($ticket_options->c_qty);
+            })
+            ->addColumn('numbers', function ($ticket_options) {
+                return $ticket_options->number;
+            })
             ->addColumn('action', function ($draw) {
                 $url = '#';
 
@@ -35,7 +56,17 @@ class UserDrawDetailsDataTable extends DataTable
             })
 
             ->setRowId('id')
-            ->rawColumns(['action']);
+            ->rawColumns(
+                [
+                    'action',
+                    'numbers', 'total_collection_of_a',
+                    'total_collection_of_b',
+                    'total_collection_of_c',
+                    'total_distribution_of_a',
+                    'total_distribution_of_b',
+                    'total_distribution_of_b',
+                ]
+            );
     }
 
     /**
@@ -57,7 +88,7 @@ class UserDrawDetailsDataTable extends DataTable
             ->setTableId('shopkeepers-table')
             ->columns($this->getColumns())
             ->minifiedAjax()
-            ->orderBy(0)
+            ->orderBy(1)
             ->selectStyleSingle()
             ->buttons([
                 Button::make('excel'),
@@ -80,14 +111,15 @@ class UserDrawDetailsDataTable extends DataTable
             //     ->printable(false)
             //     ->width(60)
             //     ->addClass('text-center'),
-            Column::make('id')->title('#ID'),
-            // Column::make('start_time')->title('Start Time'),
-            // Column::make('end_time')->title('End Time'),
-            // Column::make('total_completed_tickets')->title('Total Completed Tickets'),
-            // Column::make('total_running_tickets')->title('Total Running Tickets'),
-            // Column::make('total_tickets')->title('Total Tickets'),
-
-            Column::make('action'),
+            Column::make('id')->title('#ID')->hidden(),
+            Column::make('numbers')->title('Number(0-9)'),
+            Column::make('total_collection_of_a')->title('TTL. Coll. Of A'),
+            Column::make('total_distribution_of_a')->title('TTL.  Dist. Of A'),
+            Column::make('total_collection_of_b')->title('TTL. Coll. Of B'),
+            Column::make('total_distribution_of_b')->title('TTL.  Dist. Of B'),
+            Column::make('total_collection_of_c')->title('TTL. Coll. Of C'),
+            Column::make('total_distribution_of_c')->title('TTL.  Dist. Of C'),
+            // Column::make('action'),
 
         ];
     }
