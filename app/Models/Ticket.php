@@ -35,7 +35,7 @@ class Ticket extends Model
      */
     public function draw(): BelongsTo
     {
-        return $this->belongsTo(draw::class);
+        return $this->belongsTo(Draw::class);
     }
 
     public function scopeRunning(Builder $ticket): Builder
