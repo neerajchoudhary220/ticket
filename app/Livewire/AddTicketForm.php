@@ -234,6 +234,9 @@ class AddTicketForm extends Component
         if (! $this->is_edit_mode) {
             // Generate new Ticket
             $this->addTicket();
+
+        } else {
+            redirect()->route('dashboard.option.list', ['draw_id' => $this->draw_id]);
         }
 
     }

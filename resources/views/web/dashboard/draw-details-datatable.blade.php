@@ -15,7 +15,7 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header d-flex justify-content-center">
-                            <h5>DN: {{ $draw->id }} Detail's Of Collection & Distributions</h5>
+                            <h5>Details Of Collection & Distributions Of DN: {{ $draw->id }}</h5>
                         </div>
                         <div class="card-body">
                             {{ $dataTable->table() }}
