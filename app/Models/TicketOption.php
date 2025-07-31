@@ -21,6 +21,14 @@ class TicketOption extends Model
         return $this->belongsTo(Draw::class);
     }
 
+    /**
+     * Get the user that owns the TicketOption
+     */
+    public function ticket(): BelongsTo
+    {
+        return $this->belongsTo(Ticket::class, 'ticket_id');
+    }
+
     public function scopeForTicket(Builder $TicketOption, $ticket_id): Builder
     {
         return $TicketOption->where('ticket_id', $ticket_id);

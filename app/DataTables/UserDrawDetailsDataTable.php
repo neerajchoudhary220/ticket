@@ -26,6 +26,9 @@ class UserDrawDetailsDataTable extends DataTable
         $query->forUser($auth_user_id);
 
         return (new EloquentDataTable($query))
+            ->addColumn('ticket_number', function ($ticket_options) {
+                return $ticket_options->ticket->full_ticket_no;
+            })
             ->addColumn('total_collection_of_a', function ($ticket_options) {
                 return $ticket_options->totalCollection($ticket_options->a_qty);
             })
@@ -58,6 +61,7 @@ class UserDrawDetailsDataTable extends DataTable
             ->setRowId('id')
             ->rawColumns(
                 [
+                    'ticket_number',
                     'action',
                     'numbers', 'total_collection_of_a',
                     'total_collection_of_b',
@@ -112,6 +116,7 @@ class UserDrawDetailsDataTable extends DataTable
             //     ->width(60)
             //     ->addClass('text-center'),
             Column::make('id')->title('#ID')->hidden(),
+            Column::make('ticket_number')->title('Ticket No.'),
             Column::make('numbers')->title('Number(0-9)'),
             Column::make('total_collection_of_a')->title('TTL. Coll. Of A'),
             Column::make('total_distribution_of_a')->title('TTL.  Dist. Of A'),
