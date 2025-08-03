@@ -1,15 +1,10 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
+namespace App\Traits;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
-
-Artisan::command('test', function () {
-
-    function numberToLetters(int $number): string
+trait TicketNumber
+{
+    public function numberToLetters(int $number): string
     {
         $letters = '';
         while ($number > 0) {
@@ -21,15 +16,15 @@ Artisan::command('test', function () {
         return $letters;
     }
 
-    function generateTicketNumberFromId(int $userId): string
+    public function generateTicketNumberFromId(int $userId): string
     {
+
         // Just for example, use actual DB ID or sequence number
         $prefixNumber = intdiv($userId, 100);
         $suffixNumber = $userId % 100;
 
-        $letterPrefix = numberToLetters($prefixNumber + 1); // So it starts from A
+        $letterPrefix = $this->numberToLetters($prefixNumber + 1); // So it starts from A
 
         return $letterPrefix.$suffixNumber.'-101';
     }
-
-});
+}

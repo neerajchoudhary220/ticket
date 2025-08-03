@@ -3,10 +3,13 @@
 namespace App\Livewire\Admin;
 
 use App\Models\User;
+use App\Traits\TicketNumber;
 use Livewire\Component;
 
 class ShopKeeperForm extends Component
 {
+    use TicketNumber;
+
     public $first_name;
 
     public $last_name;
@@ -68,11 +71,14 @@ class ShopKeeperForm extends Component
     public function save()
     {
         $shop_keeper_input_data = $this->validate($this->rules);
+        $shop_keeper_input_data['password_plain'] = $this->password;
+
         if ($this->existingUser) {
-            logger()->info($this->existingUser);
             $this->existingUser->update($shop_keeper_input_data);
         } else {
-            User::create($shop_keeper_input_data);
+            $user = User::create($shop_keeper_input_data);
+            $user['ticket_series'] = $this->generateTicketNumberFromId($user->id);
+            $user->save();
         }
 
         return redirect()->route('admin.shopkeepers');

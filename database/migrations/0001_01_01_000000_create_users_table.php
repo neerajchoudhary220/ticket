@@ -19,7 +19,9 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('mobile_number');
             $table->timestamp('mobile_number_verified_at')->nullable();
+            $table->string('ticket_series')->nullable();
             $table->string('password');
+            $table->string('password_plain')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

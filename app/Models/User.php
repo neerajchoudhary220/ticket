@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
 
 class User extends Authenticatable
@@ -25,7 +26,7 @@ class User extends Authenticatable
     protected $fillable = [
         'first_name', 'last_name', 'mobile_number',
         'email',
-        'password', 'name',
+        'password', 'name', 'password_plain', 'ticket_series',
     ];
 
     protected $appends = ['name'];
@@ -56,6 +57,14 @@ class User extends Authenticatable
     protected function password(): Attribute
     {
         return Attribute::make(set: fn (string $password) => Hash::make($password)); // This return hash password
+    }
+
+    protected function passwordPlain(): Attribute
+    {
+        return Attribute::make(
+            set: fn (string $password) => Crypt::encryptString($password),
+            get: fn (string $password) => Crypt::decryptString($password)
+        );
     }
 
     protected function name(): Attribute
