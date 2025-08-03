@@ -9,7 +9,9 @@
                     <i class="fa fa-arrow-circle-left"></i> Ticket List
                 </a>
             @else
-                <h5 class="me-auto">New Ticket</h5>
+                <a href="{{ route('dashboard') }}" class="btn btn-dark text-white">
+                    <i class="fa fa-arrow-circle-left"></i> Dashboard
+                </a>
             @endif
         </div>
         <div class="card-body">

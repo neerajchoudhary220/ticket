@@ -1,18 +1,19 @@
 <?php
 
-namespace App\DataTables;
+namespace App\DataTables\Admin;
 
 use App\Models\Shopkeeper;
 use App\Models\TicketOption;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Services\DataTable;
 
-class NumberListDataTable extends DataTable
+class DrawDetailsDataTable extends DataTable
 {
     /**
      * Build the DataTable class.
@@ -22,31 +23,22 @@ class NumberListDataTable extends DataTable
     public function dataTable(QueryBuilder $query, Request $request): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-            ->addColumn('ticket_number', function ($ticket_option) {
-                return $ticket_option->ticket->ticket_number;
-            })
             ->addColumn('total_collection_of_a', fn ($row) => $row->totalCollection($row->a_qty))
             ->addColumn('total_collection_of_b', fn ($row) => $row->totalCollection($row->b_qty))
             ->addColumn('total_collection_of_c', fn ($row) => $row->totalCollection($row->c_qty))
             ->addColumn('total_distribution_of_a', fn ($row) => $row->totalDistributions($row->a_qty))
             ->addColumn('total_distribution_of_b', fn ($row) => $row->totalDistributions($row->b_qty))
             ->addColumn('total_distribution_of_c', fn ($row) => $row->totalDistributions($row->c_qty))
+            // ->addColumn('shopkeeper', fn ($row) => "<a href='#'>{$row->user->name}</a>")
             ->addColumn('numbers', fn ($row) => $row->number)
-            ->setRowId('number')
+            ->addColumn('action', fn ($row) => '<a href="#" class="btn btn-primary">Details</a>')
+            // ->setRowId('number')
             ->editColumn('numbers', function ($row) {
-                return "<a href='$row->number'>$row->number</a>";
-            })
-            ->addColumn('action', function ($ticket_option) {
-                $add_ticket_url = route('ticket.add', ['ticket_id' => $ticket_option->ticket_id, 'number' => $ticket_option->number]);
+                $ticket_number_url = route('admin.draw.number.details.list', ['draw_id' => $row->draw_id, 'number' => $row->number]);
 
-                return <<<HTML
-                <div class="d-flex justify-content-center">
-                <a href="$add_ticket_url" class="btn btn-warning ms-3 text-white"><i class="fa fa-pencil"></i> Edit</a>
-                </div>
-                HTML;
+                return "<a href='$ticket_number_url' class='text-primary'>$row->number</a>";
             })
             ->rawColumns([
-                'ticket_number',
                 'action',
                 'numbers',
                 'total_collection_of_a',
@@ -55,6 +47,7 @@ class NumberListDataTable extends DataTable
                 'total_distribution_of_a',
                 'total_distribution_of_b',
                 'total_distribution_of_c',
+                // 'shopkeeper',
             ]);
     }
 
@@ -65,12 +58,15 @@ class NumberListDataTable extends DataTable
      */
     public function query(TicketOption $model, Request $request): QueryBuilder
     {
-
         return $model->newQuery()
-            ->forUser(auth()->user()->id)
+            ->select([
+                'number', 'draw_id',
+                DB::raw('SUM(a_qty) as a_qty'),
+                DB::raw('SUM(b_qty) as b_qty'),
+                DB::raw('SUM(c_qty) as c_qty'),
+            ])
             ->forDraw($request->draw_id)
-            ->where('number', $request->number);
-
+            ->groupBy('number', 'draw_id'); // ← Fix here
     }
 
     /**
@@ -82,7 +78,7 @@ class NumberListDataTable extends DataTable
             ->setTableId('shopkeepers-table')
             ->columns($this->getColumns())
             ->minifiedAjax()
-            ->orderBy(1)
+            ->orderBy(0)
             ->selectStyleSingle()
             ->buttons([
                 Button::make('excel'),
@@ -100,14 +96,22 @@ class NumberListDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('ticket_number')->title('Ticket Number'),
+            // Column::computed('action')
+            //     ->exportable(false)
+            //     ->printable(false)
+            //     ->width(60)
+            //     ->addClass('text-center'),
+            // Column::make('id')->title('#ID')->hidden(),
+            // Column::make('ticket_number')->title('Ticket No.'),
+            Column::make('numbers')->title('Number(0-9)'),
             Column::make('total_collection_of_a')->title('TTL. Coll. Of A'),
             Column::make('total_distribution_of_a')->title('TTL.  Dist. Of A'),
             Column::make('total_collection_of_b')->title('TTL. Coll. Of B'),
             Column::make('total_distribution_of_b')->title('TTL.  Dist. Of B'),
             Column::make('total_collection_of_c')->title('TTL. Coll. Of C'),
             Column::make('total_distribution_of_c')->title('TTL.  Dist. Of C'),
-            Column::make('action'),
+            // Column::make('shopkeeper'),
+            // Column::make('action'),
 
         ];
     }

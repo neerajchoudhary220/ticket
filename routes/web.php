@@ -20,17 +20,18 @@ Route::middleware('auth')->group(function () {
 
     Route::controller(DashboardController::class)->prefix('dashboard')->group(function () {
         Route::get('/', 'index')->name('dashboard');
+        Route::get('add-ticket', 'addTicket')->name('ticket.add');
         // Route::get('/option-list', 'optionList')->name('dashboard.option.list');
         Route::get('/draw-details-list', 'drawDetailsList')->name('dashboard.draw.details.list');
         Route::get('/draw-ticket-number-list', 'numberDetailsList')->name('dashboard.draw.ticket.number.list');
+
     });
 
     // Tickets Route
-    Route::controller(TicketController::class)->prefix('ticket')->group(function () {
-        Route::get('/', 'index')->name('ticket');
-        Route::get('add-ticket', 'addTicket')->name('ticket.add');
+    // Route::controller(TicketController::class)->prefix('ticket')->group(function () {
+    //     Route::get('/', 'index')->name('ticket');
 
-    });
+    // });
 
     // Logout User
     Route::get('logout', function () {

@@ -2,34 +2,21 @@
 
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
 Artisan::command('test', function () {
+    DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+    DB::table('ticket_options')->truncate();
+    DB::table('tickets')->truncate();
+    DB::table('options')->truncate();
+    DB::table('user_draws')->truncate();
 
-    function numberToLetters(int $number): string
-    {
-        $letters = '';
-        while ($number > 0) {
-            $remainder = ($number - 1) % 26;
-            $letters = chr(65 + $remainder).$letters;
-            $number = (int) (($number - $remainder) / 26);
-        }
+    DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        return $letters;
-    }
-
-    function generateTicketNumberFromId(int $userId): string
-    {
-        // Just for example, use actual DB ID or sequence number
-        $prefixNumber = intdiv($userId, 100);
-        $suffixNumber = $userId % 100;
-
-        $letterPrefix = numberToLetters($prefixNumber + 1); // So it starts from A
-
-        return $letterPrefix.$suffixNumber.'-101';
-    }
+    $this->info('done!');
 
 });

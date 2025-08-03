@@ -28,6 +28,8 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::controller(DrawController::class)->prefix('draw')->group(function () {
         Route::get('/', 'index')->name('admin.draw');
         Route::get('add-draw', 'addDraw')->name('admin.add.draw');
+        Route::get('draw-details-list', 'drawDetails')->name('admin.draw.detail.list');
+        Route::get('draw-number-details-list', 'numberList')->name('admin.draw.number.details.list');
 
     });
 

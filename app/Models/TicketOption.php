@@ -24,6 +24,14 @@ class TicketOption extends Model
     /**
      * Get the user that owns the TicketOption
      */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the user that owns the TicketOption
+     */
     public function ticket(): BelongsTo
     {
         return $this->belongsTo(Ticket::class, 'ticket_id');

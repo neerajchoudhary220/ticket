@@ -81,8 +81,15 @@ class AddTicketForm extends Component
 
     protected function addTicket()
     {
-        $series = explode('-', $this->auth_user->ticket_series);
-        $ticketNumber = $series[0].'-'.(int) ($series[1]) + 1;
+
+        if ($this->auth_user->tickets->last()->ticket_number) {
+            $last_ticket_number = explode('-', $this->auth_user->tickets->last()->ticket_number);
+            $ticketNumber = $last_ticket_number[0].'-'.(int) $last_ticket_number[1] + 1;
+        } else {
+            $series = explode('-', $this->auth_user->ticket_series);
+            $ticketNumber = $series[0].'-'.(int) ($series[1]) + 1;
+        }
+
         $this->active_draw = Draw::runningDraw()->first();
         $this->active_draw_number = $this->active_draw->draw_number;
         $this->draw_id = $this->active_draw->id;
@@ -231,13 +238,11 @@ class AddTicketForm extends Component
             );
 
         }
-
         if (! $this->is_edit_mode) {
             // Generate new Ticket
             $this->addTicket();
-
         } else {
-            redirect()->route('dashboard.option.list', ['draw_id' => $this->draw_id]);
+            return redirect()->route('dashboard');
         }
 
     }

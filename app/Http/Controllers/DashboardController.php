@@ -7,6 +7,7 @@ use App\DataTables\TicketDetailsDataTable;
 use App\DataTables\UserDrawDataTable;
 use App\DataTables\UserDrawDetailsDataTable;
 use App\Models\Draw;
+use App\Models\Ticket;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -17,6 +18,20 @@ class DashboardController extends Controller
 
         return $dataTable->render('web.dashboard.index');
 
+    }
+
+    public function addTicket(Request $request)
+    {
+        $ticket = null;
+        $number = $request->number ?: null;
+
+        if ($request->ticket_id) {
+            $ticket = Ticket::where('id', $request->ticket_id)
+                ->where('user_id', $request->user()->id)
+                ->firstOrFail();
+        }
+
+        return view('web.ticket.add-ticket', compact('ticket', 'number'));
     }
 
     public function optionList(TicketDetailsDataTable $dataTable, Request $request)

@@ -22,7 +22,9 @@ class DrawDataTable extends DataTable
                 return view('admin.draw.draw-action')->render();
             })
             ->editColumn('id', function ($draw) {
-                return "<span>DN - {$draw->id}</span>";
+                $draw_details_list = route('admin.draw.detail.list', ['draw_id' => $draw->id]);
+
+                return "<a class='text-primary' href='$draw_details_list'>DN - {$draw->id}</a>";
             })
             ->editColumn('end_time', function ($draw) {
                 return $draw->formatEndTime();

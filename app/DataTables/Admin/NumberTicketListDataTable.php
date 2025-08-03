@@ -1,6 +1,6 @@
 <?php
 
-namespace App\DataTables;
+namespace App\DataTables\Admin;
 
 use App\Models\Shopkeeper;
 use App\Models\TicketOption;
@@ -12,7 +12,7 @@ use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Services\DataTable;
 
-class NumberListDataTable extends DataTable
+class NumberTicketListDataTable extends DataTable
 {
     /**
      * Build the DataTable class.
@@ -37,11 +37,12 @@ class NumberListDataTable extends DataTable
                 return "<a href='$row->number'>$row->number</a>";
             })
             ->addColumn('action', function ($ticket_option) {
-                $add_ticket_url = route('ticket.add', ['ticket_id' => $ticket_option->ticket_id, 'number' => $ticket_option->number]);
+                $add_ticket_url = '#';
 
                 return <<<HTML
                 <div class="d-flex justify-content-center">
-                <a href="$add_ticket_url" class="btn btn-warning ms-3 text-white"><i class="fa fa-pencil"></i> Edit</a>
+                <a href="$add_ticket_url" class="btn btn-primary btn-sm ms-3 text-white">More Details <i class="fa fa-arrow-circle-right"></i></a>
+
                 </div>
                 HTML;
             })
@@ -67,7 +68,6 @@ class NumberListDataTable extends DataTable
     {
 
         return $model->newQuery()
-            ->forUser(auth()->user()->id)
             ->forDraw($request->draw_id)
             ->where('number', $request->number);
 
@@ -107,7 +107,7 @@ class NumberListDataTable extends DataTable
             Column::make('total_distribution_of_b')->title('TTL.  Dist. Of B'),
             Column::make('total_collection_of_c')->title('TTL. Coll. Of C'),
             Column::make('total_distribution_of_c')->title('TTL.  Dist. Of C'),
-            Column::make('action'),
+            Column::make('action')->addClass('text-center'),
 
         ];
     }
