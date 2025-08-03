@@ -23,7 +23,7 @@ class UserDrawDataTable extends DataTable
     {
 
         $auth_user_id = $request->user()->id;
-        $query->forUser($auth_user_id);
+        // $query->forUser($auth_user_id);
 
         return (new EloquentDataTable($query))
             ->editColumn('id', function ($draw) {

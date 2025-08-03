@@ -22,6 +22,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/', 'index')->name('dashboard');
         Route::get('/option-list', 'optionList')->name('dashboard.option.list');
         Route::get('/draw-details-list', 'drawDetailsList')->name('dashboard.draw.details.list');
+        Route::get('/draw-ticket-number-list', 'numberDetailsList')->name('dashboard.draw.ticket.number.list');
     });
 
     // Tickets Route

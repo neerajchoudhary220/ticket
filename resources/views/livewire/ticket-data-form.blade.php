@@ -1,11 +1,9 @@
-<div class="row">
-    <div class="col-12">
         <div class="card">
             <div class="card-header bg-warning text-white">
                 <div class="d-flex justify-content-start">
                     <div class="d-flex me-auto">
                         <h5 class="text-left ms-3">{{ $this->active_draw_number }}</h5>
-                        <h5 class="text-left"> (TN - {{ $user_running_ticket->ticket_number }}) {{ $a }}</h5>
+                        <h5 class="text-left"> Ticket Number: {{ $user_running_ticket->ticket_number }} {{ $a }}</h5>
                     </div>
 
                     <div class="d-flex" x-data="{
@@ -57,10 +55,10 @@
                             <td>
                                 <input type="text" id="input_a" wire:model.debounce.250='a'
                                     wire:keydown.down="move('focus-b','a')" wire:keydown.right="move('focus-a_qty','a')"
-                                    wire:keydown.tab="keyTab('a')" class="form-control w-25 zeroToNineNumber">
+                                    wire:keydown.tab="keyTab('a')" class="form-control  zeroToNineNumber">
                             </td>
                             <td>
-                                <input type="text" class="form-control w-25 number_qty" id="input_a_qty"
+                                <input type="text" class="form-control  number_qty" id="input_a_qty"
                                     wire:model="a_qty" wire:keydown.left="move('focus-a','a')"
                                     wire:keydown.down="move('focus-b_qty','a')" wire:keydown.tab="keyTab('a')"
                                     wire:keydown.enter="keyEnter('a','focus-a')">{{-- Qty of A --}}
@@ -73,10 +71,10 @@
                             <td><input type="text" wire:model.debounce.250ms='b' id="input_b"
                                     wire:keydown.up = "move('focus-a','b')" wire:keydown.down="move('focus-c','b')"
                                     wire:keydown.right="move('focus-b_qty','b')" wire:keydown.tab="keyTab('b')"
-                                    class="form-control w-25 zeroToNineNumber"></td>
+                                    class="form-control zeroToNineNumber"></td>
 
                             <td>
-                                <input type="text" class="form-control w-25 number_qty" id="input_b_qty"
+                                <input type="text" class="form-control  number_qty" id="input_b_qty"
                                     wire:model="b_qty" wire:keydown.left="move('focus-b','b')"
                                     wire:keydown.down="move('focus-c_qty','b')" wire:keydown.tab="keyTab('b')"
                                     wire:keydown.up="move('focus-a_qty','b')"
@@ -89,9 +87,9 @@
                             <td>C</td>
                             <td><input type="text" wire:model.debounce.250ms='c' id="input_c"
                                     wire:keydown.up = "move('focus-b','c')" wire:keydown.right="move('focus-c_qty','c')"
-                                    wire:keydown.tab="keyTab('c')" class="form-control w-25 zeroToNineNumber"></td>
+                                    wire:keydown.tab="keyTab('c')" class="form-control zeroToNineNumber"></td>
                             <td>
-                                <input type="text" class="form-control w-25 number_qty" id="input_c_qty"
+                                <input type="text" class="form-control  number_qty" id="input_c_qty"
                                     wire:model="c_qty" wire:keydown.left="move('focus-c','c')"
                                     wire:keydown.up="move('focus-b_qty','c')" wire:keydown.tab="keyTab('c')"
                                     wire:keydown.enter="keyEnter('c','focus-c')">
@@ -104,5 +102,3 @@
 
             </div>
         </div>
-    </div>
-</div>

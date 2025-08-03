@@ -81,7 +81,8 @@ class AddTicketForm extends Component
 
     protected function addTicket()
     {
-        $ticketNumber = random_int(100, 999); // Secure
+        $series = explode('-', $this->auth_user->ticket_series);
+        $ticketNumber = $series[0].'-'.(int) ($series[1]) + 1;
         $this->active_draw = Draw::runningDraw()->first();
         $this->active_draw_number = $this->active_draw->draw_number;
         $this->draw_id = $this->active_draw->id;
@@ -132,7 +133,7 @@ class AddTicketForm extends Component
     public function keyEnter($row_property, $focus)
     {
         $total = $this->calculateTotal($row_property);
-        if ($this->draw_id) {
+        if ($this->draw_id && $this->{$row_property} && $this->{$row_property.'_qty'}) {
             Options::create([
                 'user_id' => $this->auth_user->id,
                 'draw_id' => $this->draw_id,
@@ -247,7 +248,7 @@ class AddTicketForm extends Component
         $options = Options::where('draw_id', $this->draw_id)
             ->where('ticket_id', $this->current_ticket_id)
             ->where('user_id', $this->auth_user->id)->orderBy('id', 'DESC')
-            ->paginate(10);
+            ->paginate(5);
 
         return view('livewire.add-ticket-form', ['options' => $options]);
 

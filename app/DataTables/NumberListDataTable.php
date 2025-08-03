@@ -6,14 +6,13 @@ use App\Models\Shopkeeper;
 use App\Models\TicketOption;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Services\DataTable;
 
-class UserDrawDetailsDataTable extends DataTable
+class NumberListDataTable extends DataTable
 {
     /**
      * Build the DataTable class.
@@ -23,6 +22,9 @@ class UserDrawDetailsDataTable extends DataTable
     public function dataTable(QueryBuilder $query, Request $request): EloquentDataTable
     {
         return (new EloquentDataTable($query))
+            ->addColumn('ticket_number', function ($ticket_option) {
+                return $ticket_option->ticket->ticket_number;
+            })
             ->addColumn('total_collection_of_a', fn ($row) => $row->totalCollection($row->a_qty))
             ->addColumn('total_collection_of_b', fn ($row) => $row->totalCollection($row->b_qty))
             ->addColumn('total_collection_of_c', fn ($row) => $row->totalCollection($row->c_qty))
@@ -33,11 +35,10 @@ class UserDrawDetailsDataTable extends DataTable
             ->addColumn('action', fn ($row) => '<a href="#" class="btn btn-primary">Details</a>')
             ->setRowId('number')
             ->editColumn('numbers', function ($row) {
-                $ticket_number_url = route('dashboard.draw.ticket.number.list', ['draw_id' => $row->draw_id, 'number' => $row->number]);
-
-                return "<a href='$ticket_number_url'>$row->number</a>";
+                return "<a href='$row->number'>$row->number</a>";
             })
             ->rawColumns([
+                'ticket_number',
                 'action',
                 'numbers',
                 'total_collection_of_a',
@@ -54,17 +55,11 @@ class UserDrawDetailsDataTable extends DataTable
      *
      * @return QueryBuilder<Shopkeeper>
      */
-    public function query(TicketOption $model): QueryBuilder
+    public function query(TicketOption $model, Request $request): QueryBuilder
     {
-        return $model->newQuery()
-            ->select([
-                'number', 'draw_id',
-                DB::raw('SUM(a_qty) as a_qty'),
-                DB::raw('SUM(b_qty) as b_qty'),
-                DB::raw('SUM(c_qty) as c_qty'),
-            ])
-            ->forUser(auth()->user()->id)
-            ->groupBy('number', 'draw_id'); // ← Fix here
+
+        return $model->newQuery()->forUser(auth()->user()->id)->where('number', $request->number);
+
     }
 
     /**
@@ -101,7 +96,8 @@ class UserDrawDetailsDataTable extends DataTable
             //     ->addClass('text-center'),
             // Column::make('id')->title('#ID')->hidden(),
             // Column::make('ticket_number')->title('Ticket No.'),
-            Column::make('numbers')->title('Number(0-9)'),
+            Column::make('ticket_number')->title('Ticket Number'),
+            // Column::make('numbers')->title('Number(0-9)'),
             Column::make('total_collection_of_a')->title('TTL. Coll. Of A'),
             Column::make('total_distribution_of_a')->title('TTL.  Dist. Of A'),
             Column::make('total_collection_of_b')->title('TTL. Coll. Of B'),

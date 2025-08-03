@@ -25,6 +25,6 @@ trait TicketNumber
 
         $letterPrefix = $this->numberToLetters($prefixNumber + 1); // So it starts from A
 
-        return $letterPrefix.$suffixNumber.'-101';
+        return $letterPrefix.$suffixNumber.'-100';
     }
 }

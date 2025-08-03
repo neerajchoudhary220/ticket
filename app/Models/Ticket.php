@@ -19,7 +19,7 @@ class Ticket extends Model
     protected function fullTicketNo(): Attribute
     {
         return Attribute::get(
-            fn () => "TN-{$this->ticket_number}"
+            fn () => "{$this->ticket_number}"
         );
     }
 
