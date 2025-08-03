@@ -1,0 +1,4 @@
+.ticket-list-box {
+    max-height: 223px;
+    overflow-y: auto;
+}

@@ -250,12 +250,13 @@ class AddTicketForm extends Component
     public function render()
     {
 
+        $ticket_list = Ticket::forDraw($this->draw_id)->forUser($this->auth_user->id)->get();
         $options = Options::where('draw_id', $this->draw_id)
             ->where('ticket_id', $this->current_ticket_id)
             ->where('user_id', $this->auth_user->id)->orderBy('id', 'DESC')
             ->paginate(5);
 
-        return view('livewire.add-ticket-form', ['options' => $options]);
+        return view('livewire.add-ticket-form', ['options' => $options, 'ticket_list' => $ticket_list]);
 
     }
 }

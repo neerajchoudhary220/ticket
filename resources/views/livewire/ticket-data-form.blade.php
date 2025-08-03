@@ -3,7 +3,8 @@
                 <div class="d-flex justify-content-start">
                     <div class="d-flex me-auto">
                         <h5 class="text-left ms-3">{{ $this->active_draw_number }}</h5>
-                        <h5 class="text-left"> Ticket Number: {{ $user_running_ticket->ticket_number }} {{ $a }}</h5>
+                        <h5 class="text-left"> Ticket Number: {{ $user_running_ticket->ticket_number }}
+                            {{ $a }}</h5>
                     </div>
 
                     <div class="d-flex" x-data="{
@@ -40,7 +41,7 @@
                             <th>#Numbers (0–9)</th>
                             <th>Qty</th>
                             <th>Price</th>
-                            <th>Total</th>
+                            {{-- <th>Total</th> --}}
                         </tr>
                     </thead>
                     <tbody x-data @focus-b.window="document.getElementById('input_b').focus()"
@@ -64,7 +65,7 @@
                                     wire:keydown.enter="keyEnter('a','focus-a')">{{-- Qty of A --}}
                             </td>
                             <td>11</td>
-                            <td>{{ $total_a }}</td>
+                            {{-- <td>{{ $total_a }}</td> --}}
                         </tr>
                         <tr>
                             <td>B</td>
@@ -81,7 +82,7 @@
                                     wire:keydown.enter="keyEnter('b','focus-b')">
                             </td>
                             <td>11</td>
-                            <td>{{ $total_b }}</td>
+                            {{-- <td>{{ $total_b }}</td> --}}
                         </tr>
                         <tr>
                             <td>C</td>
@@ -95,7 +96,7 @@
                                     wire:keydown.enter="keyEnter('c','focus-c')">
                             </td>
                             <td>11</td>
-                            <td>{{ $total_c }}</td>
+                            {{-- <td>{{ $total_c }}</td> --}}
                         </tr>
                     </tbody>
                 </table>

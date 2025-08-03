@@ -47,4 +47,9 @@ class Ticket extends Model
     {
         return $ticket->where('status', 'COMPLETED');
     }
+
+    public function scopeForDraw(Builder $TicketOption, $draw_id): Builder
+    {
+        return $TicketOption->where('draw_id', $draw_id);
+    }
 }
