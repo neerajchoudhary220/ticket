@@ -46,12 +46,10 @@ class UserDrawDataTable extends DataTable
                 return $draw->tickets()->forUser($auth_user_id)->running()->count();
             })
             ->addColumn('action', function ($draw) {
-                $url = route('dashboard.option.list', ['draw_id' => $draw->id]);
                 $draw_details = route('dashboard.draw.details.list', ['draw_id' => $draw->id]);
 
                 return <<<HTML
-        <a href="{$url}" class="btn btn-primary">Details</a>
-        <a href="{$draw_details}" class ="btn btn-secondary">Distribution & Collections</a>
+        <a href="{$draw_details}" class ="btn btn-primary">Details</a>
     HTML;
             })
 

@@ -15,6 +15,7 @@ class TicketController extends Controller
     public function addTicket(Request $request)
     {
         $ticket = null;
+        $number = $request->number ?: null;
 
         if ($request->ticket_id) {
             $ticket = Ticket::where('id', $request->ticket_id)
@@ -22,6 +23,6 @@ class TicketController extends Controller
                 ->firstOrFail();
         }
 
-        return view('web.ticket.add-ticket', compact('ticket'));
+        return view('web.ticket.add-ticket', compact('ticket', 'number'));
     }
 }

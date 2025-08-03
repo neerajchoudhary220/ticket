@@ -32,10 +32,18 @@ class NumberListDataTable extends DataTable
             ->addColumn('total_distribution_of_b', fn ($row) => $row->totalDistributions($row->b_qty))
             ->addColumn('total_distribution_of_c', fn ($row) => $row->totalDistributions($row->c_qty))
             ->addColumn('numbers', fn ($row) => $row->number)
-            ->addColumn('action', fn ($row) => '<a href="#" class="btn btn-primary">Details</a>')
             ->setRowId('number')
             ->editColumn('numbers', function ($row) {
                 return "<a href='$row->number'>$row->number</a>";
+            })
+            ->addColumn('action', function ($ticket_option) {
+                $add_ticket_url = route('ticket.add', ['ticket_id' => $ticket_option->ticket_id, 'number' => $ticket_option->number]);
+
+                return <<<HTML
+                <div class="d-flex justify-content-center">
+                <a href="$add_ticket_url" class="btn btn-warning ms-3 text-white"><i class="fa fa-pencil"></i> Edit</a>
+                </div>
+                HTML;
             })
             ->rawColumns([
                 'ticket_number',
@@ -89,22 +97,14 @@ class NumberListDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            // Column::computed('action')
-            //     ->exportable(false)
-            //     ->printable(false)
-            //     ->width(60)
-            //     ->addClass('text-center'),
-            // Column::make('id')->title('#ID')->hidden(),
-            // Column::make('ticket_number')->title('Ticket No.'),
             Column::make('ticket_number')->title('Ticket Number'),
-            // Column::make('numbers')->title('Number(0-9)'),
             Column::make('total_collection_of_a')->title('TTL. Coll. Of A'),
             Column::make('total_distribution_of_a')->title('TTL.  Dist. Of A'),
             Column::make('total_collection_of_b')->title('TTL. Coll. Of B'),
             Column::make('total_distribution_of_b')->title('TTL.  Dist. Of B'),
             Column::make('total_collection_of_c')->title('TTL. Coll. Of C'),
             Column::make('total_distribution_of_c')->title('TTL.  Dist. Of C'),
-            // Column::make('action'),
+            Column::make('action'),
 
         ];
     }

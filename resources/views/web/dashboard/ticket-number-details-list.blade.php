@@ -6,8 +6,8 @@
     @endpush
     <div class="card">
         <div class="card-header">
-            <a href="{{ route('dashboard') }}" class="btn btn-dark text-white">
-                <i class="fa fa-arrow-circle-left"></i> Ticket List
+            <a href="{{ route('dashboard.draw.details.list', ['draw_id' => $draw->id]) }}" class="btn btn-dark text-white">
+                <i class="fa fa-arrow-circle-left"></i> Number Details List
             </a>
         </div>
         <div class="card-body">

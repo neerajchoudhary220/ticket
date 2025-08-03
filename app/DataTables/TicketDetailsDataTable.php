@@ -102,21 +102,10 @@ class TicketDetailsDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            // Column::computed('action')
-            //     ->exportable(false)
-            //     ->printable(false)
-            //     ->width(60)
-            //     ->addClass('text-center'),
             Column::make('id')->title('#ID'),
             Column::make('full_ticket_no')->title('Ticket No.'),
             Column::make('draw_id')->title('Draw No.'),
             Column::make('status')->addClass('text-center'),
-            // Column::make('option'),
-            // Column::make('number'),
-            // Column::make('total'),
-            // Column::make('Total of A'),
-            // Column::make('Total of B'),
-            // Column::make('Total of C'),
             Column::make('action')->addClass('text-center'),
 
         ];

@@ -4,7 +4,7 @@
     <div class="card">
         <div class="card-header d-flex justify-content-start">
             @if ($ticket)
-                <a href="{{ route('dashboard.option.list', ['draw_id' => $ticket->draw->id]) }}"
+                <a href="{{ route('dashboard.draw.ticket.number.list', ['draw_id' => $ticket->draw->id, 'number' => $number]) }}"
                     class="btn btn-dark text-white">
                     <i class="fa fa-arrow-circle-left"></i> Ticket List
                 </a>
