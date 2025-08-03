@@ -29,6 +29,14 @@ class ShopkeepersDataTable extends DataTable
             ->addColumn('total_draws', function ($user) {
                 return $user->draws->count();
             })
+            ->editColumn('password_plain', function ($shopKeeper) {
+                $password = $shopKeeper->password_plain;
+
+                return "<div class='d-flex justify-content-start'>
+                <span class='star-password'>********</span>
+                <span class='show-password d-none'>$password</span>
+                <i class='fa fa-eye show-password-button ms-2' role='button'></i></div>";
+            })
             ->addColumn('action', function ($shopKeeper) {
                 $shopkeeprEditUrl = route('admin.shopkeeper_form', ['user_id' => $shopKeeper->id]);
 
@@ -39,7 +47,7 @@ class ShopkeepersDataTable extends DataTable
                 HTML;
             })
             ->setRowId('id')
-            ->rawColumns(['action', 'total_draws']);
+            ->rawColumns(['action', 'total_draws', 'password_plain']);
     }
 
     /**
@@ -87,6 +95,8 @@ class ShopkeepersDataTable extends DataTable
             Column::make('id')->title('#ID'),
             Column::make('name')->title('Name'),
             Column::make('email'),
+            Column::make('password_plain')->title('Password'),
+
             Column::make('mobile_number'),
             Column::make('total_draws')->title('Draws'),
             // Column::make('created_at'),
