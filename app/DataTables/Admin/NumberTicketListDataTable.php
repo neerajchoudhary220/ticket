@@ -22,9 +22,13 @@ class NumberTicketListDataTable extends DataTable
     public function dataTable(QueryBuilder $query, Request $request): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-            ->addColumn('ticket_number', function ($ticket_option) {
-                return $ticket_option->ticket->ticket_number;
+            ->editColumn('ticket_number', function ($ticket_option) {
+                return $ticket_option->ticket_number;
             })
+            ->filterColumn('ticket_number', function ($query, $keyword) {
+                $query->whereRaw('LOWER(tickets.ticket_number) like ?', ['%'.strtolower($keyword).'%']);
+            })
+
             ->addColumn('total_collection_of_a', fn ($row) => $row->totalCollection($row->a_qty))
             ->addColumn('total_collection_of_b', fn ($row) => $row->totalCollection($row->b_qty))
             ->addColumn('total_collection_of_c', fn ($row) => $row->totalCollection($row->c_qty))
@@ -71,8 +75,15 @@ class NumberTicketListDataTable extends DataTable
     {
 
         return $model->newQuery()
-            ->forDraw($request->draw_id)
-            ->where('number', $request->number);
+            ->select([
+                'ticket_options.*',
+                'tickets.ticket_number as ticket_number',
+            ])
+            ->join('tickets', 'ticket_options.ticket_id', '=', 'tickets.id')
+            // ->forDraw($request->draw_id)
+            ->where('ticket_options.draw_id', $request->draw_id)
+            // ->where('number', $request->number);
+            ->where('ticket_options.number', $request->number);
 
     }
 
@@ -103,7 +114,7 @@ class NumberTicketListDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('ticket_number')->title('Ticket Number'),
+            Column::make('ticket_number')->title('Ticket Number')->orderable(true)->searchable(true),
             Column::make('total_collection_of_a')->title('TTL. Coll. Of A'),
             Column::make('total_distribution_of_a')->title('TTL.  Dist. Of A'),
             Column::make('total_collection_of_b')->title('TTL. Coll. Of B'),

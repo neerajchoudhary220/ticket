@@ -22,9 +22,10 @@ class NumberListDataTable extends DataTable
     public function dataTable(QueryBuilder $query, Request $request): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-            ->addColumn('ticket_number', function ($ticket_option) {
-                return $ticket_option->ticket->ticket_number;
+            ->editColumn('ticket_number', function ($row) {
+                return $row->ticket_number;
             })
+
             ->addColumn('total_collection_of_a', fn ($row) => $row->totalCollection($row->a_qty))
             ->addColumn('total_collection_of_b', fn ($row) => $row->totalCollection($row->b_qty))
             ->addColumn('total_collection_of_c', fn ($row) => $row->totalCollection($row->c_qty))
@@ -65,12 +66,15 @@ class NumberListDataTable extends DataTable
      */
     public function query(TicketOption $model, Request $request): QueryBuilder
     {
-
         return $model->newQuery()
+            ->select([
+                'ticket_options.*',
+                'tickets.ticket_number as ticket_number',
+            ])
+            ->join('tickets', 'ticket_options.ticket_id', '=', 'tickets.id')
             ->forUser(auth()->user()->id)
             ->forDraw($request->draw_id)
             ->where('number', $request->number);
-
     }
 
     /**
@@ -82,7 +86,7 @@ class NumberListDataTable extends DataTable
             ->setTableId('shopkeepers-table')
             ->columns($this->getColumns())
             ->minifiedAjax()
-            ->orderBy(1)
+            ->orderBy(0)
             ->selectStyleSingle()
             ->buttons([
                 Button::make('excel'),
@@ -100,7 +104,7 @@ class NumberListDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('ticket_number')->title('Ticket Number'),
+            Column::make('ticket_number')->title('Ticket Number')->orderable(true),
             Column::make('total_collection_of_a')->title('TTL. Coll. Of A'),
             Column::make('total_distribution_of_a')->title('TTL.  Dist. Of A'),
             Column::make('total_collection_of_b')->title('TTL. Coll. Of B'),

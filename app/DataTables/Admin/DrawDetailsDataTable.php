@@ -29,25 +29,22 @@ class DrawDetailsDataTable extends DataTable
             ->addColumn('total_distribution_of_a', fn ($row) => $row->totalDistributions($row->a_qty))
             ->addColumn('total_distribution_of_b', fn ($row) => $row->totalDistributions($row->b_qty))
             ->addColumn('total_distribution_of_c', fn ($row) => $row->totalDistributions($row->c_qty))
-            // ->addColumn('shopkeeper', fn ($row) => "<a href='#'>{$row->user->name}</a>")
-            ->addColumn('numbers', fn ($row) => $row->number)
             ->addColumn('action', fn ($row) => '<a href="#" class="btn btn-primary">Details</a>')
-            // ->setRowId('number')
-            ->editColumn('numbers', function ($row) {
+            // ->setRowId('id')
+            ->editColumn('number', function ($row) {
                 $ticket_number_url = route('admin.draw.number.details.list', ['draw_id' => $row->draw_id, 'number' => $row->number]);
 
                 return "<a href='$ticket_number_url' class='text-primary'>$row->number</a>";
             })
             ->rawColumns([
                 'action',
-                'numbers',
+                'number',
                 'total_collection_of_a',
                 'total_collection_of_b',
                 'total_collection_of_c',
                 'total_distribution_of_a',
                 'total_distribution_of_b',
                 'total_distribution_of_c',
-                // 'shopkeeper',
             ]);
     }
 
@@ -96,22 +93,13 @@ class DrawDetailsDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            // Column::computed('action')
-            //     ->exportable(false)
-            //     ->printable(false)
-            //     ->width(60)
-            //     ->addClass('text-center'),
-            // Column::make('id')->title('#ID')->hidden(),
-            // Column::make('ticket_number')->title('Ticket No.'),
-            Column::make('numbers')->title('Number(0-9)'),
+            Column::make('number')->title('Number(0-9)'),
             Column::make('total_collection_of_a')->title('TTL. Coll. Of A'),
             Column::make('total_distribution_of_a')->title('TTL.  Dist. Of A'),
             Column::make('total_collection_of_b')->title('TTL. Coll. Of B'),
             Column::make('total_distribution_of_b')->title('TTL.  Dist. Of B'),
             Column::make('total_collection_of_c')->title('TTL. Coll. Of C'),
             Column::make('total_distribution_of_c')->title('TTL.  Dist. Of C'),
-            // Column::make('shopkeeper'),
-            // Column::make('action'),
 
         ];
     }
