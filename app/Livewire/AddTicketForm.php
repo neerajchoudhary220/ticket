@@ -140,6 +140,7 @@ class AddTicketForm extends Component
 
     public function keyEnter($row_property, $focus)
     {
+        logger()->info('working');
         $total = $this->calculateTotal($row_property);
         if ($this->draw_id && $this->{$row_property} && $this->{$row_property.'_qty'}) {
             Options::create([
