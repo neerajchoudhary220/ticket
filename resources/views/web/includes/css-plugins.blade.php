@@ -4,3 +4,4 @@
 
 {{-- <link href="{{ asset('assets/css/common/all.min.css') }}" rel="stylesheet"> --}}
 <link rel="stylesheet" href="{{ asset('assets/web/css/style.css') }}" />
+<link href="{{ asset('assets/css/common/common-style.css') }}" rel="stylesheet">
