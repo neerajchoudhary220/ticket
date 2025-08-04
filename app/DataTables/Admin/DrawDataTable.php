@@ -95,7 +95,7 @@ class DrawDataTable extends DataTable
             Column::make('total_rewards')->title('Total Rewards'),
             Column::make('created_at'),
             Column::make('updated_at'),
-            Column::make('action'),
+            Column::make('action')->addClass('text-center'),
 
         ];
     }
