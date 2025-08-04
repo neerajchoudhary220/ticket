@@ -8,3 +8,4 @@
   {{-- <script src="{{asset('assets/js/dashboard.js')}}"></script> --}}
   <!-- solar icons -->
   <script src="{{ asset('assets/js/common/iconify-icon.min.js') }}"></script>
+  <script src="{{ asset('assets/js/common/sweet-alert.js') }}"></script>

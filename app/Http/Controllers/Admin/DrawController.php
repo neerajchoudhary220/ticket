@@ -56,8 +56,13 @@ class DrawController extends Controller
         return Draw::findOrFail($draw_id);
     }
 
-    public function addDraw()
+    public function addDraw(Request $request)
     {
-        return view('admin.draw.add-draw');
+        $draw = null;
+        if ($request->draw_id) {
+            $draw = $this->findDraw($request->draw_id);
+        }
+
+        return view('admin.draw.add-draw', compact('draw'));
     }
 }

@@ -18,8 +18,8 @@ class DrawDataTable extends DataTable
     {
 
         return (new EloquentDataTable($query))
-            ->addColumn('action', function () {
-                return view('admin.draw.draw-action')->render();
+            ->addColumn('action', function ($draw) {
+                return view('admin.draw.draw-action', compact('draw'))->render();
             })
             ->editColumn('id', function ($draw) {
                 $draw_details_list = route('admin.draw.detail.list', ['draw_id' => $draw->id]);

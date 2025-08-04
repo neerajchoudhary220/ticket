@@ -1,10 +1,6 @@
-<div class="dropdown text-end">
-  <button class="btn btn-light" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-    <i class="fas fa-ellipsis-v"></i>
-  </button>
-  <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-    <li><a class="dropdown-item" href="#">Edit</a></li>
-    <li><a class="dropdown-item text-danger" href="#">Delete</a></li>
-    <li><a class="dropdown-item text-muted" href="#">Disable</a></li>
-  </ul>
+<div class="text-end">
+    <div class="d-flex justify-content-center">
+        <a href="{{ route('admin.add.draw', ['draw_id' => $draw->id]) }}" class="btn btn-warning ms-3 text-white"><i
+                class="fa fa-pencil"></i> Edit</a>
+    </div>
 </div>
