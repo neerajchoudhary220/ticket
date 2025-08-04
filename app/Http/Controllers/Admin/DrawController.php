@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\DataTables\Admin\DrawDataTable;
 use App\DataTables\Admin\DrawDetailsDataTable;
 use App\DataTables\Admin\NumberTicketListDataTable;
+use App\DataTables\Admin\TicketDetailsDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\Draw;
+use App\Models\Ticket;
 use Illuminate\Http\Request;
 
 class DrawController extends Controller
@@ -33,6 +35,19 @@ class DrawController extends Controller
         return $dataTable->render('admin.draw.number-list', compact('draw', 'number'));
 
         // return view('admin.draw.number-list', compact('draw', 'number'));
+
+    }
+
+    public function ticketDetailsList(TicketDetailsDataTable $dataTable, Request $request)
+    {
+
+        $ticket = Ticket::findOrFail($request->ticket_id);
+        $draw = $this->findDraw($request->draw_id);
+        $number = $request->number;
+
+        return $dataTable->render('admin.draw.ticket-details-list', compact('draw', 'ticket', 'number'));
+
+        // return view('admin.draw.ticket-details-list');
 
     }
 

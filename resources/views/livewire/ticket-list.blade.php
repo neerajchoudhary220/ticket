@@ -7,7 +7,8 @@
             @foreach ($ticket_list as $ticket)
                 <div class="form-check">
                     <input class="form-check-input" type="radio" name="selected_ticket" id="ticket_{{ $ticket->id }}"
-                        value="{{ $ticket->ticket_number }}">
+                        value="{{ $ticket->ticket_number }}" wire:change="handleSelectedTicket({{ $ticket->id }})">
+
                     <label class="form-check-label" for="ticket_{{ $ticket->id }}">
                         {{ $ticket->ticket_number }}
                     </label>
@@ -15,4 +16,6 @@
             @endforeach
         </div>
     </div>
+
+
 </div>

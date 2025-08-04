@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 
 trait AuthUser
@@ -12,5 +13,10 @@ trait AuthUser
     public function scopeForUser(Builder $query, ?int $userId): Builder
     {
         return $query->where('user_id', $userId);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

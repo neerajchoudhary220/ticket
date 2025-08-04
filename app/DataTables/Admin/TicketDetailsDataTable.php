@@ -12,7 +12,7 @@ use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Services\DataTable;
 
-class NumberTicketListDataTable extends DataTable
+class TicketDetailsDataTable extends DataTable
 {
     /**
      * Build the DataTable class.
@@ -22,8 +22,8 @@ class NumberTicketListDataTable extends DataTable
     public function dataTable(QueryBuilder $query, Request $request): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-            ->addColumn('ticket_number', function ($ticket_option) {
-                return $ticket_option->ticket->ticket_number;
+            ->addColumn('numbers', function ($ticket_option) {
+                return $ticket_option->number;
             })
             ->addColumn('total_collection_of_a', fn ($row) => $row->totalCollection($row->a_qty))
             ->addColumn('total_collection_of_b', fn ($row) => $row->totalCollection($row->b_qty))
@@ -31,26 +31,24 @@ class NumberTicketListDataTable extends DataTable
             ->addColumn('total_distribution_of_a', fn ($row) => $row->totalDistributions($row->a_qty))
             ->addColumn('total_distribution_of_b', fn ($row) => $row->totalDistributions($row->b_qty))
             ->addColumn('total_distribution_of_c', fn ($row) => $row->totalDistributions($row->c_qty))
-            ->addColumn('numbers', fn ($row) => $row->number)
-            ->addColumn('shopkeeper', function ($row) {
-                return "<a href='#'>{$row->user->name}</a>";
-            })
-            ->setRowId('ticket_number')
-            ->editColumn('numbers', function ($row) {
-                return "<a href='$row->number'>$row->number</a>";
-            })
-            ->addColumn('action', function ($ticket_option) {
-                $add_ticket_url = route('admin.draw.ticke.details.list', ['draw_id' => $ticket_option->draw_id, 'number' => $ticket_option->number, 'ticket_id' => $ticket_option->ticket_id]);
+            // ->addColumn('shopkeeper', function ($row) {
+            //     return "<a href='#'>{$row->user->name}</a>";
+            // })
+            // ->setRowId('number')
+            // ->editColumn('numbers', function ($row) {
+            //     return "<a href='$row->number'>$row->number</a>";
+            // })
+            // ->addColumn('action', function ($ticket_option) {
+            //     $add_ticket_url = '#';
 
-                return <<<HTML
-                <div class="d-flex justify-content-center">
-                <a href="$add_ticket_url" class="btn btn-primary btn-sm ms-3 text-white">More Details <i class="fa fa-arrow-circle-right"></i></a>
+            //     return <<<HTML
+            //     <div class="d-flex justify-content-center">
+            //     <a href="$add_ticket_url" class="btn btn-primary btn-sm ms-3 text-white">More Details <i class="fa fa-arrow-circle-right"></i></a>
 
-                </div>
-                HTML;
-            })
+            //     </div>
+            //     HTML;
+            // })
             ->rawColumns([
-                'ticket_number',
                 'action',
                 'numbers',
                 'total_collection_of_a',
@@ -58,7 +56,7 @@ class NumberTicketListDataTable extends DataTable
                 'total_collection_of_c',
                 'total_distribution_of_a',
                 'total_distribution_of_b',
-                'total_distribution_of_c', 'shopkeeper',
+                'total_distribution_of_c',
             ]);
     }
 
@@ -71,8 +69,7 @@ class NumberTicketListDataTable extends DataTable
     {
 
         return $model->newQuery()
-            ->forDraw($request->draw_id)
-            ->where('number', $request->number);
+            ->forTicket($request->ticket_id);
 
     }
 
@@ -85,7 +82,7 @@ class NumberTicketListDataTable extends DataTable
             ->setTableId('shopkeepers-table')
             ->columns($this->getColumns())
             ->minifiedAjax()
-            ->orderBy(0)
+            ->orderBy(1)
             ->selectStyleSingle()
             ->buttons([
                 Button::make('excel'),
@@ -103,15 +100,15 @@ class NumberTicketListDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('ticket_number')->title('Ticket Number'),
+            Column::make('numbers')->title('Number(0-9)'),
             Column::make('total_collection_of_a')->title('TTL. Coll. Of A'),
             Column::make('total_distribution_of_a')->title('TTL.  Dist. Of A'),
             Column::make('total_collection_of_b')->title('TTL. Coll. Of B'),
             Column::make('total_distribution_of_b')->title('TTL.  Dist. Of B'),
             Column::make('total_collection_of_c')->title('TTL. Coll. Of C'),
             Column::make('total_distribution_of_c')->title('TTL.  Dist. Of C'),
-            Column::make('shopkeeper')->title('Shopkeeper'),
-            Column::make('action')->addClass('text-center'),
+            // Column::make('shopkeeper')->title('Shopkeeper'),
+            // Column::make('action')->addClass('text-center'),
 
         ];
     }

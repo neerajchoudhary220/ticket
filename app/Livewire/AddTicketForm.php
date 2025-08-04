@@ -9,7 +9,6 @@ use App\Models\TicketOption;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -63,6 +62,7 @@ class AddTicketForm extends Component
 
     public $is_edit_mode = false;
 
+    public $selected_ticket_id;
     // protected $updatesQueryString = ['search', 'filterOption'];
 
     public function mount(Request $request, $ticket = null)
@@ -71,6 +71,7 @@ class AddTicketForm extends Component
         if ($ticket) {
             $this->draw_id = $ticket->draw->id;
             $this->current_ticket_id = $ticket->id;
+            $this->selected_ticket_id = $ticket->id;
             $this->user_running_ticket = $ticket;
             $this->is_edit_mode = true;
         } else {
@@ -160,12 +161,9 @@ class AddTicketForm extends Component
 
     }
 
-    #[On('timer-finished')]
-    public function handleTimerFinished()
+    public function handleSelectedTicket($id)
     {
-        // logger()->info('Timer finished!');
-        // You can redirect, emit events, update data, etc.
-        // return redirect()->route('some.route');
+        logger()->info('Selected ticket ID: '.$id);
     }
 
     public function deleteOption(Options $option)

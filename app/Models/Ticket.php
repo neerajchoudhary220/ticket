@@ -38,6 +38,11 @@ class Ticket extends Model
         return $this->belongsTo(Draw::class);
     }
 
+    /**
+     * Get the user that owns the Ticket
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function scopeRunning(Builder $ticket): Builder
     {
         return $ticket->where('status', 'RUNNING');
