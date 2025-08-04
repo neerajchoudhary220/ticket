@@ -83,7 +83,7 @@ class AddTicketForm extends Component
     protected function addTicket()
     {
 
-        if ($this->auth_user->tickets && $this->auth_user->tickets->last()->ticket_number) {
+        if ($this->auth_user->tickets->last() && $this->auth_user->tickets->last()->ticket_number) {
             $last_ticket_number = explode('-', $this->auth_user->tickets->last()->ticket_number);
             $ticketNumber = $last_ticket_number[0].'-'.(int) $last_ticket_number[1] + 1;
         } else {
