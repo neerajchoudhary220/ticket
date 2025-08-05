@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\DataTables\Admin\ShopKeeperDrawDetailsDataTable;
 use App\DataTables\Admin\ShopkeepersDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -22,5 +23,13 @@ class ShopKeeperController extends Controller
         }
 
         return view('admin.shopkeepers.add', compact('user'));
+    }
+
+    public function view(ShopKeeperDrawDetailsDataTable $dataTable, Request $request)
+    {
+        $user = User::findOrFail($request->user_id);
+
+        // return view('admin.shopkeepers.view', compact('user'));
+        return $dataTable->render('admin.shopkeepers.view', compact('user'));
     }
 }

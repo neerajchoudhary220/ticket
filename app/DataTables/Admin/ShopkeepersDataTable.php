@@ -39,10 +39,13 @@ class ShopkeepersDataTable extends DataTable
             })
             ->addColumn('action', function ($shopKeeper) {
                 $shopkeeprEditUrl = route('admin.shopkeeper_form', ['user_id' => $shopKeeper->id]);
+                $shopkeeprViewUrl = route('admin.shopkeeper.view', ['user_id' => $shopKeeper->id]);
 
                 return <<<HTML
                 <div class="d-flex justify-content-center">
                 <a href="$shopkeeprEditUrl" class="btn btn-warning ms-3 text-white"><i class="fa fa-pencil"></i> Edit</a>
+                <a href="$shopkeeprViewUrl" class="btn btn-primary ms-3 text-white"><i class="fa fa-eye"></i> View</a>
+
                 </div>
                 HTML;
             })
@@ -101,7 +104,7 @@ class ShopkeepersDataTable extends DataTable
             Column::make('total_draws')->title('Draws'),
             // Column::make('created_at'),
             // Column::make('updated_at'),
-            Column::make('action')->addClass('text-center')->width(200),
+            Column::make('action')->addClass('text-center'),
 
         ];
     }

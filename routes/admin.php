@@ -21,6 +21,7 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::controller(ShopKeeperController::class)->prefix('shopkeepers')->group(function () {
         Route::get('/', 'index')->name('admin.shopkeepers');
         Route::get('shopkeeper-form/{user_id?}', 'addEditShopKeeper')->name('admin.shopkeeper_form');
+        Route::get('shopkeeper-details', 'view')->name('admin.shopkeeper.view');
 
     });
 

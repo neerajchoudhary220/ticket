@@ -18,7 +18,7 @@ class AddDraw extends Component
         'end_time' => 'required',
     ];
 
-    public function mount($draw_id)
+    public function mount($draw_id = null)
     {
         if ($draw_id) {
             $this->draw = Draw::findOrFail($draw_id);

@@ -10,6 +10,10 @@
 
         <div>
             <div>
-                @livewire('admin.add-draw', ['draw_id' => $draw->id])
+                @if ($draw)
+                    @livewire('admin.add-draw', ['draw_id' => $draw->id])
+                @else
+                    @livewire('admin.add-draw')
+                @endif
             </div>
         @endsection

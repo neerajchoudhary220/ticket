@@ -1,5 +1,7 @@
   {{-- <script src="{{asset('assets/libs/jquery/dist/jquery.min.js')}}"></script> --}}
   <script src="{{ asset('assets/js/common/jquery-min.js') }}"></script>
+  {{-- <script src="{{ asset('assets/js/common/sweet-alert.js') }}"></script> --}}
+
   <script src="{{ asset('assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
   <script src="{{ asset('assets/js/sidebarmenu.js') }}"></script>
   <script src="{{ asset('assets/js/app.min.js') }}"></script>
@@ -8,4 +10,3 @@
   {{-- <script src="{{asset('assets/js/dashboard.js')}}"></script> --}}
   <!-- solar icons -->
   <script src="{{ asset('assets/js/common/iconify-icon.min.js') }}"></script>
-  <script src="{{ asset('assets/js/common/sweet-alert.js') }}"></script>
