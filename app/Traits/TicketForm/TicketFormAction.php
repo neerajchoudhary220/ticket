@@ -95,8 +95,34 @@ trait TicketFormAction
 
     public function applyHandle()
     {
+        $hasError = false;
+
+        // Validate abc
+        if (empty($this->abc)) {
+            $this->addError('abc', 'Please Enter The Value');
+            $hasError = true;
+        }
+
+        // Validate abc_qty
+        if (empty($this->abc_qty)) {
+            $this->addError('abc_qty', 'Please Enter Qty');
+            $hasError = true;
+        } elseif ($this->abc_qty <= 0) {
+            $this->addError('abc_qty', 'Qty must be greater than 0');
+            $hasError = true;
+        }
+
+        // If errors exist, return early
+        if ($hasError) {
+            return true;
+        }
+
+        // Clear previous errors if validation passes
+        $this->resetErrorBag(['abc', 'abc_qty']);
+
         $total = $this->abc_qty * $this->abc * self::PRICE;
 
+        // if($this->abc_qty)
         foreach (['A', 'B', 'C'] as $option) {
             Options::create([
                 'user_id' => $this->auth_user->id,
