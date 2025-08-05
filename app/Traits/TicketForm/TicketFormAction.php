@@ -95,7 +95,7 @@ trait TicketFormAction
 
     public function applyHandle()
     {
-        $total = $this->abc_qty * $this->abc;
+        $total = $this->abc_qty * $this->abc * self::PRICE;
 
         foreach (['A', 'B', 'C'] as $option) {
             Options::create([

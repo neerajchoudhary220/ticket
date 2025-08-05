@@ -25,6 +25,9 @@ class NumberListDataTable extends DataTable
             ->editColumn('ticket_number', function ($row) {
                 return $row->ticket_number;
             })
+            ->filterColumn('ticket_number', function ($query, $keyword) {
+                $query->whereRaw('tickets.ticket_number LIKE ?', ['%'.strtolower($keyword).'%']);
+            })
 
             ->addColumn('total_collection_of_a', fn ($row) => $row->totalCollection($row->a_qty))
             ->addColumn('total_collection_of_b', fn ($row) => $row->totalCollection($row->b_qty))
@@ -88,6 +91,14 @@ class NumberListDataTable extends DataTable
             ->minifiedAjax()
             ->orderBy(0)
             ->selectStyleSingle()
+            ->parameters(
+                [
+                    'searching' => true,
+                    'language' => [
+                        'searchPlaceholder' => 'Ticket Number',
+                    ],
+                ]
+            )
             ->buttons([
                 Button::make('excel'),
                 Button::make('csv'),
@@ -104,7 +115,7 @@ class NumberListDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('ticket_number')->title('Ticket Number')->orderable(true),
+            Column::make('ticket_number')->title('Ticket Number')->orderable(true)->searchable(true),
             Column::make('total_collection_of_a')->title('TTL. Coll. Of A'),
             Column::make('total_distribution_of_a')->title('TTL.  Dist. Of A'),
             Column::make('total_collection_of_b')->title('TTL. Coll. Of B'),

@@ -98,6 +98,14 @@ class NumberTicketListDataTable extends DataTable
             ->minifiedAjax()
             ->orderBy(0)
             ->selectStyleSingle()
+            ->parameters(
+                [
+                    'searching' => true,
+                    'language' => [
+                        'searchPlaceholder' => 'Ticket Number',
+                    ],
+                ]
+            )
             ->buttons([
                 Button::make('excel'),
                 Button::make('csv'),

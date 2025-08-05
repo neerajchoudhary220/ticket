@@ -22,8 +22,11 @@ class TicketDetailsDataTable extends DataTable
     public function dataTable(QueryBuilder $query, Request $request): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-            ->addColumn('numbers', function ($ticket_option) {
+            ->editColumn('number', function ($ticket_option) {
                 return $ticket_option->number;
+            })
+            ->filterColumn('number', function ($query, $keyword) {
+                $query->whereRaw('number like ?', ['%'.strtolower($keyword).'%']);
             })
             ->addColumn('total_collection_of_a', fn ($row) => $row->totalCollection($row->a_qty))
             ->addColumn('total_collection_of_b', fn ($row) => $row->totalCollection($row->b_qty))
@@ -35,7 +38,7 @@ class TicketDetailsDataTable extends DataTable
             //     return "<a href='#'>{$row->user->name}</a>";
             // })
             // ->setRowId('number')
-            // ->editColumn('numbers', function ($row) {
+            // ->editColumn('number', function ($row) {
             //     return "<a href='$row->number'>$row->number</a>";
             // })
             // ->addColumn('action', function ($ticket_option) {
@@ -50,7 +53,7 @@ class TicketDetailsDataTable extends DataTable
             // })
             ->rawColumns([
                 'action',
-                'numbers',
+                'number',
                 'total_collection_of_a',
                 'total_collection_of_b',
                 'total_collection_of_c',
@@ -84,6 +87,12 @@ class TicketDetailsDataTable extends DataTable
             ->minifiedAjax()
             ->orderBy(1)
             ->selectStyleSingle()
+            ->parameters([
+                'searching' => true,
+                'language' => [
+                    'searchPlaceholder' => 'Number(0-9)',
+                ],
+            ])
             ->buttons([
                 Button::make('excel'),
                 Button::make('csv'),
@@ -100,7 +109,7 @@ class TicketDetailsDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('numbers')->title('Number(0-9)'),
+            Column::make('number')->title('Number(0-9)')->orderable(true)->searchable(true),
             Column::make('total_collection_of_a')->title('TTL. Coll. Of A'),
             Column::make('total_distribution_of_a')->title('TTL.  Dist. Of A'),
             Column::make('total_collection_of_b')->title('TTL. Coll. Of B'),

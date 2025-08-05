@@ -77,6 +77,14 @@ class DrawDetailsDataTable extends DataTable
             ->minifiedAjax()
             ->orderBy(0)
             ->selectStyleSingle()
+            ->parameters(
+                [
+                    'searching' => true,
+                    'language' => [
+                        'searchPlaceholder' => 'Number(0-9)',
+                    ],
+                ]
+            )
             ->buttons([
                 Button::make('excel'),
                 Button::make('csv'),

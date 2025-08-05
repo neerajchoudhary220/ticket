@@ -32,14 +32,14 @@ class UserDrawDetailsDataTable extends DataTable
             ->addColumn('numbers', fn ($row) => $row->number)
             ->addColumn('action', fn ($row) => '<a href="#" class="btn btn-primary">Details</a>')
             ->setRowId('number')
-            ->editColumn('numbers', function ($row) {
+            ->editColumn('number', function ($row) {
                 $ticket_number_url = route('dashboard.draw.ticket.number.list', ['draw_id' => $row->draw_id, 'number' => $row->number]);
 
                 return "<a href='$ticket_number_url'>$row->number</a>";
             })
             ->rawColumns([
                 'action',
-                'numbers',
+                'number',
                 'total_collection_of_a',
                 'total_collection_of_b',
                 'total_collection_of_c',
@@ -78,6 +78,14 @@ class UserDrawDetailsDataTable extends DataTable
             ->minifiedAjax()
             ->orderBy(1)
             ->selectStyleSingle()
+            ->parameters(
+                [
+                    'searching' => true,
+                    'language' => [
+                        'searchPlaceholder' => 'Number(0-9)',
+                    ],
+                ]
+            )
             ->buttons([
                 Button::make('excel'),
                 Button::make('csv'),
@@ -101,7 +109,7 @@ class UserDrawDetailsDataTable extends DataTable
             //     ->addClass('text-center'),
             // Column::make('id')->title('#ID')->hidden(),
             // Column::make('ticket_number')->title('Ticket No.'),
-            Column::make('numbers')->title('Number(0-9)'),
+            Column::make('number')->title('Number(0-9)')->orderable(true),
             Column::make('total_collection_of_a')->title('TTL. Coll. Of A'),
             Column::make('total_distribution_of_a')->title('TTL.  Dist. Of A'),
             Column::make('total_collection_of_b')->title('TTL. Coll. Of B'),
