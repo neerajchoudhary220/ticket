@@ -34,6 +34,21 @@
 
                </div>
                <div class="card-body">
+                   <div class="row mb-3">
+                       <div class="col-4 d-flex">
+                           <label class="mt-2" for="abc">ABC: </label>
+                           <input type="text" class="form-control" wire:model="abc" id="abc"
+                               placeholder="Enter ABC">
+                       </div>
+                       <div class="col-4 d-flex">
+                           <label class="mt-2" for="qty">QTY: </label>
+                           <input type="text" class="form-control" wire:model="abc_qty" id="qty"
+                               placeholder="Enter Qty">
+                       </div>
+                       <div class="col-4 d-flex">
+                           <button class="btn btn-primary btn-sm" wire:click='applyHandle'>Apply</button>
+                       </div>
+                   </div>
                    <table class="table table-bordered">
                        <thead>
                            <tr>
