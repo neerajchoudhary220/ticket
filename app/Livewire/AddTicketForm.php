@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\Draw;
 use App\Models\Options;
 use App\Models\Ticket;
 use App\Models\User;
@@ -63,6 +64,24 @@ class AddTicketForm extends Component
     public $abc;
 
     public $abc_qty;
+
+    public int $ticket_page = 1;
+
+    public int $draw_page = 1;
+
+    public int $option_page = 1;
+
+    public $draw_list = [];
+
+    public $ticket_list = [];
+
+    public $option_list = [];
+
+    public $drawPerPage = 5;
+
+    public int $ticketPerPage = 3;
+
+    public int $optionPerPage = 5;
     // protected $updatesQueryString = ['search', 'filterOption'];
 
     public function mount(Request $request, $ticket = null)
@@ -80,16 +99,64 @@ class AddTicketForm extends Component
         }
     }
 
+    public function updatedDrawPage()
+    {
+        $this->loadDraws(); // called when `page` changes from Alpine
+    }
+
+    public function updatedTicketPage()
+    {
+        $this->loadTickets();
+    }
+
+    public function updatedOptionPage()
+    {
+        $this->loadOptions();
+    }
+
+    public function loadDraws()
+    {
+        $newDraws = Draw::orderBy('id', 'desc')->paginate($this->drawPerPage, ['*'], 'draw_page', $this->draw_page);
+
+        // Append instead of replace
+        $this->draw_list = array_merge($this->draw_list, $newDraws->items());
+    }
+
+    public function loadTickets()
+    {
+        $newTickets = Ticket::forDraw($this->draw_id)
+            ->forUser($this->auth_user->id)
+            ->orderBy('id', 'desc')
+            ->paginate(5, ['*'], 'ticket_page', $this->ticket_page);
+        $this->ticket_list = array_merge($this->ticket_list, $newTickets->items());
+    }
+
+    public function loadOptions()
+    {
+        $newOptions = Options::forDraw($this->draw_id)
+            ->forTicket($this->current_ticket_id)
+            ->forUser($this->auth_user->id)->orderBy('id', 'DESC')
+            ->paginate(5, ['*'], 'option_page', $this->option_page);
+        $this->option_list = array_merge($this->option_list, $newOptions->items());
+    }
+
     public function render()
     {
 
-        $ticket_list = Ticket::forDraw($this->draw_id)->forUser($this->auth_user->id)->get();
-        $options = Options::where('draw_id', $this->draw_id)
-            ->where('ticket_id', $this->current_ticket_id)
-            ->where('user_id', $this->auth_user->id)->orderBy('id', 'DESC')
-            ->paginate(5);
+        // $ticket_list = Ticket::forDraw($this->draw_id)->forUser($this->auth_user->id)->orderBy('id', 'desc')->paginate(5);
+        // $draw_list = Draw::orderBy('id', 'DESC')->paginate(5);
+        // $draw_list = Draw::orderBy('id', 'desc')->paginate(3, ['*'], 'drawPage', $this->page);
+        // $ticket_list = Ticket::forDraw($this->draw_id)
+        //     ->forUser($this->auth_user->id)
+        //     ->orderBy('id', 'desc')
+        //     ->paginate(5, ['*'], 'page', $this->ticket_page);
 
-        return view('livewire.add-ticket-form', ['options' => $options, 'ticket_list' => $ticket_list]);
+        // $options = Options::where('draw_id', $this->draw_id)
+        //     ->where('ticket_id', $this->current_ticket_id)
+        //     ->where('user_id', $this->auth_user->id)->orderBy('id', 'DESC')
+        //     ->paginate(5);
+
+        return view('livewire.add-ticket-form');
 
     }
 }

@@ -73,4 +73,19 @@ class Draw extends Model
             return $q->where('user_id', $auth_id);
         });
     }
+
+    public function sumOfOptions($draw_id)
+    {
+        return $this->ticketOptions->sum('a_qty') + $this->ticketOptions->sum('b_qty') + $this->ticketOptions->sum('c_qty');
+    }
+
+    public function totalCollection($draw_id)
+    {
+        return $this->sumOfOptions($draw_id) * self::PRICE;
+    }
+
+    public function totalDistributions($draw_id)
+    {
+        return $this->sumOfOptions($draw_id) * 100;
+    }
 }

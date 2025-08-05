@@ -1,6 +1,13 @@
 @extends('web.layouts.base')
 @section('title', 'GameTicketHub')
 @section('contents')
+    @push('custom-css')
+        {{-- <style>
+            [x-cloak] {
+                display: none !important;
+            }
+        </style> --}}
+    @endpush
     <div class="card">
         <div class="card-header d-flex justify-content-start">
             @if ($ticket)
