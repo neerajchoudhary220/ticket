@@ -72,8 +72,8 @@ class NumberListDataTable extends DataTable
                 'tickets.ticket_number as ticket_number',
             ])
             ->join('tickets', 'ticket_options.ticket_id', '=', 'tickets.id')
-            ->forUser(auth()->user()->id)
-            ->forDraw($request->draw_id)
+            ->where('ticket_options.user_id', auth()->user()->id)
+            ->where('ticket_options.draw_id', $request->draw_id)
             ->where('number', $request->number);
     }
 
