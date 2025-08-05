@@ -89,6 +89,8 @@ trait TicketFormAction
             $this->{$row_property.'_qty'} = '';
             $this->{'total_'.$row_property} = 0;
 
+            $this->loadOptions(true);
+
         }
 
     }
@@ -137,11 +139,16 @@ trait TicketFormAction
         }
 
         $this->abc_qty = $this->abc = '';
+        $this->loadOptions(true);
+
     }
 
-    public function deleteOption(Options $option)
+    public function deleteOption(Options $option, $index)
     {
+
         $option->delete();
+        unset($this->option_list[$index]);
+
     }
 
     public function submitTicket()

@@ -131,31 +131,24 @@ class AddTicketForm extends Component
         $this->ticket_list = array_merge($this->ticket_list, $newTickets->items());
     }
 
-    public function loadOptions()
+    public function loadOptions($reset = false)
     {
+        if ($reset) {
+            $this->option_page = 1; // Reset page to 1
+            $this->option_list = []; // Clear existing list
+        }
+
         $newOptions = Options::forDraw($this->draw_id)
             ->forTicket($this->current_ticket_id)
-            ->forUser($this->auth_user->id)->orderBy('id', 'DESC')
+            ->forUser($this->auth_user->id)
+            ->orderBy('id', 'DESC')
             ->paginate(5, ['*'], 'option_page', $this->option_page);
+
         $this->option_list = array_merge($this->option_list, $newOptions->items());
     }
 
     public function render()
     {
-
-        // $ticket_list = Ticket::forDraw($this->draw_id)->forUser($this->auth_user->id)->orderBy('id', 'desc')->paginate(5);
-        // $draw_list = Draw::orderBy('id', 'DESC')->paginate(5);
-        // $draw_list = Draw::orderBy('id', 'desc')->paginate(3, ['*'], 'drawPage', $this->page);
-        // $ticket_list = Ticket::forDraw($this->draw_id)
-        //     ->forUser($this->auth_user->id)
-        //     ->orderBy('id', 'desc')
-        //     ->paginate(5, ['*'], 'page', $this->ticket_page);
-
-        // $options = Options::where('draw_id', $this->draw_id)
-        //     ->where('ticket_id', $this->current_ticket_id)
-        //     ->where('user_id', $this->auth_user->id)->orderBy('id', 'DESC')
-        //     ->paginate(5);
-
         return view('livewire.add-ticket-form');
 
     }

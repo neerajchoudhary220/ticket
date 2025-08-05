@@ -4,10 +4,20 @@
                        </div>
                        <div class="card-body">
                            <div x-data="{
-                               page: 0,
+                               page: 1,
                                loading: false,
+                               observer: null,
                                init() {
-                                   const observer = new IntersectionObserver((entries) => {
+                                   this.setupObserver();
+                                   Livewire.hook('commit', () => {
+                                       this.$nextTick(() => {
+                                           this.setupObserver();
+                                       });
+                                   });
+                               },
+                               setupObserver() {
+                                   if (this.observer) this.observer.disconnect();
+                                   this.observer = new IntersectionObserver((entries) => {
                                        entries.forEach(entry => {
                                            if (entry.isIntersecting && !this.loading) {
                                                this.page++;
@@ -17,18 +27,11 @@
                                                });
                                            }
                                        });
-                                   }, {
-                                       threshold: 0
-                                   });
-                           
-                                   this.$nextTick(() => {
-                                       if (this.$refs.loader) {
-                                           observer.observe(this.$refs.loader);
-                                       }
-                                   });
+                                   }, { threshold: 1.0 });
+                                   if (this.$refs.loader) this.observer.observe(this.$refs.loader);
                                }
                            }" x-init="init" class="table-responsive"
-                               style="max-height: 400px; overflow-y: auto;">
+                               style="max-height: 250px; overflow-y: auto;">
                                <table class="table table-bordered table-striped table-hover">
                                    <thead class="table-light position-sticky top-0" style="z-index: 1;">
                                        <tr>
@@ -51,7 +54,7 @@
                                                <td>{{ $option->total }}</td>
                                                <td>
                                                    <button class="btn btn-sm btn-danger"
-                                                       wire:click="deleteOption({{ $option->id }})">Delete</button>
+                                                       wire:click="deleteOption({{ $option->id }},{{ $loop->index }})">Delete</button>
                                                </td>
                                            </tr>
                                        @empty
