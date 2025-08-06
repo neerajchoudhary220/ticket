@@ -26,14 +26,18 @@ class Options extends Model
         return $this->belongsTo(Ticket::class);
     }
 
-    public function scopeForTicket(Builder $options): Builder
+    public function scopeForTicket(Builder $options, $ticket_id): Builder
     {
-        return $options->whereHas('ticket');
+        return $options->whereHas('ticket', function ($ticket) use ($ticket_id) {
+            return $ticket->where('id', $ticket_id);
+        });
     }
 
-    public function scopeForDraw(Builder $options): Builder
+    public function scopeForDraw(Builder $options, $draw_id): Builder
     {
-        return $options->whereHas('draw');
+        return $options->whereHas('draw', function ($draw) use ($draw_id) {
+            return $draw->where('id', $draw_id);
+        });
     }
 
     public function scopeForRunningTicket(Builder $options): Builder

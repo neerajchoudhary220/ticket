@@ -137,7 +137,6 @@ class AddTicketForm extends Component
             $this->option_page = 1; // Reset page to 1
             $this->option_list = []; // Clear existing list
         }
-
         $newOptions = Options::forDraw($this->draw_id)
             ->forTicket($this->current_ticket_id)
             ->forUser($this->auth_user->id)

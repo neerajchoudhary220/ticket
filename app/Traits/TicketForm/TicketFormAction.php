@@ -44,6 +44,7 @@ trait TicketFormAction
                 ]);
             $this->current_ticket_id = $this->user_running_ticket->id;
             $this->auth_user->draws()->syncWithoutDetaching($this->draw_id);
+            $this->loadOptions(true);
 
         }
 
@@ -148,6 +149,7 @@ trait TicketFormAction
 
         $option->delete();
         unset($this->option_list[$index]);
+        $this->loadOptions(true);
 
     }
 
