@@ -4,7 +4,7 @@
     </div>
     <div class="card-body">
         <div x-data="{
-            page: 0,
+            page: 1,
             loading: false,
             init() {
                 const observer = new IntersectionObserver((entries) => {
@@ -14,6 +14,7 @@
                             this.loading = true;
                             $wire.set('draw_page', this.page).then(() => {
                                 this.loading = false;
+                                $wire.call('loadDraws');
                             });
                         }
                     });
@@ -30,8 +31,8 @@
         }" x-init="init" class="ticket-list-box">
             @foreach ($draw_list as $draw)
                 <div class="form-check" wire:key="draw-{{ $draw->id }}">
-                    <input class="form-check-input" type="checkbox" name="selected_draw" id="draw_{{ $draw->id }}"
-                        value="{{ $draw->id }}">
+                    <input class="form-check-input draw_checkbox" type="checkbox" id="draw_{{ $draw->id }}"
+                        value="{{ $draw->id }}" @checked($draw->id == $selected_draw_id)>
                     <label class="form-check-label" for="draw_{{ $draw->id }}">
                         {{ $draw->draw_number }}
                         (TC:{{ $draw->totalCollection($draw->id) }},
@@ -47,4 +48,9 @@
 
 
     </div>
+    {{-- <div class="card-footer">
+        <div>
+            Selected Draw IDs: @json($selected_draw)
+        </div>
+    </div> --}}
 </div>

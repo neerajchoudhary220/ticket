@@ -7,10 +7,13 @@ use App\Models\Options;
 use App\Models\Ticket;
 use App\Models\TicketOption;
 use Carbon\Carbon;
+use Livewire\Attributes\On;
 
 trait TicketFormAction
 {
     const PRICE = 11;
+
+    public int $selected_draw_id;
 
     protected function addTicket()
     {
@@ -45,8 +48,10 @@ trait TicketFormAction
             $this->current_ticket_id = $this->user_running_ticket->id;
             $this->auth_user->draws()->syncWithoutDetaching($this->draw_id);
             $this->loadOptions(true);
-
+            $this->selected_draw[] = $this->draw_id;
+            $this->selected_draw_id = $this->draw_id;
         }
+        // $this->dispatch('checkedDraw', drawId: $this->draw_id);
 
     }
 
@@ -225,5 +230,28 @@ trait TicketFormAction
             return redirect()->route('dashboard');
         }
 
+    }
+
+    #[On('draw-selected')]
+    public function handleDrawSelected($drawId, $isChecked)
+    {
+
+        if ($isChecked) {
+            if (! in_array($drawId, $this->selected_draw)) {
+                $this->selected_draw[] = $drawId;
+            }
+        } elseif (! $isChecked && count($this->selected_draw) != 0) {
+            $this->selected_draw = array_filter(
+                $this->selected_draw,
+                fn ($id) => $id != $drawId
+            );
+        }
+
+        $total_selected_draws = count($this->selected_draw);
+
+        $this->dispatch('check-selected-draw',
+            total_selected_draw: $total_selected_draws,
+            drawId: $drawId
+        );
     }
 }

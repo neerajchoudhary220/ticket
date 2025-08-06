@@ -77,6 +77,8 @@ class AddTicketForm extends Component
 
     public $option_list = [];
 
+    public array $selected_draw = [];
+
     public $drawPerPage = 5;
 
     public int $ticketPerPage = 3;
@@ -93,6 +95,8 @@ class AddTicketForm extends Component
             $this->selected_ticket_id = $ticket->id;
             $this->user_running_ticket = $ticket;
             $this->is_edit_mode = true;
+
+            $this->selected_draw[] = $this->draw_id;
         } else {
             $this->addTicket();
 
@@ -116,7 +120,7 @@ class AddTicketForm extends Component
 
     public function loadDraws()
     {
-        $newDraws = Draw::orderBy('id', 'desc')->paginate($this->drawPerPage, ['*'], 'draw_page', $this->draw_page);
+        $newDraws = Draw::orderBy('end_time', 'desc')->paginate($this->drawPerPage, ['*'], 'page', $this->draw_page);
 
         // Append instead of replace
         $this->draw_list = array_merge($this->draw_list, $newDraws->items());
