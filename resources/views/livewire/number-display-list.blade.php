@@ -66,7 +66,11 @@
                                </table>
                                <div x-ref="loader" class="text-center mt-3">
                                    <div x-show="loading" x-cloak></div>
+                                   @error('submit_error')
+                                       <span class="text-danger"><i class="fa fa-warning"></i> {{ $message }}</span>
+                                   @enderror
                                </div>
+
 
 
                            </div>
@@ -75,6 +79,8 @@
                                    <button class="btn btn-sm btn-primary" wire:click='submitTicket'>Submit
                                        Ticket</button>
                                </div>
+
                            </div>
                        </div>
+
                    </div>

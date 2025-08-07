@@ -15,6 +15,8 @@ trait TicketFormAction
 
     public int $selected_draw_id;
 
+    public $submit_error = '';
+
     protected function addTicket()
     {
 
@@ -27,15 +29,16 @@ trait TicketFormAction
         }
 
         $this->active_draw = Draw::runningDraw()->first();
-        $this->active_draw_number = $this->active_draw->draw_number;
-        $this->draw_id = $this->active_draw->id;
-
-        $endTime = Carbon::createFromFormat('H:i', $this->active_draw->end_time);
-        $current_time = Carbon::now()->setTimezone('Asia/Kolkata')->format('h:i A');
-        $this->end_time = $endTime->format('h:i A');
-        $this->duration = $endTime->diffInMinutes($current_time, true);
 
         if ($this->active_draw) {
+            $this->active_draw_number = $this->active_draw->draw_number;
+            $this->draw_id = $this->active_draw->id;
+
+            $endTime = Carbon::createFromFormat('H:i', $this->active_draw->end_time);
+            $current_time = Carbon::now()->setTimezone('Asia/Kolkata')->format('h:i A');
+            $this->end_time = $endTime->format('h:i A');
+            $this->duration = $endTime->diffInMinutes($current_time, true);
+
             $this->user_running_ticket = Ticket::firstOrCreate([
                 'user_id' => $this->auth_user->id,
                 'draw_id' => $this->active_draw->id,
@@ -48,10 +51,10 @@ trait TicketFormAction
             $this->current_ticket_id = $this->user_running_ticket->id;
             $this->auth_user->draws()->syncWithoutDetaching($this->draw_id);
             $this->loadOptions(true);
+            $this->loadTickets(true);
             $this->selected_draw[] = $this->draw_id;
             $this->selected_draw_id = $this->draw_id;
         }
-        // $this->dispatch('checkedDraw', drawId: $this->draw_id);
 
     }
 
@@ -96,8 +99,15 @@ trait TicketFormAction
             $this->{'total_'.$row_property} = 0;
 
             $this->loadOptions(true);
+            $this->resetError();
 
         }
+
+    }
+
+    public function resetError()
+    {
+        $this->resetErrorBag(['abc', 'abc_qty', 'submit_error']);
 
     }
 
@@ -124,9 +134,9 @@ trait TicketFormAction
         if ($hasError) {
             return true;
         }
+        $this->resetError();
 
         // Clear previous errors if validation passes
-        $this->resetErrorBag(['abc', 'abc_qty']);
 
         $total = $this->abc_qty * $this->abc * self::PRICE;
 
@@ -160,8 +170,20 @@ trait TicketFormAction
 
     public function submitTicket()
     {
+
         $digitMatrix = []; // Format: [digit][option] = count
 
+        $last_completed_options = Options::query()->forUser($this->auth_user->id)
+            ->forDraw($this->draw_id)
+            ->where('ticket_id', $this->current_ticket_id);
+
+        if (count($last_completed_options->get()) == 0) {
+            $this->addError('submit_error', 'Please add at least one entry!');
+
+            return true;
+        } else {
+            $this->resetError();
+        }
         // Update Ticket Status with Completed status
         $this->auth_user->tickets()
             ->where('id', $this->current_ticket_id)
@@ -175,28 +197,25 @@ trait TicketFormAction
             ->where('ticket_id', $this->current_ticket_id)->update(['status' => 'COMPLETED']);
 
         // Get All Completed Options
-        $last_completed_options = Options::forUser($this->auth_user->id)
-            ->where('draw_id', $this->draw_id)
-            ->where('status', 'COMPLETED')
-            ->where('ticket_id', $this->current_ticket_id)->get();
 
         TicketOption::forUser($this->auth_user->id)->forTicket($this->current_ticket_id)->forDraw($this->draw_id)
             ->delete();
         $digitMatrix = [];
 
-        $last_completed_options->each(function ($opt) use (&$digitMatrix) {
-            $option = $opt->option;
-            $digits = str_split((string) $opt->number);
-            $qty = $opt->qty;
+        $last_completed_options->forCompleted()
+            ->get()->each(function ($opt) use (&$digitMatrix) {
+                $option = $opt->option;
+                $digits = str_split((string) $opt->number);
+                $qty = $opt->qty;
 
-            foreach ($digits as $digit) {
-                if (! isset($digitMatrix[$digit][$option])) {
-                    $digitMatrix[$digit][$option] = 0;
+                foreach ($digits as $digit) {
+                    if (! isset($digitMatrix[$digit][$option])) {
+                        $digitMatrix[$digit][$option] = 0;
+                    }
+                    $digitMatrix[$digit][$option] += $qty;
+
                 }
-                $digitMatrix[$digit][$option] += $qty;
-
-            }
-        });
+            });
 
         ksort($digitMatrix);
         foreach ($digitMatrix as $number => $options) {

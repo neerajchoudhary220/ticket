@@ -49,4 +49,9 @@ class Options extends Model
     {
         return $options->whereHas('ticket', fn ($ticket) => $ticket->completed());
     }
+
+    public function scopeforCompleted(Builder $options): Builder
+    {
+        return $options->where('status', 'COMPLETED');
+    }
 }

@@ -1,0 +1,116 @@
+<?php
+
+namespace App\Traits\TicketForm;
+
+use App\Models\Draw;
+use App\Models\Options;
+use App\Models\Ticket;
+use Illuminate\Support\Carbon;
+
+trait TicketFormPagination
+{
+    public int $ticket_page = 1;
+
+    public int $draw_page = 1;
+
+    public int $option_page = 1;
+
+    public $draw_list = [];
+
+    public $ticket_list = [];
+
+    public $option_list = [];
+
+    public array $selected_draw = [];
+
+    public $drawPerPage = 12;
+
+    public int $ticketPerPage = 10;
+
+    public int $optionPerPage = 5;
+
+    public $hasMoreDrawPages = true;
+
+    public $loaded_tickets_ids = [];
+
+    public $loaded_draw_ids = [];
+
+    public function updatedDrawPage()
+    {
+        $this->loadDraws(); // called when `page` changes from Alpine
+    }
+
+    public function updatedTicketPage()
+    {
+        $this->loadTickets();
+    }
+
+    public function updatedOptionPage()
+    {
+        $this->loadOptions();
+    }
+
+    public function loadDraws()
+    {
+        $current_time = Carbon::now()->timezone('Asia/Kolkata')->format('H:i');
+
+        $paginatedDraws = Draw::orderBy('end_time', 'desc')
+            ->where(function ($query) use ($current_time) {
+                $query->where(function ($q) use ($current_time) {
+                    $q->where('start_time', '<=', $current_time)
+                        ->where('end_time', '>=', $current_time);
+                })->orWhere('start_time', '>', $current_time);
+            })
+            ->paginate($this->drawPerPage, ['*'], 'draw_page', $this->draw_page);
+        $newDraws = collect($paginatedDraws->items());
+
+        $uniqueDraws = $newDraws->reject(function ($draw) {
+            return in_array($draw['id'], $this->loaded_draw_ids, true);
+        })->values()->all();
+
+        foreach ($uniqueDraws as $uniqueDraw) {
+            $this->loaded_draw_ids[] = $uniqueDraw['id'];
+        }
+
+        $this->draw_list = array_merge($this->draw_list, $uniqueDraws);
+        $this->hasMoreDrawPages = $paginatedDraws->hasMorePages();
+    }
+
+    public function loadTickets($reset = false)
+    {
+        if ($reset) {
+            $this->ticket_page = 1;
+            $this->ticket_list = [];
+            $this->loaded_tickets_ids = [];
+        }
+        $paginatedTickets = Ticket::forDraw($this->draw_id)
+            ->forUser($this->auth_user->id)
+            ->orderBy('id', 'desc')
+            ->paginate($this->ticketPerPage, ['*'], 'ticket_page', $this->ticket_page);
+
+        $newTickets = collect($paginatedTickets->items());
+        $uniqueTickets = $newTickets->reject(function ($ticket) {
+            return in_array($ticket['id'], $this->loaded_tickets_ids, true);
+        })->values()->all();
+
+        foreach ($uniqueTickets as $uniqueTicket) {
+            $this->loaded_tickets_ids[] = $uniqueTicket['id'];
+        }
+        $this->ticket_list = array_merge($this->ticket_list, $uniqueTickets);
+    }
+
+    public function loadOptions($reset = false)
+    {
+        if ($reset) {
+            $this->option_page = 1; // Reset page to 1
+            $this->option_list = []; // Clear existing list
+        }
+        $newOptions = Options::forDraw($this->draw_id)
+            ->forTicket($this->current_ticket_id)
+            ->forUser($this->auth_user->id)
+            ->orderBy('id', 'DESC')
+            ->paginate(5, ['*'], 'option_page', $this->option_page);
+
+        $this->option_list = array_merge($this->option_list, $newOptions->items());
+    }
+}

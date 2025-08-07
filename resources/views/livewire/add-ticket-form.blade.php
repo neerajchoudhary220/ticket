@@ -35,6 +35,7 @@
                     'isChecked': isChecked
                 });
             })
+
             $wire.on('check-selected-draw', (event) => {
                 const totalSelectedDraw = event.total_selected_draw;
                 const drawId = event.drawId;
@@ -50,8 +51,34 @@
                 }
             })
 
-            //checked
 
+            //ticket scrollbar
+            $('.ticket-scroller-box').on('scroll', function() {
+                let box = $(this);
+                let scrollTop = box.scrollTop();
+                let innerHeight = box.innerHeight();
+                let scrollHeight = box[0].scrollHeight;
+                let ticket_page = $wire.get('ticket_page');
+
+                if (scrollTop + innerHeight >= scrollHeight - 10) {
+                    ticket_page++;
+                    $wire.set('ticket_page', ticket_page);
+                }
+            });
+
+            //draw scrollbar
+            $('.draw-box').on('scroll', function() {
+                let box = $(this);
+                let scrollTop = box.scrollTop();
+                let innerHeight = box.innerHeight();
+                let scrollHeight = box[0].scrollHeight;
+                let draw_page = $wire.get('draw_page');
+
+                if (scrollTop + innerHeight >= scrollHeight - 10) {
+                    draw_page++;
+                    $wire.set('draw_page', draw_page);
+                }
+            });
 
 
 
