@@ -34,12 +34,13 @@
 
                </div>
                <div class="card-body">
-                   <div class="row mb-3">
+                   <div class="row mb-3" x-data @focus-qty.window="document.getElementById('qty').focus()"
+                       @focus-abc.window="document.getElementById('abc').focus()">
                        <div class="col-4">
                            <div class="d-flex">
                                <label class="mt-2" for="abc">ABC: </label>
                                <input type="text" class="form-control" wire:model="abc" id="abc"
-                                   placeholder="Enter ABC">
+                                   wire:keydown.enter="enterKeyPressOnAbc" placeholder="Enter ABC">
                            </div>
                            @error('abc')
                                <span class="text-danger">{{ $message }}</span>
@@ -49,14 +50,11 @@
                            <div class="d-flex">
                                <label class="mt-2" for="qty">QTY: </label>
                                <input type="text" class="form-control" wire:model="abc_qty" id="qty"
-                                   placeholder="Enter Qty"><br>
+                                   wire:keydown.enter="enterKeyPressOnQty" placeholder="Enter Qty"><br>
                            </div>
                            @error('abc_qty')
                                <span class="text-danger">{{ $message }}</span>
                            @enderror
-                       </div>
-                       <div class="col-4 d-flex">
-                           <button class="btn btn-primary btn-sm" wire:click='applyHandle'>Apply</button>
                        </div>
                    </div>
                    <table class="table table-bordered">

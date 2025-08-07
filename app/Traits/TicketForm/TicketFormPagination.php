@@ -45,10 +45,10 @@ trait TicketFormPagination
         $this->loadTickets();
     }
 
-    public function updatedOptionPage()
-    {
-        $this->loadOptions();
-    }
+    // public function updatedOptionPage()
+    // {
+    //     $this->loadOptions();
+    // }
 
     public function loadDraws()
     {
@@ -88,9 +88,12 @@ trait TicketFormPagination
             $this->ticket_list = [];
             $this->loaded_tickets_ids = [];
         }
-        $paginatedTickets = Ticket::forDraw($this->draw_id)
-            ->forUser($this->auth_user->id)
-            ->orderBy('id', 'desc')
+        $query = Ticket::query()
+            ->forUser($this->auth_user->id);
+        $count = (clone $query)->count();
+        $this->ticketPerPage = $count <= 5 ? 10 : $this->ticketPerPage;
+
+        $paginatedTickets = $query->orderBy('id', 'desc')
             ->paginate($this->ticketPerPage, ['*'], 'ticket_page', $this->ticket_page);
 
         $newTickets = collect($paginatedTickets->items());
@@ -111,12 +114,21 @@ trait TicketFormPagination
             $this->option_list = []; // Clear existing list
         }
         $newOptions = Options::whereIn('draw_id', $this->selected_draw)
-            // forDraw($this->draw_id)
             ->forTicket($this->current_ticket_id)
             ->forUser($this->auth_user->id)
-            ->orderBy('id', 'DESC')
-            ->paginate(5, ['*'], 'option_page', $this->option_page);
+            ->orderBy('id', 'DESC')->get();
+        //     ->paginate(5, ['*'], 'option_page', $this->option_page);
 
-        $this->option_list = array_merge($this->option_list, $newOptions->items());
+        // $this->option_list = array_merge($this->option_list, $newOptions->items());
+
+        foreach ($newOptions as $option) {
+            $this->stored_options[] = [
+                'id' => $option->id,
+                'option' => $option->option,
+                'number' => $option->number,
+                'qty' => $option->qty,
+                'total' => $option->total,
+            ];
+        }
     }
 }

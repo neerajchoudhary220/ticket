@@ -61,6 +61,7 @@ class AddTicketForm extends Component
 
     public $abc_qty;
 
+    public array $stored_options = [];
     // protected $updatesQueryString = ['search', 'filterOption'];
 
     public function mount(Request $request, $ticket = null)

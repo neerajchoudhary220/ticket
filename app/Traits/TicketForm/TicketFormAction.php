@@ -79,42 +79,12 @@ trait TicketFormAction
         }
     }
 
-    public function keyEnter($row_property, $focus)
+    public function enterKeyPressOnAbc()
     {
-        $total = $this->calculateTotal($row_property);
-        if ($this->draw_id && $this->{$row_property} && $this->{$row_property.'_qty'}) {
-            foreach ($this->selected_draw as $draw_id) {
-                Options::create([
-                    'user_id' => $this->auth_user->id,
-                    'draw_id' => $draw_id,
-                    'ticket_id' => $this->current_ticket_id,
-                    'number' => $this->{$row_property},
-                    'option' => ucfirst($row_property),
-                    'qty' => $this->{$row_property.'_qty'},
-                    'total' => $total,
-                    'status' => 'RUNNING',
-                ]);
-            }
-
-            $this->dispatch($focus);
-            $this->{$row_property} = '';
-            $this->{$row_property.'_qty'} = '';
-            $this->{'total_'.$row_property} = 0;
-
-            $this->loadOptions(true);
-            $this->resetError();
-
-        }
-
+        $this->dispatch('focus-qty');
     }
 
-    public function resetError()
-    {
-        $this->resetErrorBag(['abc', 'abc_qty', 'submit_error']);
-
-    }
-
-    public function applyHandle()
+    public function enterKeyPressOnQty()
     {
         $hasError = false;
 
@@ -143,33 +113,70 @@ trait TicketFormAction
 
         $total = $this->abc_qty * $this->abc * self::PRICE;
 
-        // if($this->abc_qty)
         foreach (['A', 'B', 'C'] as $option) {
-            foreach ($this->selected_draw as $draw_id) {
-                Options::create([
-                    'user_id' => $this->auth_user->id,
-                    'draw_id' => $draw_id,
-                    'ticket_id' => $this->current_ticket_id,
-                    'number' => $this->abc,
-                    'option' => $option,
-                    'qty' => $this->abc_qty,
-                    'total' => $total,
-                    'status' => 'RUNNING',
-                ]);
-            }
+            $this->stored_options[] =
+            [
+                'number' => $this->abc,
+                'option' => $option,
+                'qty' => $this->abc_qty,
+                'total' => $total,
+                'status' => 'RUNNING',
+            ];
+            // foreach ($this->selected_draw as $draw_id) {
+            //     Options::create([
+            //         'user_id' => $this->auth_user->id,
+            //         'draw_id' => $draw_id,
+            //         'ticket_id' => $this->current_ticket_id,
+            //         'number' => $this->abc,
+            //         'option' => $option,
+            //         'qty' => $this->abc_qty,
+            //         'total' => $total,
+            //         'status' => 'RUNNING',
+            //     ]);
+            // }
         }
+        krsort($this->stored_options);
 
         $this->abc_qty = $this->abc = '';
-        $this->loadOptions(true);
+        $this->dispatch('focus-abc');
+        // $this->loadOptions(true);
 
     }
 
-    public function deleteOption(Options $option, $index)
+    public function keyEnter($row_property, $focus)
     {
+        $total = $this->calculateTotal($row_property);
+        if ($this->selected_draw && $this->{$row_property} && $this->{$row_property.'_qty'}) {
+            $this->stored_options[] =
+            [
+                'number' => $this->{$row_property},
+                'option' => ucfirst($row_property),
+                'qty' => $this->{$row_property.'_qty'},
+                'total' => $total,
+                'status' => 'RUNNING',
+            ];
+            krsort($this->stored_options);
 
-        $option->delete();
-        unset($this->option_list[$index]);
-        $this->loadOptions(true);
+            $this->dispatch($focus);
+            $this->{$row_property} = '';
+            $this->{$row_property.'_qty'} = '';
+            $this->{'total_'.$row_property} = 0;
+
+            $this->resetError();
+
+        }
+
+    }
+
+    public function resetError()
+    {
+        $this->resetErrorBag(['abc', 'abc_qty', 'submit_error']);
+
+    }
+
+    public function deleteOption($index)
+    {
+        unset($this->stored_options[$index]);
 
     }
 
@@ -178,95 +185,93 @@ trait TicketFormAction
 
         $digitMatrix = []; // Format: [digit][option] = count
         $selected_ticket_id = $this->current_ticket_id;
-        $last_completed_options = Options::query()->forUser($this->auth_user->id)
-            ->whereIn('draw_id', $this->selected_draw)
-            ->where('ticket_id', $selected_ticket_id);
 
-        if (count($last_completed_options->get()) == 0) {
+        if (count($this->stored_options) == 0) {
             $this->addError('submit_error', 'Please add at least one entry!');
 
             return true;
         } else {
             $this->resetError();
         }
-        // delete old tickets
-        $this->auth_user->tickets()
-            ->where('id', $selected_ticket_id)
-            ->whereNotIn('draw_id', $this->selected_draw)
-            ->delete();
+        // delete unchecked draw's options
+        $this->auth_user->options()->whereNotIn('draw_id', $this->selected_draw)->where('ticket_id', $selected_ticket_id)->delete();
 
-        // Update Ticket Status with Completed status
+        // delete unchecked draw's ticket options
+        $this->auth_user->ticketOptions()->where('ticket_id', $selected_ticket_id)->whereNotIn('draw_id', $this->selected_draw)->delete();
+
+        // add draw_id into $stored options
+        $checked_draw_options = [];
         foreach ($this->selected_draw as $draw_id) {
-            $this->auth_user->tickets()->updateOrCreate([
-                'ticket_number' => $this->user_running_ticket->ticket_number,
-            ], [
-                'status' => 'COMPLETED',
-                'draw_id' => $draw_id,
-            ]);
+            $option = collect($this->stored_options)->map(function ($store_option) use ($draw_id, $selected_ticket_id) {
+                $store_option['draw_id'] = $draw_id;
+                $store_option['ticket_id'] = $selected_ticket_id;
+                $store_option['status'] = 'COMPLETED';
+
+                return $store_option;
+            })->values()->all();
+            $checked_draw_options = array_merge($checked_draw_options, $option);
         }
 
-        // Delete unchecked order options
-        $this->auth_user->options()
-            ->whereNotIn('draw_id', $this->draw_id)
-            ->where('ticket_id', $selected_ticket_id)->delete();
+        logger()->info($checked_draw_options);
+        // Store options
+        foreach ($checked_draw_options as $option) {
+            $this->auth_user->options()->create($option);
+        }
 
-        // update Options Status with Completed status
-        $this->auth_user->options()->updateOrCreate([
-            'ticket_id' => $this->current,
-        ]);
-        Options::forUser($this->auth_user->id)
-            ->where('draw_id', $this->draw_id)
-            ->where('ticket_id', $this->current_ticket_id)->update(['status' => 'COMPLETED']);
+        // Update user ticket status e.g. complete
+        $this->auth_user->tickets()->where('id', $selected_ticket_id)->update(['status' => 'COMPLETED']);
 
-        // Get All Completed Options
-
-        // TicketOption::forUser($this->auth_user->id)->forTicket($this->current_ticket_id)->forDraw($this->draw_id)
-        //     ->delete();
+        // Extract digit with qty from stored options
         $digitMatrix = [];
 
-        $last_completed_options->forCompleted()
-            ->get()->each(function ($opt) use (&$digitMatrix) {
-                $option = $opt->option;
-                $digits = str_split((string) $opt->number);
-                $qty = $opt->qty;
+        // $this->stored_options->each(function ($opt) use (&$digitMatrix)
+        foreach ($this->stored_options as $opt) {
+            $option = $opt['option'];
+            $digits = str_split((string) $opt['number']);
+            $qty = $opt['qty'];
 
-                foreach ($digits as $digit) {
-                    if (! isset($digitMatrix[$digit][$option])) {
-                        $digitMatrix[$digit][$option] = 0;
-                    }
-                    $digitMatrix[$digit][$option] += $qty;
-
+            foreach ($digits as $digit) {
+                if (! isset($digitMatrix[$digit][$option])) {
+                    $digitMatrix[$digit][$option] = 0;
                 }
-            });
+                $digitMatrix[$digit][$option] += $qty;
+
+            }
+        }
 
         ksort($digitMatrix);
-        foreach ($digitMatrix as $number => $options) {
 
-            if (! isset($options['A'])) {
-                $options['A'] = 0;
-            }
-            if (! isset($options['B'])) {
-                $options['B'] = 0;
-            }
-            if (! isset($options['C'])) {
-                $options['C'] = 0;
-            }
-            TicketOption::updateOrCreate(
-                [
-                    'user_id' => $this->auth_user->id,
-                    'draw_id' => $this->draw_id,
-                    'ticket_id' => $this->current_ticket_id,
-                    'number' => $number,
-                    'a_qty' => $options['A'],
-                    'b_qty' => $options['B'],
-                    'c_qty' => $options['C'],
-                ]
-            );
+        // Store Ticket Option
+        foreach ($this->selected_draw as $draw_id) {
+            foreach ($digitMatrix as $number => $options) {
+                if (! isset($options['A'])) {
+                    $options['A'] = 0;
+                }
+                if (! isset($options['B'])) {
+                    $options['B'] = 0;
+                }
+                if (! isset($options['C'])) {
+                    $options['C'] = 0;
+                }
+                TicketOption::updateOrCreate(
+                    [
+                        'user_id' => $this->auth_user->id,
+                        'draw_id' => $draw_id,
+                        'ticket_id' => $selected_ticket_id,
+                        'number' => $number,
+                        'a_qty' => $options['A'],
+                        'b_qty' => $options['B'],
+                        'c_qty' => $options['C'],
+                    ]
+                );
 
+            }
         }
+
         if (! $this->is_edit_mode) {
             // Generate new Ticket
-            $this->addTicket();
+            // $this->addTicket();
+            $this->dispatch('refresh-window');
         } else {
             return redirect()->route('dashboard');
         }

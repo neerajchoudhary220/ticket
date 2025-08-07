@@ -81,6 +81,11 @@
                 }
             });
 
+            //refresh window
+            $wire.on('refresh-window', () => {
+                window.location.reload();
+            })
+
 
 
         })
