@@ -12,12 +12,13 @@
         </div>
         <div class="col-6">
             <div class="row">
+                <div class="col-12 mb-3">
+                    @include('livewire.draw-list')
+                </div>
                 <div class="col-12">
                     @include('livewire.ticket-list')
                 </div>
-                <div class="col-12 mt-3">
-                    @include('livewire.draw-list')
-                </div>
+
             </div>
         </div>
     </div>

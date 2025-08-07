@@ -54,13 +54,18 @@ trait TicketFormPagination
     {
         $current_time = Carbon::now()->timezone('Asia/Kolkata')->format('H:i');
 
-        $paginatedDraws = Draw::orderBy('end_time', 'desc')
-            ->where(function ($query) use ($current_time) {
-                $query->where(function ($q) use ($current_time) {
-                    $q->where('start_time', '<=', $current_time)
-                        ->where('end_time', '>=', $current_time);
-                })->orWhere('start_time', '>', $current_time);
-            })
+        $paginatedDraws = Draw::where(function ($query) use ($current_time) {
+            $query->where(function ($q) use ($current_time) {
+                $q->where('start_time', '<=', $current_time)
+                    ->where('end_time', '>=', $current_time);
+            })->orWhere('start_time', '>', $current_time);
+        })
+            ->orderByRaw('
+        CASE
+            WHEN start_time <= ? AND end_time >= ? THEN 0
+            ELSE 1
+        END, start_time
+    ', [$current_time, $current_time])
             ->paginate($this->drawPerPage, ['*'], 'draw_page', $this->draw_page);
         $newDraws = collect($paginatedDraws->items());
 
@@ -105,7 +110,8 @@ trait TicketFormPagination
             $this->option_page = 1; // Reset page to 1
             $this->option_list = []; // Clear existing list
         }
-        $newOptions = Options::forDraw($this->draw_id)
+        $newOptions = Options::whereIn('draw_id', $this->selected_draw)
+            // forDraw($this->draw_id)
             ->forTicket($this->current_ticket_id)
             ->forUser($this->auth_user->id)
             ->orderBy('id', 'DESC')

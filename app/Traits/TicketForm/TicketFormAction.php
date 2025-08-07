@@ -83,16 +83,19 @@ trait TicketFormAction
     {
         $total = $this->calculateTotal($row_property);
         if ($this->draw_id && $this->{$row_property} && $this->{$row_property.'_qty'}) {
-            Options::create([
-                'user_id' => $this->auth_user->id,
-                'draw_id' => $this->draw_id,
-                'ticket_id' => $this->current_ticket_id,
-                'number' => $this->{$row_property},
-                'option' => ucfirst($row_property),
-                'qty' => $this->{$row_property.'_qty'},
-                'total' => $total,
-                'status' => 'RUNNING',
-            ]);
+            foreach ($this->selected_draw as $draw_id) {
+                Options::create([
+                    'user_id' => $this->auth_user->id,
+                    'draw_id' => $draw_id,
+                    'ticket_id' => $this->current_ticket_id,
+                    'number' => $this->{$row_property},
+                    'option' => ucfirst($row_property),
+                    'qty' => $this->{$row_property.'_qty'},
+                    'total' => $total,
+                    'status' => 'RUNNING',
+                ]);
+            }
+
             $this->dispatch($focus);
             $this->{$row_property} = '';
             $this->{$row_property.'_qty'} = '';
@@ -142,16 +145,18 @@ trait TicketFormAction
 
         // if($this->abc_qty)
         foreach (['A', 'B', 'C'] as $option) {
-            Options::create([
-                'user_id' => $this->auth_user->id,
-                'draw_id' => $this->draw_id,
-                'ticket_id' => $this->current_ticket_id,
-                'number' => $this->abc,
-                'option' => $option,
-                'qty' => $this->abc_qty,
-                'total' => $total,
-                'status' => 'RUNNING',
-            ]);
+            foreach ($this->selected_draw as $draw_id) {
+                Options::create([
+                    'user_id' => $this->auth_user->id,
+                    'draw_id' => $draw_id,
+                    'ticket_id' => $this->current_ticket_id,
+                    'number' => $this->abc,
+                    'option' => $option,
+                    'qty' => $this->abc_qty,
+                    'total' => $total,
+                    'status' => 'RUNNING',
+                ]);
+            }
         }
 
         $this->abc_qty = $this->abc = '';
@@ -172,10 +177,10 @@ trait TicketFormAction
     {
 
         $digitMatrix = []; // Format: [digit][option] = count
-
+        $selected_ticket_id = $this->current_ticket_id;
         $last_completed_options = Options::query()->forUser($this->auth_user->id)
-            ->forDraw($this->draw_id)
-            ->where('ticket_id', $this->current_ticket_id);
+            ->whereIn('draw_id', $this->selected_draw)
+            ->where('ticket_id', $selected_ticket_id);
 
         if (count($last_completed_options->get()) == 0) {
             $this->addError('submit_error', 'Please add at least one entry!');
@@ -184,22 +189,39 @@ trait TicketFormAction
         } else {
             $this->resetError();
         }
-        // Update Ticket Status with Completed status
+        // delete old tickets
         $this->auth_user->tickets()
-            ->where('id', $this->current_ticket_id)
-            ->where('draw_id', $this->draw_id)
-            ->running()->update([
+            ->where('id', $selected_ticket_id)
+            ->whereNotIn('draw_id', $this->selected_draw)
+            ->delete();
+
+        // Update Ticket Status with Completed status
+        foreach ($this->selected_draw as $draw_id) {
+            $this->auth_user->tickets()->updateOrCreate([
+                'ticket_number' => $this->user_running_ticket->ticket_number,
+            ], [
                 'status' => 'COMPLETED',
+                'draw_id' => $draw_id,
             ]);
+        }
+
+        // Delete unchecked order options
+        $this->auth_user->options()
+            ->whereNotIn('draw_id', $this->draw_id)
+            ->where('ticket_id', $selected_ticket_id)->delete();
+
         // update Options Status with Completed status
+        $this->auth_user->options()->updateOrCreate([
+            'ticket_id' => $this->current,
+        ]);
         Options::forUser($this->auth_user->id)
             ->where('draw_id', $this->draw_id)
             ->where('ticket_id', $this->current_ticket_id)->update(['status' => 'COMPLETED']);
 
         // Get All Completed Options
 
-        TicketOption::forUser($this->auth_user->id)->forTicket($this->current_ticket_id)->forDraw($this->draw_id)
-            ->delete();
+        // TicketOption::forUser($this->auth_user->id)->forTicket($this->current_ticket_id)->forDraw($this->draw_id)
+        //     ->delete();
         $digitMatrix = [];
 
         $last_completed_options->forCompleted()

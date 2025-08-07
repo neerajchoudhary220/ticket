@@ -57,8 +57,6 @@ class AddTicketForm extends Component
 
     public $is_edit_mode = false;
 
-    public $selected_ticket_id;
-
     public $abc;
 
     public $abc_qty;
@@ -71,7 +69,6 @@ class AddTicketForm extends Component
         if ($ticket) {
             $this->draw_id = $ticket->draw->id;
             $this->current_ticket_id = $ticket->id;
-            $this->selected_ticket_id = $ticket->id;
             $this->user_running_ticket = $ticket;
             $this->is_edit_mode = true;
 
