@@ -48,6 +48,8 @@ trait TicketFormAction
                 [
                     'ticket_number' => $ticketNumber,
                 ]);
+
+            $this->selected_ticket = $this->user_running_ticket;
             $this->current_ticket_id = $this->user_running_ticket->id;
             $this->auth_user->draws()->syncWithoutDetaching($this->draw_id);
             $this->loadOptions(true);
@@ -140,6 +142,7 @@ trait TicketFormAction
         $this->abc_qty = $this->abc = '';
         $this->dispatch('focus-abc');
         // $this->loadOptions(true);
+        $this->setStoreOptions();
 
     }
 
@@ -165,6 +168,7 @@ trait TicketFormAction
             $this->resetError();
 
         }
+        $this->setStoreOptions();
 
     }
 
@@ -194,27 +198,53 @@ trait TicketFormAction
             $this->resetError();
         }
         // delete unchecked draw's options
-        $this->auth_user->options()->whereNotIn('draw_id', $this->selected_draw)->where('ticket_id', $selected_ticket_id)->delete();
+        // $this->auth_user->options()->whereNotIn('draw_id', $this->selected_draw)->where('ticket_id', $selected_ticket_id)->delete();
+        $currentTime = Carbon::now()->timezone('Asia/Kolkata')->format('H:i');
+
+        $options = $this->auth_user->options()
+            ->where('ticket_id', $selected_ticket_id)
+            ->whereIn('draw_id', $this->selected_draw)
+            ->whereHas('draw', function ($query) use ($currentTime) {
+                $query->where(function ($q) use ($currentTime) {
+                    $q->where(function ($q1) use ($currentTime) {
+                        $q1->where('start_time', '<=', $currentTime)
+                            ->where('end_time', '>=', $currentTime);
+                    })->orWhere('start_time', '>', $currentTime);
+                });
+            })
+            ->delete();
 
         // delete unchecked draw's ticket options
-        $this->auth_user->ticketOptions()->where('ticket_id', $selected_ticket_id)->whereNotIn('draw_id', $this->selected_draw)->delete();
+        $this->auth_user->ticketOptions()
+            ->where('ticket_id', $selected_ticket_id)
+            ->whereIn('draw_id', $this->selected_draw)
+            ->whereHas('draw', function ($query) use ($currentTime) {
+                $query->where(function ($q) use ($currentTime) {
+                    $q->where(function ($q1) use ($currentTime) {
+                        $q1->where('start_time', '<=', $currentTime)
+                            ->where('end_time', '>=', $currentTime);
+                    })->orWhere('start_time', '>', $currentTime);
+                });
+            })
+            ->delete();
 
         // add draw_id into $stored options
-        $checked_draw_options = [];
-        foreach ($this->selected_draw as $draw_id) {
-            $option = collect($this->stored_options)->map(function ($store_option) use ($draw_id, $selected_ticket_id) {
-                $store_option['draw_id'] = $draw_id;
-                $store_option['ticket_id'] = $selected_ticket_id;
-                $store_option['status'] = 'COMPLETED';
+        // $checked_draw_options = [];
+        // dd($this->stored_options);
+        // foreach ($this->selected_draw as $draw_id) {
+        //     $option = collect($this->stored_options)->map(function ($store_option) use ($draw_id, $selected_ticket_id) {
+        //         $store_option['draw_id'] = $draw_id;
+        //         $store_option['ticket_id'] = $selected_ticket_id;
+        //         $store_option['status'] = 'COMPLETED';
 
-                return $store_option;
-            })->values()->all();
-            $checked_draw_options = array_merge($checked_draw_options, $option);
-        }
+        //         return $store_option;
+        //     })->values()->all();
+        //     $checked_draw_options = array_merge($checked_draw_options, $option);
+        // }
 
-        logger()->info($checked_draw_options);
+        // dd($checked_draw_options);
         // Store options
-        foreach ($checked_draw_options as $option) {
+        foreach ($this->stored_options as $option) {
             $this->auth_user->options()->create($option);
         }
 
@@ -287,6 +317,11 @@ trait TicketFormAction
                 $this->selected_draw[] = $drawId;
             }
         } elseif (! $isChecked && count($this->selected_draw) != 0) {
+
+            $this->stored_options = collect($this->stored_options)->filter(function ($option) use ($drawId) {
+                return $option['draw_id'] == $drawId;
+            })->values()->all();
+
             $this->selected_draw = array_filter(
                 $this->selected_draw,
                 fn ($id) => $id != $drawId
@@ -299,5 +334,67 @@ trait TicketFormAction
             total_selected_draw: $total_selected_draws,
             drawId: $drawId
         );
+
+        $this->setStoreOptions();
+    }
+
+    // select ticket number
+    public function handleTicketSelect($selected_ticket_id)
+    {
+
+        $this->current_ticket_id = $selected_ticket_id;
+        $this->selected_ticket = $this->auth_user->tickets()->where('id', $selected_ticket_id)->first();
+        // get draw ids which is not expired
+        $currentTime = Carbon::now()->timezone('Asia/Kolkata')->format('H:i');
+
+        $selected_draw_ids = $this->auth_user->options()->where('ticket_id', $selected_ticket_id)
+            ->whereHas('draw', function ($query) use ($currentTime) {
+                $query->where(function ($q) use ($currentTime) {
+                    $q->where(function ($q1) use ($currentTime) {
+                        $q1->where('start_time', '<=', $currentTime)
+                            ->where('end_time', '>=', $currentTime);
+                    })->orWhere('start_time', '>', $currentTime);
+                });
+            })->groupBy('draw_id')
+            ->pluck('draw_id')->toArray();
+
+        if (count($selected_draw_ids) > 0) {
+            $this->selected_draw = $selected_draw_ids;
+
+            // $this->selected_draw = array_unique(array_merge($this->selected_draw, $selected_draw_ids));
+
+        } else {
+            $this->selected_draw = [$this->draw_id];
+
+        }
+        $this->loadOptions(true);
+        // logger()->info($this->selected_draw);
+        $this->dispatch('checked-draws', drawIds: $this->selected_draw);
+    }
+
+    public function setStoreOptions()
+    {
+        $selected_draw_ids = $this->selected_draw;
+        $selected_ticket_id = $this->current_ticket_id;
+        $checked_draw_options = [];
+
+        foreach ($selected_draw_ids as $draw_id) {
+            // Use original stored_options without filtering
+            $option = collect($this->stored_options)
+                ->map(function ($store_option) use ($draw_id, $selected_ticket_id) {
+                    $store_option['draw_id'] = $draw_id;
+                    $store_option['ticket_id'] = $selected_ticket_id;
+                    $store_option['status'] = 'COMPLETED';
+
+                    return $store_option;
+                })
+                ->values()
+                ->all();
+
+            $checked_draw_options = array_merge($checked_draw_options, $option);
+        }
+
+        $this->stored_options = $checked_draw_options;
+
     }
 }

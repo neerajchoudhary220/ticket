@@ -12,12 +12,13 @@
         </div>
         <div class="col-6">
             <div class="row">
-                <div class="col-12 mb-3">
-                    @include('livewire.draw-list')
-                </div>
                 <div class="col-12">
                     @include('livewire.ticket-list')
                 </div>
+                <div class="col-12 mt-3">
+                    @include('livewire.draw-list')
+                </div>
+
 
             </div>
         </div>
@@ -51,6 +52,25 @@
                     });
                 }
             })
+
+            //checked draws
+            $wire.on('checked-draws', (event) => {
+                const drawIds = event.drawIds;
+                $(document).find(".draw_checkbox").prop('checked', false);
+                if (Array.isArray(drawIds) && drawIds.length > 0) {
+                    drawIds.forEach(drawId => {
+                        $(`#draw_${drawId}`).prop('checked', true);
+                    });
+                } else if (typeof drawIds === 'object' && Object.keys(drawIds).length > 0) {
+                    Object.values(drawIds).forEach(drawId => {
+                        $(`#draw_${drawId}`).prop('checked', true);
+                    });
+                }
+
+                console.log("drawIds:", drawIds);
+            });
+
+
 
 
             //ticket scrollbar

@@ -35,6 +35,8 @@ trait TicketFormPagination
 
     public $loaded_draw_ids = [];
 
+    public $selected_ticket = '';
+
     public function updatedDrawPage()
     {
         $this->loadDraws(); // called when `page` changes from Alpine
@@ -45,22 +47,20 @@ trait TicketFormPagination
         $this->loadTickets();
     }
 
-    // public function updatedOptionPage()
-    // {
-    //     $this->loadOptions();
-    // }
-
     public function loadDraws()
     {
         $current_time = Carbon::now()->timezone('Asia/Kolkata')->format('H:i');
 
-        $paginatedDraws = Draw::where(function ($query) use ($current_time) {
+        $drawQuery = Draw::where(function ($query) use ($current_time) {
             $query->where(function ($q) use ($current_time) {
                 $q->where('start_time', '<=', $current_time)
                     ->where('end_time', '>=', $current_time);
             })->orWhere('start_time', '>', $current_time);
-        })
-            ->orderByRaw('
+        });
+        $count = (clone $drawQuery)->count();
+        $this->drawPerPage = $count <= 10 ? 10 : $this->drawPerPage;
+
+        $paginatedDraws = $drawQuery->orderByRaw('
         CASE
             WHEN start_time <= ? AND end_time >= ? THEN 0
             ELSE 1
@@ -112,14 +112,11 @@ trait TicketFormPagination
         if ($reset) {
             $this->option_page = 1; // Reset page to 1
             $this->option_list = []; // Clear existing list
+            $this->stored_options = [];
         }
-        $newOptions = Options::whereIn('draw_id', $this->selected_draw)
-            ->forTicket($this->current_ticket_id)
+        $newOptions = Options::forTicket($this->current_ticket_id)
             ->forUser($this->auth_user->id)
             ->orderBy('id', 'DESC')->get();
-        //     ->paginate(5, ['*'], 'option_page', $this->option_page);
-
-        // $this->option_list = array_merge($this->option_list, $newOptions->items());
 
         foreach ($newOptions as $option) {
             $this->stored_options[] = [
@@ -130,5 +127,6 @@ trait TicketFormPagination
                 'total' => $option->total,
             ];
         }
+
     }
 }

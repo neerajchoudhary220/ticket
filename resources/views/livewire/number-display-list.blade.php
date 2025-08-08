@@ -1,6 +1,6 @@
                    <div class="card">
                        <div class="card-header bg-primary text-white">
-                           <h5>Display List</h5>
+                           <h5>Display List of {{ $selected_ticket->ticket_number }}</h5>
                        </div>
                        <div class="card-body">
                            <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">

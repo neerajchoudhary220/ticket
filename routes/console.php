@@ -22,7 +22,7 @@ Artisan::command('test', function () {
 });
 
 Artisan::command('neeraj', function () {
-    $arr = [
+    $collection = collect([
         [
             'id' => 1,
             'qty' => 20,
@@ -33,20 +33,10 @@ Artisan::command('neeraj', function () {
             'qty' => 25,
             'ticket_id' => 1,
         ],
-    ];
+    ]);
 
-    $selected_draw_ids = [2, 3, 5];
-    $new_options = [];
-    foreach ($selected_draw_ids as $draw_id) {
-        $new_option = collect($arr)->map(function ($option) use ($draw_id) {
-            $option['draw_id'] = $draw_id;
-
-            return $option;
-        })->values()->all();
-        $new_options = array_merge($new_options, $new_option);
-    }
-    logger()->info($new_options);
-    unset($new_options[1]);
-    logger()->info($new_options);
-
+    // $new_collection = $collection->filter(function ($data) {
+    //     return $data['qty'] == 25;
+    // })->values()->all();
+    dd(in_array(6, [4, 5, 6]));
 });
