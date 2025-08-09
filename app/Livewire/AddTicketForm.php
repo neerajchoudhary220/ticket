@@ -66,6 +66,7 @@ class AddTicketForm extends Component
 
     public function mount(Request $request, $ticket = null)
     {
+        $this->clearAllOptionsIntoCache();
         $this->auth_user = User::find($request->user()->id);
         if ($ticket) {
             $this->draw_id = $ticket->draw->id;

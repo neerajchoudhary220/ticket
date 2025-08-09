@@ -7,6 +7,8 @@ use App\Models\Options;
 use App\Models\Ticket;
 use App\Models\TicketOption;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Livewire\Attributes\On;
 
 trait TicketFormAction
@@ -113,35 +115,15 @@ trait TicketFormAction
 
         // Clear previous errors if validation passes
 
-        $total = $this->abc_qty * $this->abc * self::PRICE;
-
+        $total = $this->abc_qty * str()->length($this->abc) * self::PRICE;
+        $options = [];
         foreach (['A', 'B', 'C'] as $option) {
-            $this->stored_options[] =
-            [
-                'number' => $this->abc,
-                'option' => $option,
-                'qty' => $this->abc_qty,
-                'total' => $total,
-                'status' => 'RUNNING',
-            ];
-            // foreach ($this->selected_draw as $draw_id) {
-            //     Options::create([
-            //         'user_id' => $this->auth_user->id,
-            //         'draw_id' => $draw_id,
-            //         'ticket_id' => $this->current_ticket_id,
-            //         'number' => $this->abc,
-            //         'option' => $option,
-            //         'qty' => $this->abc_qty,
-            //         'total' => $total,
-            //         'status' => 'RUNNING',
-            //     ]);
-            // }
+            $options[] = $this->addOptions($this->abc, $option, $this->abc_qty, $total);
         }
-        krsort($this->stored_options);
-
+        $this->storeOptionsIntoCache($options);
         $this->abc_qty = $this->abc = '';
         $this->dispatch('focus-abc');
-        // $this->loadOptions(true);
+
         $this->setStoreOptions();
 
     }
@@ -150,21 +132,13 @@ trait TicketFormAction
     {
         $total = $this->calculateTotal($row_property);
         if ($this->selected_draw && $this->{$row_property} && $this->{$row_property.'_qty'}) {
-            $this->stored_options[] =
-            [
-                'number' => $this->{$row_property},
-                'option' => ucfirst($row_property),
-                'qty' => $this->{$row_property.'_qty'},
-                'total' => $total,
-                'status' => 'RUNNING',
-            ];
-            krsort($this->stored_options);
-
+            $options[] = $this->addOptions($this->{$row_property}, ucfirst($row_property), $this->{$row_property.'_qty'}, $total);
+            $this->storeOptionsIntoCache($options);
+            $this->loadOptions(true);
             $this->dispatch($focus);
             $this->{$row_property} = '';
             $this->{$row_property.'_qty'} = '';
             $this->{'total_'.$row_property} = 0;
-
             $this->resetError();
 
         }
@@ -172,15 +146,59 @@ trait TicketFormAction
 
     }
 
-    public function resetError()
+    public function addOptions($number, $option, $qty, $total)
     {
-        $this->resetErrorBag(['abc', 'abc_qty', 'submit_error']);
+        return [
+            'number' => $number,
+            'option' => $option,
+            'qty' => $qty,
+            'total' => $total,
+            'status' => 'RUNNING',
+            'created_at' => now(),
+        ];
+    }
 
+    public function storeOptionsIntoCache($data)
+    {
+        $options = collect($this->getOptionsIntoCahe());
+        if ($options) {
+            $data = $options->merge($data);
+        }
+
+        return Cache::put('options', $data->values()->all(), 7200);
+
+    }
+
+    public function optionStoreToCache(Collection $data)
+    {
+        Cache::put('options', $data->values()->all(), 7200);
     }
 
     public function deleteOption($index)
     {
-        unset($this->stored_options[$index]);
+
+        $data = collect($this->getOptionsIntoCahe())
+            ->values();
+        $data->forget($index);
+
+        Cache::put('options', $data->values()->all());
+
+        $this->loadOptions(true);
+    }
+
+    public function getOptionsIntoCahe()
+    {
+        return collect(Cache::get('options'))->sortByDesc('created_at');
+    }
+
+    public function clearAllOptionsIntoCache()
+    {
+        Cache::forget('options');
+    }
+
+    public function resetError()
+    {
+        $this->resetErrorBag(['abc', 'abc_qty', 'submit_error']);
 
     }
 
@@ -317,10 +335,14 @@ trait TicketFormAction
                 $this->selected_draw[] = $drawId;
             }
         } elseif (! $isChecked && count($this->selected_draw) != 0) {
+            $options = $this->getOptionsIntoCahe();
+            if ($options && count($this->selected_draw) > 1) {
+                $filteredOptions = $this->getOptionsIntoCahe()->filter(function ($option) use ($drawId) {
+                    return $option['draw_id'] == $drawId;
+                });
+                $this->optionStoreToCache($filteredOptions);
 
-            $this->stored_options = collect($this->stored_options)->filter(function ($option) use ($drawId) {
-                return $option['draw_id'] == $drawId;
-            })->values()->all();
+            }
 
             $this->selected_draw = array_filter(
                 $this->selected_draw,
@@ -335,7 +357,10 @@ trait TicketFormAction
             drawId: $drawId
         );
 
-        $this->setStoreOptions();
+        if (count($this->selected_draw) > 1) {
+            logger()->info(count($this->selected_draw));
+            $this->setStoreOptions();
+        }
     }
 
     // select ticket number
@@ -368,7 +393,6 @@ trait TicketFormAction
 
         }
         $this->loadOptions(true);
-        // logger()->info($this->selected_draw);
         $this->dispatch('checked-draws', drawIds: $this->selected_draw);
     }
 
@@ -380,7 +404,7 @@ trait TicketFormAction
 
         foreach ($selected_draw_ids as $draw_id) {
             // Use original stored_options without filtering
-            $option = collect($this->stored_options)
+            $option = $this->getOptionsIntoCahe()
                 ->map(function ($store_option) use ($draw_id, $selected_ticket_id) {
                     $store_option['draw_id'] = $draw_id;
                     $store_option['ticket_id'] = $selected_ticket_id;
@@ -393,8 +417,9 @@ trait TicketFormAction
 
             $checked_draw_options = array_merge($checked_draw_options, $option);
         }
-
-        $this->stored_options = $checked_draw_options;
+        Cache::put('options', $checked_draw_options, 7200);
+        // $this->stored_options = $checked_draw_options;
+        $this->loadOptions(true);
 
     }
 }

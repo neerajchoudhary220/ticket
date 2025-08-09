@@ -3,11 +3,11 @@
                            <h5>Display List of {{ $selected_ticket->ticket_number }}</h5>
                        </div>
                        <div class="card-body">
-                           <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
+                           <div class="table-responsive option-list" style="max-height: 250px; overflow-y: auto; ">
                                <table class="table table-bordered table-striped table-hover">
                                    <thead class="table-light position-sticky top-0" style="z-index: 1;">
                                        <tr>
-                                           {{-- <th>#ID</th> --}}
+                                           <th>#</th>
                                            <th>Option</th>
                                            <th>Number</th>
 
@@ -19,7 +19,7 @@
                                    <tbody>
                                        @forelse ($stored_options as $option)
                                            <tr>
-                                               {{-- <td>{{ $option['id'] }}</td> --}}
+                                               <td>{{ $loop->index + 1 }}</td>
                                                <td>{{ $option['option'] }}</td>
                                                <td>{{ $option['number'] }}</td>
                                                <td>{{ $option['qty'] }}</td>

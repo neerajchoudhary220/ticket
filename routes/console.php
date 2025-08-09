@@ -1,7 +1,9 @@
  <?php
 
 use Illuminate\Foundation\Inspiring;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 Artisan::command('inspire', function () {
@@ -21,22 +23,31 @@ Artisan::command('test', function () {
 
 });
 
-Artisan::command('neeraj', function () {
-    $collection = collect([
-        [
-            'id' => 1,
-            'qty' => 20,
-            'ticket_id' => 1,
-        ],
-        [
-            'id' => 2,
-            'qty' => 25,
-            'ticket_id' => 1,
-        ],
-    ]);
+function getScrollPage($items, $perPage = 10, $page = 1)
+{
+    $items = $items instanceof Collection ? $items : collect($items);
 
-    // $new_collection = $collection->filter(function ($data) {
-    //     return $data['qty'] == 25;
-    // })->values()->all();
-    dd(in_array(6, [4, 5, 6]));
+    return $items->slice(($page - 1) * $perPage, $perPage)->values();
+}
+
+Artisan::command('neeraj', function () {
+    $collection = collect(range(1, 50))->map(function ($id) {
+        return [
+            'id' => $id,
+            'qty' => rand(1, 500), // random qty between 1 and 500
+            'ticket_id' => 1,
+        ];
+    });
+    $collection->forget(2);
+    dd($collection->values()->all());
+    // cache::forget('tickets');
+    // Cache::put('tickets', $collection);
+});
+
+Artisan::command('getData', function () {
+    $page = $this->ask('Enter the page number:');
+    $tickets = cache::get('tickets');
+    $outputs = getScrollPage($tickets, 10, (int) $page);
+    dd($outputs);
+
 });

@@ -67,7 +67,6 @@
                     });
                 }
 
-                console.log("drawIds:", drawIds);
             });
 
 
@@ -98,6 +97,20 @@
                 if (scrollTop + innerHeight >= scrollHeight - 10) {
                     draw_page++;
                     $wire.set('draw_page', draw_page);
+                }
+            });
+
+            //option list scrollbar
+            $('.option-list').on('scroll', function() {
+                let box = $(this);
+                let scrollTop = box.scrollTop();
+                let innerHeight = box.innerHeight();
+                let scrollHeight = box[0].scrollHeight;
+                let option_page = $wire.get('option_page');
+
+                if (scrollTop + innerHeight >= scrollHeight - 10) {
+                    option_page++;
+                    $wire.set('option_page', option_page);
                 }
             });
 

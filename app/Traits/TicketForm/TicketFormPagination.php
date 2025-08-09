@@ -6,6 +6,7 @@ use App\Models\Draw;
 use App\Models\Options;
 use App\Models\Ticket;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 
 trait TicketFormPagination
 {
@@ -27,7 +28,7 @@ trait TicketFormPagination
 
     public int $ticketPerPage = 10;
 
-    public int $optionPerPage = 5;
+    public int $optionPerPage = 10;
 
     public $hasMoreDrawPages = true;
 
@@ -37,6 +38,8 @@ trait TicketFormPagination
 
     public $selected_ticket = '';
 
+    public int $total_options = 0;
+
     public function updatedDrawPage()
     {
         $this->loadDraws(); // called when `page` changes from Alpine
@@ -45,6 +48,11 @@ trait TicketFormPagination
     public function updatedTicketPage()
     {
         $this->loadTickets();
+    }
+
+    public function updatedOptionPage()
+    {
+        $this->loadOptions();
     }
 
     public function loadDraws()
@@ -107,26 +115,49 @@ trait TicketFormPagination
         $this->ticket_list = array_merge($this->ticket_list, $uniqueTickets);
     }
 
+    public function collectionPage($items, $perPage = 10, $page = 1)
+    {
+        $items = $items instanceof Collection ? $items : $items;
+        $items = $items->values();
+        $data = $items->slice(($page - 1) * $perPage, $perPage);
+
+        return $data->values()->all();
+    }
+
     public function loadOptions($reset = false)
     {
         if ($reset) {
             $this->option_page = 1; // Reset page to 1
-            $this->option_list = []; // Clear existing list
             $this->stored_options = [];
         }
-        $newOptions = Options::forTicket($this->current_ticket_id)
-            ->forUser($this->auth_user->id)
-            ->orderBy('id', 'DESC')->get();
+        $options = $this->getOptionsIntoCahe();
 
-        foreach ($newOptions as $option) {
-            $this->stored_options[] = [
-                'id' => $option->id,
-                'option' => $option->option,
-                'number' => $option->number,
-                'qty' => $option->qty,
-                'total' => $option->total,
-            ];
+        if ($options) {
+            if (count($this->stored_options) >= count($options)) {
+                return true; // already loaded all
+            }
+
+            if (count($options) <= 10) {
+                $this->optionPerPage = 10;
+                $this->option_page = 1;
+            }
+
+            $newData = $this->collectionPage(
+                $options,
+                $this->optionPerPage,
+                $this->option_page
+            );
+
+            if ($reset) {
+                $this->stored_options = $newData;
+            } else {
+                $this->stored_options = array_merge($this->stored_options, $newData);
+            }
+
         }
+        // $newOptions = Options::forTicket($this->current_ticket_id)
+        //     ->forUser($this->auth_user->id)
+        //     ->orderBy('id', 'DESC')->get();
 
     }
 }
