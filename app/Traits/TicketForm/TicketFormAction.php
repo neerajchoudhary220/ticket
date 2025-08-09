@@ -98,13 +98,15 @@ trait TicketFormAction
     // select ticket number
     public function handleTicketSelect($selected_ticket_id)
     {
-
+        $this->resetError();
         $this->current_ticket_id = $selected_ticket_id;
         $this->selected_ticket = $this->auth_user->tickets()->where('id', $selected_ticket_id)->first();
         // get draw ids which is not expired
         $currentTime = Carbon::now()->timezone('Asia/Kolkata')->format('H:i');
 
-        $selected_draw_ids = $this->auth_user->options()->where('ticket_id', $selected_ticket_id)
+        $option_query = $this->auth_user
+            ->options()
+            ->where('ticket_id', $selected_ticket_id)
             ->whereHas('draw', function ($query) use ($currentTime) {
                 $query->where(function ($q) use ($currentTime) {
                     $q->where(function ($q1) use ($currentTime) {
@@ -112,18 +114,26 @@ trait TicketFormAction
                             ->where('end_time', '>=', $currentTime);
                     })->orWhere('start_time', '>', $currentTime);
                 });
-            })->groupBy('draw_id')
-            ->pluck('draw_id')->toArray();
+            });
 
-        if (count($selected_draw_ids) > 0) {
-            $this->selected_draw = $selected_draw_ids;
+        $options = $option_query->get();
 
-        } else {
-            $this->selected_draw = [$this->draw_id];
-
+        if ($options->isNotEmpty()) {
+            $this->clearAllOptionsIntoCache();
+            $this->optionStoreToCache($options);
         }
+
+        $selected_draw_ids = $options->pluck('draw_id')->unique()->values()->toArray();
+
+        $this->selected_draw = ! empty($selected_draw_ids)
+            ? $selected_draw_ids
+            : [$this->draw_id];
+
+        $this->setStoreOptions($this->selected_draw);
+        $this->getTimes();
         $this->loadOptions(true);
         $this->dispatch('checked-draws', drawIds: $this->selected_draw);
+
     }
 
     public function getTimes()

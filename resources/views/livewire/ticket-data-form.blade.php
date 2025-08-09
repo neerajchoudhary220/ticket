@@ -3,8 +3,12 @@
                <div class="card-header bg-warning text-white">
                    <div class="d-flex justify-content-start">
                        <div class="d-flex me-auto">
-                           <h5 class="text-left ms-3">{{ $this->active_draw_number }}</h5>
-                           <h5 class="text-left"> Ticket Number: {{ $user_running_ticket->ticket_number }}
+
+
+                           <h5 class="text-left ms-3">
+                               {{ Carbon\Carbon::createFromFormat('H:i', $this->active_draw->end_time)->format('h:i a') }}
+                           </h5>
+                           <h5 class="text-left">, Ticket Number: {{ $user_running_ticket->ticket_number }}
                                {{ $a }}</h5>
                        </div>
 

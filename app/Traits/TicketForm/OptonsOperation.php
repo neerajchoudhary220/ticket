@@ -83,7 +83,6 @@ trait OptonsOperation
         if ($this->selected_draw && $this->{$row_property} && $this->{$row_property.'_qty'}) {
             $options[] = $this->addOptions($this->{$row_property}, ucfirst($row_property), $this->{$row_property.'_qty'}, $total);
             $this->storeOptionsIntoCache($options);
-            $this->loadOptions(true);
             $this->dispatch($focus);
             $this->{$row_property} = '';
             $this->{$row_property.'_qty'} = '';
@@ -103,7 +102,7 @@ trait OptonsOperation
             'qty' => $qty,
             'total' => $total,
             'status' => 'RUNNING',
-            'created_at' => now(),
+            'created_at' => Carbon::now(),
             'draw_ids' => $this->selected_draw,
 
         ];
@@ -158,8 +157,9 @@ trait OptonsOperation
 
         $digitMatrix = []; // Format: [digit][option] = count
         $selected_ticket_id = $this->current_ticket_id;
+        $selected_draw_ids = $this->selected_draw;
 
-        if (count($this->stored_options) == 0) {
+        if (count($this->getOptionsIntoCahe()) == 0) {
             $this->addError('submit_error', 'Please add at least one entry!');
 
             return true;
@@ -167,12 +167,11 @@ trait OptonsOperation
             $this->resetError();
         }
         // delete unchecked draw's options
-        // $this->auth_user->options()->whereNotIn('draw_id', $this->selected_draw)->where('ticket_id', $selected_ticket_id)->delete();
         $currentTime = Carbon::now()->timezone('Asia/Kolkata')->format('H:i');
 
         $options = $this->auth_user->options()
             ->where('ticket_id', $selected_ticket_id)
-            ->whereIn('draw_id', $this->selected_draw)
+            ->whereIn('draw_id', $selected_draw_ids)
             ->whereHas('draw', function ($query) use ($currentTime) {
                 $query->where(function ($q) use ($currentTime) {
                     $q->where(function ($q1) use ($currentTime) {
@@ -186,7 +185,7 @@ trait OptonsOperation
         // delete unchecked draw's ticket options
         $this->auth_user->ticketOptions()
             ->where('ticket_id', $selected_ticket_id)
-            ->whereIn('draw_id', $this->selected_draw)
+            ->whereIn('draw_id', $selected_draw_ids)
             ->whereHas('draw', function ($query) use ($currentTime) {
                 $query->where(function ($q) use ($currentTime) {
                     $q->where(function ($q1) use ($currentTime) {
@@ -197,24 +196,22 @@ trait OptonsOperation
             })
             ->delete();
 
-        // add draw_id into $stored options
-        // $checked_draw_options = [];
-        // dd($this->stored_options);
-        // foreach ($this->selected_draw as $draw_id) {
-        //     $option = collect($this->stored_options)->map(function ($store_option) use ($draw_id, $selected_ticket_id) {
-        //         $store_option['draw_id'] = $draw_id;
-        //         $store_option['ticket_id'] = $selected_ticket_id;
-        //         $store_option['status'] = 'COMPLETED';
-
-        //         return $store_option;
-        //     })->values()->all();
-        //     $checked_draw_options = array_merge($checked_draw_options, $option);
-        // }
-
-        // dd($checked_draw_options);
         // Store options
-        foreach ($this->stored_options as $option) {
-            $this->auth_user->options()->create($option);
+        $options = $this->auth_user->options();
+        $stored_options = $this->getOptionsIntoCahe()->toArray();
+        foreach ($stored_options as $option) {
+            foreach ($selected_draw_ids as $draw_id) {
+                $options->create([
+                    'draw_id' => $draw_id,
+                    'ticket_id' => $selected_ticket_id,
+                    'number' => $option['number'],
+                    'option' => $option['option'],
+                    'qty' => $option['qty'],
+                    'total' => $option['total'],
+                    'status' => 'COMPLETED',
+                ]);
+            }
+
         }
 
         // Update user ticket status e.g. complete
@@ -222,9 +219,7 @@ trait OptonsOperation
 
         // Extract digit with qty from stored options
         $digitMatrix = [];
-
-        // $this->stored_options->each(function ($opt) use (&$digitMatrix)
-        foreach ($this->stored_options as $opt) {
+        foreach ($stored_options as $opt) {
             $option = $opt['option'];
             $digits = str_split((string) $opt['number']);
             $qty = $opt['qty'];
@@ -241,7 +236,7 @@ trait OptonsOperation
         ksort($digitMatrix);
 
         // Store Ticket Option
-        foreach ($this->selected_draw as $draw_id) {
+        foreach ($selected_draw_ids as $draw_id) {
             foreach ($digitMatrix as $number => $options) {
                 if (! isset($options['A'])) {
                     $options['A'] = 0;

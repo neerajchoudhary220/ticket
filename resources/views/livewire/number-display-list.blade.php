@@ -12,7 +12,7 @@
                                    <thead class="table-light position-sticky top-0" style="z-index: 1;">
                                        <tr>
                                            <th>#</th>
-                                           <th>Draw_ids*</th>
+                                           {{-- <th>Draw_ids*</th> --}}
 
                                            <th>Option</th>
                                            <th>Number</th>
@@ -23,10 +23,11 @@
                                        </tr>
                                    </thead>
                                    <tbody>
+                                       {{ logger()->info($stored_options) }}
                                        @forelse ($stored_options as $option)
                                            <tr>
                                                <td>{{ $loop->index + 1 }}</td>
-                                               <td>{{ implode(',', $option['draw_ids']) }}
+                                               {{-- <td>{{ implode(',', $option['draw_ids']) }} --}}
                                                </td>
                                                <td>{{ $option['option'] }}</td>
                                                <td>{{ $option['number'] }}</td>
