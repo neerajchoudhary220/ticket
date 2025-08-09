@@ -61,6 +61,8 @@ class AddTicketForm extends Component
 
     public $abc_qty;
 
+    public $selected_times;
+
     public array $stored_options = [];
     // protected $updatesQueryString = ['search', 'filterOption'];
 
@@ -74,10 +76,12 @@ class AddTicketForm extends Component
             $this->user_running_ticket = $ticket;
             $this->is_edit_mode = true;
 
-            $this->selected_draw[] = $this->draw_id;
+            $this->selected_draw[] = (string) $this->draw_id;
         } else {
             $this->addTicket();
         }
+
+        $this->getTimes();
         $this->loadDraws();
         $this->loadTickets();
     }

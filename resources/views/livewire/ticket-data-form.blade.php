@@ -63,7 +63,7 @@
                                <th>Option</th>
                                <th>#Numbers (0–9)</th>
                                <th>Qty</th>
-                               <th>Price</th>
+                               {{-- <th>Price</th> --}}
                                {{-- <th>Total</th> --}}
                            </tr>
                        </thead>
@@ -88,7 +88,7 @@
                                        wire:keydown.down="move('focus-b_qty','a')" wire:keydown.tab="keyTab('a')"
                                        wire:keydown.enter="keyEnter('a','focus-a')">{{-- Qty of A --}}
                                </td>
-                               <td>11</td>
+                               {{-- <td>11</td> --}}
                                {{-- <td>{{ $total_a }}</td> --}}
                            </tr>
                            <tr>
@@ -105,7 +105,7 @@
                                        wire:keydown.up="move('focus-a_qty','b')"
                                        wire:keydown.enter="keyEnter('b','focus-b')">
                                </td>
-                               <td>11</td>
+                               {{-- <td>11</td> --}}
                                {{-- <td>{{ $total_b }}</td> --}}
                            </tr>
                            <tr>
@@ -120,7 +120,7 @@
                                        wire:keydown.up="move('focus-b_qty','c')" wire:keydown.tab="keyTab('c')"
                                        wire:keydown.enter="keyEnter('c','focus-c')">
                                </td>
-                               <td>11</td>
+                               {{-- <td>11</td> --}}
                                {{-- <td>{{ $total_c }}</td> --}}
                            </tr>
                        </tbody>

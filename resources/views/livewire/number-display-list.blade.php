@@ -1,6 +1,10 @@
                    <div class="card">
                        <div class="card-header bg-primary text-white">
                            <h5>Display List of {{ $selected_ticket->ticket_number }}</h5>
+                           <hr>
+                           <div>
+                               <b>Time:</b> {{ $selected_times }}
+                           </div>
                        </div>
                        <div class="card-body">
                            <div class="table-responsive option-list" style="max-height: 250px; overflow-y: auto; ">
@@ -8,6 +12,8 @@
                                    <thead class="table-light position-sticky top-0" style="z-index: 1;">
                                        <tr>
                                            <th>#</th>
+                                           <th>Draw_ids*</th>
+
                                            <th>Option</th>
                                            <th>Number</th>
 
@@ -20,6 +26,8 @@
                                        @forelse ($stored_options as $option)
                                            <tr>
                                                <td>{{ $loop->index + 1 }}</td>
+                                               <td>{{ implode(',', $option['draw_ids']) }}
+                                               </td>
                                                <td>{{ $option['option'] }}</td>
                                                <td>{{ $option['number'] }}</td>
                                                <td>{{ $option['qty'] }}</td>
