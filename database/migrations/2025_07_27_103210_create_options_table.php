@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('options', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('draw_id')->constrained('draws')->cascadeOnDelete();
+            $table->json('draw_ids');
             $table->foreignId('ticket_id')->constrained('tickets')->cascadeOnDelete();
             $table->string('number')->nullable();
             $table->enum('option', ['A', 'B', 'C'])->nullable();

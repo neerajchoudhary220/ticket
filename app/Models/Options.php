@@ -9,9 +9,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Options extends Model
 {
-    protected $fillable = ['user_id', 'draw_id', 'ticket_id', 'number', 'option', 'qty', 'total', 'status'];
+    protected $fillable = ['user_id', 'draw_ids', 'ticket_id', 'number', 'option', 'qty', 'total', 'status'];
 
     use AuthUser;
+
+    protected $casts = [
+        'draw_ids' => 'array',
+    ];
 
     /**
      * Get the user that owns the Options

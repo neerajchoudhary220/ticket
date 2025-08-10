@@ -101,31 +101,31 @@ trait TicketFormAction
         $this->resetError();
         $this->current_ticket_id = $selected_ticket_id;
         $this->selected_ticket = $this->auth_user->tickets()->where('id', $selected_ticket_id)->first();
-        // get draw ids which is not expired
-        $currentTime = Carbon::now()->timezone('Asia/Kolkata')->format('H:i');
 
-        $option_query = $this->auth_user
-            ->options()
+        $drawIds = $this->getActiveDrawIds();
+        $option_query = $this->auth_user->options()
             ->where('ticket_id', $selected_ticket_id)
-            ->whereHas('draw', function ($query) use ($currentTime) {
-                $query->where(function ($q) use ($currentTime) {
-                    $q->where(function ($q1) use ($currentTime) {
-                        $q1->where('start_time', '<=', $currentTime)
-                            ->where('end_time', '>=', $currentTime);
-                    })->orWhere('start_time', '>', $currentTime);
-                });
+            ->where(function ($query) use ($drawIds) {
+                foreach ($drawIds as $id) {
+                    $query->orWhereJsonContains('draw_ids', $id);
+                }
             });
 
-        $options = $option_query->get();
-
+        $options = $option_query->get(); // empty
         if ($options->isNotEmpty()) {
             $this->clearAllOptionsIntoCache();
-            $this->optionStoreToCache($options->unique('ticket_id'));
+            $this->optionStoreToCache($options);
         }
 
-        $selected_draw_ids = $options->pluck('draw_id')->unique()->values()->toArray();
+        $selected_draw_ids = $options
+            ->pluck('draw_ids')      // [[56,58], [58,59], ...]
+            ->flatten()              // [56,58,58,59,...]
+            ->unique()
+            ->intersect($drawIds)    // keep only active draw IDs
+            ->values();                                    // reset keys
+
         $this->selected_draw = ! empty($selected_draw_ids)
-            ? $selected_draw_ids
+            ? $selected_draw_ids->toArray()
             : [$this->draw_id];
 
         $this->setStoreOptions($this->selected_draw);
