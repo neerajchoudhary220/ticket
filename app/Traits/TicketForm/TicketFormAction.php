@@ -112,8 +112,8 @@ trait TicketFormAction
             });
 
         $options = $option_query->get(); // empty
+        $this->clearAllOptionsIntoCache();
         if ($options->isNotEmpty()) {
-            $this->clearAllOptionsIntoCache();
             $this->optionStoreToCache($options);
         }
 
