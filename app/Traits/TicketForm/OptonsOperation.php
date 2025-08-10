@@ -171,7 +171,7 @@ trait OptonsOperation
 
         $options = $this->auth_user->options()
             ->where('ticket_id', $selected_ticket_id)
-            ->whereIn('draw_id', $selected_draw_ids)
+            // ->whereIn('draw_id', $selected_draw_ids)
             ->whereHas('draw', function ($query) use ($currentTime) {
                 $query->where(function ($q) use ($currentTime) {
                     $q->where(function ($q1) use ($currentTime) {
@@ -185,7 +185,7 @@ trait OptonsOperation
         // delete unchecked draw's ticket options
         $this->auth_user->ticketOptions()
             ->where('ticket_id', $selected_ticket_id)
-            ->whereIn('draw_id', $selected_draw_ids)
+            // ->whereNotIn('draw_id', $selected_draw_ids)
             ->whereHas('draw', function ($query) use ($currentTime) {
                 $query->where(function ($q) use ($currentTime) {
                     $q->where(function ($q1) use ($currentTime) {
@@ -199,6 +199,7 @@ trait OptonsOperation
         // Store options
         $options = $this->auth_user->options();
         $stored_options = $this->getOptionsIntoCahe()->toArray();
+        // dd($stored_options);
         foreach ($stored_options as $option) {
             foreach ($selected_draw_ids as $draw_id) {
                 $options->create([

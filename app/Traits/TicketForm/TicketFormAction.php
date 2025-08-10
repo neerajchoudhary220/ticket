@@ -120,11 +120,10 @@ trait TicketFormAction
 
         if ($options->isNotEmpty()) {
             $this->clearAllOptionsIntoCache();
-            $this->optionStoreToCache($options);
+            $this->optionStoreToCache($options->unique('ticket_id'));
         }
 
         $selected_draw_ids = $options->pluck('draw_id')->unique()->values()->toArray();
-
         $this->selected_draw = ! empty($selected_draw_ids)
             ? $selected_draw_ids
             : [$this->draw_id];
