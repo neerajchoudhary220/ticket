@@ -24,10 +24,22 @@ class DrawProfilLossDataTable extends DataTable
     {
 
         return (new EloquentDataTable($query))
-            ->editColumn('end_time', function ($draw_option) {
-                return $draw_option->draw->formatEndTime();
-
+            ->editColumn('end_time', function ($row) {
+                return \Carbon\Carbon::parse($row->end_time)->format('h:i a');
             })
+            ->filterColumn('end_time', function ($query, $keyword) {
+                $keyword = strtolower($keyword);
+
+                $query->where(function ($q) use ($keyword) {
+                    // Match 12-hour with leading zero
+                    $q->whereRaw("TIME_FORMAT(draws.end_time, '%h %i %p') LIKE ?", ["%{$keyword}%"])
+                      // Match 12-hour without leading zero
+                        ->orWhereRaw("TIME_FORMAT(draws.end_time, '%l %p') LIKE ?", ["%{$keyword}%"])
+                      // Match 24-hour format
+                        ->orWhereRaw("TIME_FORMAT(draws.end_time, '%H') LIKE ?", ["%{$keyword}%"]);
+                });
+            })
+
             ->addColumn('total_tickets', function ($row) {
                 return $row->total_a_qty + $row->total_b_qty + $row->total_c_qty;
             })
@@ -103,6 +115,14 @@ class DrawProfilLossDataTable extends DataTable
             ->minifiedAjax()
             ->orderBy(0)
             ->selectStyleSingle()
+            ->parameters(
+                [
+                    'searching' => true,
+                    'language' => [
+                        'searchPlaceholder' => 'Enter Hour Or Minute',
+                    ],
+                ]
+            )
             ->buttons([
                 Button::make('excel'),
                 Button::make('csv'),
@@ -119,7 +139,7 @@ class DrawProfilLossDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('end_time')->title('Time')->orderable(true),
+            Column::make('end_time')->title('Time')->orderable(true)->searchable(true),
             Column::make('total_tickets')->title('TQ'),
             Column::make('t_amt')->title('T Amt'),
             Column::make('claim'),
