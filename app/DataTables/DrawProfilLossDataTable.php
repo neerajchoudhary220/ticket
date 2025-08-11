@@ -91,7 +91,7 @@ class DrawProfilLossDataTable extends DataTable
                 DB::raw('SUM(ticket_options.c_qty) as total_c_qty')
             )
             ->join('draws', 'ticket_options.draw_id', '=', 'draws.id')
-            ->when(auth()->user(), function ($q) {
+            ->when(! auth()->guard('admin')->check() && auth()->user(), function ($q) {
                 return $q->forUser(auth()->user()->id);
             })
             // keep if you want user filtering
@@ -99,7 +99,7 @@ class DrawProfilLossDataTable extends DataTable
                 $query->whereDate('ticket_options.created_at', $request->get('start_date'));
             })
             ->groupBy('ticket_options.draw_id', 'draws.end_time')
-            ->orderBy('draws.end_time', 'asc');
+            ->orderBy('draws.end_time', 'desc');
 
         return $ticket_options;
     }
