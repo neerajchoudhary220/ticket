@@ -12,6 +12,8 @@
 
                     </div>
                     <div class="card-body">
+                        <x-date-range-picker-filter />
+
                         {{ $dataTable->table() }}
                     </div>
                 </div>

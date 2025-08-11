@@ -3,3 +3,4 @@
   {{-- <link href="{{ asset('assets/css/common/all.min.css') }}" rel="stylesheet"> --}}
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   <link href="{{ asset('assets/css/common/common-style.css') }}" rel="stylesheet">
+  <link href="{{ asset('assets/css/common/daterangepicker.css') }}" rel="stylesheet">

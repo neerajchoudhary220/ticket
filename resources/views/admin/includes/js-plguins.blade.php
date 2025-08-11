@@ -10,3 +10,6 @@
   {{-- <script src="{{asset('assets/js/dashboard.js')}}"></script> --}}
   <!-- solar icons -->
   <script src="{{ asset('assets/js/common/iconify-icon.min.js') }}"></script>
+  <script src="{{ asset('assets/js/common/moment.min.js') }}"></script>
+  <script src="{{ asset('assets/js/common/daterangepicker.min.js') }}"></script>
+  <script src="{{ asset('assets/js/common/daterange-filter.js') }}"></script>

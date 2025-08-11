@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\DataTables\DrawProfilLossDataTable;
 use App\DataTables\NumberListDataTable;
 use App\DataTables\TicketDetailsDataTable;
-use App\DataTables\UserDrawDataTable;
 use App\DataTables\UserDrawDetailsDataTable;
 use App\Models\Draw;
 use App\Models\Ticket;
@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function index(UserDrawDataTable $dataTable)
+    public function index(DrawProfilLossDataTable $dataTable)
     {
         // return view('web.dashboard.index');
 

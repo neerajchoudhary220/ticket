@@ -13,13 +13,18 @@
             <div class="row">
                 <div class="col-12">
                     <div class="card">
-                        <div class="card-header d-flex justify-content-start">
-                            <h5 class="me-auto">Draw List</h5>
-                            <a href="{{ route('ticket.add') }}" class="btn btn-primary">Add A New Ticket <i
-                                    class="fa fa-ticket"></i></a>
-
+                        <div class="card-header">
+                            <div class="col-12 mb-3">
+                                <div class="d-flex justify-content-start">
+                                    <h5 class="me-auto">Draw List</h5>
+                                    <a href="{{ route('ticket.add') }}" class="btn btn-primary">Add A New Ticket <i
+                                            class="fa fa-ticket"></i></a>
+                                </div>
+                            </div>
                         </div>
                         <div class="card-body">
+                            <x-date-range-picker-filter />
+
                             {{ $dataTable->table() }}
                         </div>
                     </div>
