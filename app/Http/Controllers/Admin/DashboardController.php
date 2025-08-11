@@ -13,7 +13,7 @@ class DashboardController extends Controller
     {
         $data = [
             'total_shopkeepers' => User::count(),
-            'total_draws' => TicketOption::groupBy('draw_id')->count(),
+            'total_draws' => TicketOption::get()->groupBy('draw_id')->count(),
         ];
 
         // return view('admin.dashboard.index', compact('data'));
