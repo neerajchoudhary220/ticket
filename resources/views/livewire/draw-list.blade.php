@@ -4,14 +4,14 @@
     </div>
     <div class="card-body">
         <div class="ticket-list-box draw-box" style="height:270px;">
-            @foreach ($draw_list as $draw)
-                <div class="form-check" wire:key="draw-{{ $draw->id }}">
-                    <input class="form-check-input draw_checkbox" type="checkbox" id="draw_{{ $draw->id }}"
-                        value="{{ $draw->id }}" @checked($draw->id == $selected_draw_id)>
-                    <label class="form-check-label" for="draw_{{ $draw->id }}">
-                        {{ $draw->formatEndTime() }}
-                        (TC:{{ $draw->totalCollection($draw->id) }},
-                        TD:{{ $draw->totalDistributions($draw->id) }})
+            @foreach ($draw_list as $draw_detail)
+                <div class="form-check" wire:key="draw-{{ $draw_detail->id }}">
+                    <input class="form-check-input draw_checkbox" type="checkbox" id="draw_{{ $draw_detail->id }}"
+                        value="{{ $draw_detail->id }}" @checked($draw_detail->id == $selected_draw_id)>
+                    <label class="form-check-label" for="draw_{{ $draw_detail->id }}">
+                        {{ $draw_detail->formatEndTime() }}
+                        {{-- (TC:{{ $draw_detail->totalCollection($draw_detail->id) }},
+                        TD:{{ $draw_detail->totalDistributions($draw_detail->id) }}) --}}
                     </label>
                 </div>
             @endforeach

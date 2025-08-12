@@ -3,6 +3,7 @@
 namespace App\Traits\TicketForm;
 
 use App\Models\Draw;
+use App\Models\DrawDetail;
 use App\Models\TicketOption;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -104,14 +105,14 @@ trait OptonsOperation
             'total' => $total,
             'status' => 'RUNNING',
             'created_at' => Carbon::now(),
-            'draw_ids' => $this->selected_draw,
+            'draw_details_ids' => $this->selected_draw,
 
         ];
     }
 
     public function storeOptionsIntoCache($data)
     {
-        $options = collect($this->getOptionsIntoCahe());
+        $options = collect($this->getOptionsIntoCache());
         if ($options) {
             $data = $options->merge($data);
         }
@@ -128,7 +129,7 @@ trait OptonsOperation
     public function deleteOption($index)
     {
 
-        $data = collect($this->getOptionsIntoCahe())
+        $data = collect($this->getOptionsIntoCache())
             ->values();
         $data->forget($index);
 
@@ -137,7 +138,7 @@ trait OptonsOperation
         $this->loadOptions(true);
     }
 
-    public function getOptionsIntoCahe()
+    public function getOptionsIntoCache()
     {
         return collect(Cache::get('options'))->sortByDesc('created_at');
     }
@@ -174,7 +175,7 @@ trait OptonsOperation
         $selected_ticket_id = $this->current_ticket_id;
         $selected_draw_ids = $this->selected_draw;
 
-        if (count($this->getOptionsIntoCahe()) == 0) {
+        if (count($this->getOptionsIntoCache()) == 0) {
             $this->addError('submit_error', 'Please add at least one entry!');
 
             return true;
@@ -183,19 +184,13 @@ trait OptonsOperation
         }
         // delete unchecked draw's options
         $currentTime = Carbon::now()->timezone('Asia/Kolkata')->format('H:i');
-        // $drawIds = Draw::where(function ($q) use ($currentTime) {
-        //     $q->where(function ($q1) use ($currentTime) {
-        //         $q1->where('start_time', '<=', $currentTime)
-        //             ->where('end_time', '>=', $currentTime);
-        //     })->orWhere('start_time', '>', $currentTime);
-        // })
-        //     ->pluck('id'); // list of matching draws
+
         $drawIds = $this->getActiveDrawIds();
         $this->auth_user->options()
             ->where('ticket_id', $selected_ticket_id)
             ->where(function ($query) use ($drawIds) {
                 foreach ($drawIds as $id) {
-                    $query->orWhereJsonContains('draw_ids', $id);
+                    $query->orWhereJsonContains('draw_details_ids', $id);
                 }
             })
             ->delete();
@@ -203,7 +198,7 @@ trait OptonsOperation
         // delete unchecked draw's ticket options
         $this->auth_user->ticketOptions()
             ->where('ticket_id', $selected_ticket_id)
-            ->whereHas('draw', function ($query) use ($currentTime) {
+            ->whereHas('drawDetail', function ($query) use ($currentTime) {
                 $query->where(function ($q) use ($currentTime) {
                     $q->where(function ($q1) use ($currentTime) {
                         $q1->where('start_time', '<=', $currentTime)
@@ -215,29 +210,18 @@ trait OptonsOperation
 
         // Store options
         $options = $this->auth_user->options();
-        $stored_options = $this->getOptionsIntoCahe()->toArray();
-        // dd($stored_options);
+        $stored_options = $this->getOptionsIntoCache()->toArray();
+
         foreach ($stored_options as $option) {
             $options->create([
                 'ticket_id' => $option['ticket_id'],
-                'draw_ids' => array_map('intval', array_values($option['draw_ids'])),
+                'draw_details_ids' => array_map('intval', array_values($option['draw_details_ids'])),
                 'number' => $option['number'],
                 'option' => $option['option'],
                 'qty' => $option['qty'],
                 'total' => $option['total'],
                 'status' => 'COMPLETED',
             ]);
-            // foreach ($selected_draw_ids as $draw_id) {
-            //     $options->create([
-            //         'draw_id' => $draw_id,
-            //         'ticket_id' => $selected_ticket_id,
-            //         'number' => $option['number'],
-            //         'option' => $option['option'],
-            //         'qty' => $option['qty'],
-            //         'total' => $option['total'],
-            //         'status' => 'COMPLETED',
-            //     ]);
-            // }
 
         }
 
@@ -263,7 +247,7 @@ trait OptonsOperation
         ksort($digitMatrix);
 
         // Store Ticket Option
-        foreach ($selected_draw_ids as $draw_id) {
+        foreach ($selected_draw_ids as $draw_detail_id) {
             foreach ($digitMatrix as $number => $options) {
                 if (! isset($options['A'])) {
                     $options['A'] = 0;
@@ -277,7 +261,7 @@ trait OptonsOperation
                 TicketOption::updateOrCreate(
                     [
                         'user_id' => $this->auth_user->id,
-                        'draw_id' => $draw_id,
+                        'draw_detail_id' => $draw_detail_id,
                         'ticket_id' => $selected_ticket_id,
                         'number' => $number,
                         'a_qty' => $options['A'],
@@ -287,6 +271,18 @@ trait OptonsOperation
                 );
 
             }
+        }
+
+        // update Draw Details
+        $drawDetails = DrawDetail::whereIn('id', $selected_draw_ids)->get();
+
+        foreach ($drawDetails as $detail) {
+            $total_a_qty = $detail->ticketOptions->sum('a_qty') ?? 0;
+            $total_b_qty = $detail->ticketOptions->sum('b_qty') ?? 0;
+            $total_c_qty = $detail->ticketOptions->sum('c_qty') ?? 0;
+
+            $total_qty = $total_a_qty + $total_b_qty + $total_c_qty;
+            $detail->update(['total_qty' => $total_qty]);
         }
 
         if (! $this->is_edit_mode) {
@@ -302,9 +298,9 @@ trait OptonsOperation
     public function setStoreOptions(array $selected_draw_ids): void
     {
         $selected_ticket_id = $this->current_ticket_id;
-        $options = $this->getOptionsIntoCahe()
+        $options = $this->getOptionsIntoCache()
             ->map(function ($store_option) use ($selected_draw_ids, $selected_ticket_id) {
-                $store_option['draw_ids'] = $selected_draw_ids;
+                $store_option['draw_details_ids'] = $selected_draw_ids;
                 $store_option['ticket_id'] = $selected_ticket_id;
                 $store_option['status'] = 'COMPLETED';
 

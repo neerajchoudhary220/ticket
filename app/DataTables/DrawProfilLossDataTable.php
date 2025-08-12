@@ -6,6 +6,7 @@ use App\Models\Shopkeeper;
 use App\Models\TicketOption;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
@@ -50,10 +51,10 @@ class DrawProfilLossDataTable extends DataTable
                 return 'N/A';
             })
             ->addColumn('c_amt', function ($draw) {
-                return '';
+                return 'N/A';
             })
             ->addColumn('p_and_l', function ($draw) {
-                return '';
+                return 'N/A';
             })
             ->addColumn('action', function ($draw) {
                 $draw_details = route('dashboard.draw.details.list', ['draw_id' => $draw->id]);
@@ -96,7 +97,8 @@ class DrawProfilLossDataTable extends DataTable
             })
             // keep if you want user filtering
             ->when($request->get('start_date'), function ($query) use ($request) {
-                $query->whereDate('ticket_options.created_at', $request->get('start_date'));
+                $query->whereDate('ticket_options.created_at', $request->get('start_date'))
+                    ->OrWhereDate('ticket_options.created_at', Carbon::today());
             })
             ->groupBy('ticket_options.draw_id', 'draws.end_time')
             ->orderBy('draws.end_time', 'desc');

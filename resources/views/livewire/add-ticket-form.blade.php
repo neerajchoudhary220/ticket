@@ -33,21 +33,21 @@
                 const drawId = $(this).val();
                 const isChecked = $(this).is(':checked') ? 1 : 0;
                 $wire.dispatch('draw-selected', {
-                    'drawId': drawId,
+                    'draw_detail_id': drawId,
                     'isChecked': isChecked
                 });
             })
 
             $wire.on('check-selected-draw', (event) => {
                 const totalSelectedDraw = event.total_selected_draw;
-                const drawId = event.drawId;
+                const drawId = event.draw_details_id;
 
                 if (totalSelectedDraw == 0) {
                     $(`#draw_${drawId}`).prop('checked', true);
 
 
                     $wire.dispatch('draw-selected', {
-                        'drawId': drawId,
+                        'draw_detail_id': drawId,
                         'isChecked': 1
                     });
                 }

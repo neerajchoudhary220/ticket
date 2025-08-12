@@ -96,9 +96,9 @@ class User extends Authenticatable
         });
     }
 
-    public function draws()
+    public function drawDetails()
     {
-        return $this->belongsToMany(Draw::class, 'user_draws');
+        return $this->belongsToMany(DrawDetail::class, 'user_draws');
     }
 
     public function tickets()

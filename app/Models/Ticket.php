@@ -3,16 +3,16 @@
 namespace App\Models;
 
 use App\Traits\AuthUser;
+use App\Traits\DrawDetailsTrait;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Ticket extends Model
 {
-    use AuthUser;
+    use AuthUser,DrawDetailsTrait;
 
-    protected $fillable = ['ticket_number', 'user_id', 'status', 'draw_id'];
+    protected $fillable = ['ticket_number', 'user_id', 'status', 'draw_detail_id'];
 
     protected $appends = ['full_ticket_no'];
 
@@ -32,14 +32,6 @@ class Ticket extends Model
 
     /**
      * Get the user that owns the Ticket
-     */
-    public function draw(): BelongsTo
-    {
-        return $this->belongsTo(Draw::class);
-    }
-
-    /**
-     * Get the user that owns the Ticket
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -51,10 +43,5 @@ class Ticket extends Model
     public function scopeCompleted(Builder $ticket): Builder
     {
         return $ticket->where('status', 'COMPLETED');
-    }
-
-    public function scopeForDraw(Builder $TicketOption, $draw_id): Builder
-    {
-        return $TicketOption->where('draw_id', $draw_id);
     }
 }

@@ -57,18 +57,17 @@ class ShopKeeperDrawDetailsDataTable extends DataTable
     public function query(TicketOption $model, Request $request): QueryBuilder
     {
         $user = User::findOrFail($request->user_id);
-        $draw_ids = $user->draws->pluck('id')->toArray();
-        logger()->info($draw_ids);
+        $draw_ids = $user->drawDetails->pluck('id')->toArray();
 
         return $model->newQuery()
             ->select([
-                'number', 'draw_id',
+                'number', 'draw_detail_id',
                 DB::raw('SUM(a_qty) as a_qty'),
                 DB::raw('SUM(b_qty) as b_qty'),
                 DB::raw('SUM(c_qty) as c_qty'),
             ])
-            ->whereIn('draw_id', $draw_ids)
-            ->groupBy('number', 'draw_id'); // ← Fix here
+            ->whereIn('draw_detail_id', $draw_ids)
+            ->groupBy('number', 'draw_detail_id'); // ← Fix here
     }
 
     /**

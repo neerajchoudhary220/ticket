@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\DrawDetailsTrait;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -9,9 +10,11 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class UserDraw extends Pivot
 {
+    use DrawDetailsTrait;
+
     protected $table = 'user_draws';
 
-    protected $fillable = ['user_id', 'draw_id', 'total_draws'];
+    protected $fillable = ['user_id', 'draw_detail_id', 'total_draws'];
 
     // public function options(): HasMany
     // {
@@ -22,10 +25,6 @@ class UserDraw extends Pivot
     /**
      * Get the user that owns the UserDraw
      */
-    public function draw(): BelongsTo
-    {
-        return $this->belongsTo(Draw::class);
-    }
 
     /**
      * Get the user that owns the UserDraw

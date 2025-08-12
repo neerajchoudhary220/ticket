@@ -6,10 +6,14 @@
 
 
                            <h5 class="text-left ms-3">
-                               {{ Carbon\Carbon::createFromFormat('H:i', $this->active_draw->end_time)->format('h:i a') }}
+                               @if ($active_draw)
+                                   {{ Carbon\Carbon::createFromFormat('H:i', $active_draw->end_time)->format('h:i a') }}
+                               @endif
                            </h5>
-                           <h5 class="text-left">, Ticket Number: {{ $user_running_ticket->ticket_number }}
-                               {{ $a }}</h5>
+                           @if ($user_running_ticket)
+                               <h5 class="text-left">, Ticket Number: {{ $user_running_ticket->ticket_number }}
+                                   {{ $a }}</h5>
+                           @endif
                        </div>
 
                        <div class="d-flex" x-data="{

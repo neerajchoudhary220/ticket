@@ -53,7 +53,7 @@ class AddTicketForm extends Component
 
     public $current_ticket_id = '';
 
-    public $draw_id = '';
+    public $draw_detail_id = '';
 
     public $is_edit_mode = false;
 
@@ -71,12 +71,12 @@ class AddTicketForm extends Component
         $this->clearAllOptionsIntoCache();
         $this->auth_user = User::find($request->user()->id);
         if ($ticket) {
-            $this->draw_id = $ticket->draw->id;
+            $this->draw_detail_id = $ticket->drawDetail->id;
             $this->current_ticket_id = $ticket->id;
             $this->user_running_ticket = $ticket;
             $this->is_edit_mode = true;
 
-            $this->selected_draw[] = (string) $this->draw_id;
+            $this->selected_draw[] = (string) $this->draw_detail_id;
         } else {
             $this->addTicket();
         }

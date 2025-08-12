@@ -2,7 +2,7 @@
 
 namespace App\Traits\TicketForm;
 
-use App\Models\Draw;
+use App\Models\DrawDetail;
 use App\Models\Options;
 use App\Models\Ticket;
 use Illuminate\Support\Carbon;
@@ -59,7 +59,7 @@ trait TicketFormPagination
     {
         $current_time = Carbon::now()->timezone('Asia/Kolkata')->format('H:i');
 
-        $drawQuery = Draw::where(function ($query) use ($current_time) {
+        $drawQuery = DrawDetail::where(function ($query) use ($current_time) {
             $query->where(function ($q) use ($current_time) {
                 $q->where('start_time', '<=', $current_time)
                     ->where('end_time', '>=', $current_time);
@@ -132,7 +132,7 @@ trait TicketFormPagination
             $this->option_page = 1; // Reset page to 1
             $this->stored_options = [];
         }
-        $options = $this->getOptionsIntoCahe();
+        $options = $this->getOptionsIntoCache();
 
         if ($options) {
             if (count($this->stored_options) >= count($options)) {

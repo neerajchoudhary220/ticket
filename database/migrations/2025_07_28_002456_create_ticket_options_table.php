@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('ticket_options', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('draw_id')->constrained('draws')->cascadeOnDelete();
+            $table->foreignId('draw_detail_id')->constrained('draw_details')->cascadeOnDelete();
             $table->foreignId('ticket_id')->constrained('tickets')->cascadeOnDelete();
             $table->integer('number')->nullable();
             $table->string('a_qty')->nullable();

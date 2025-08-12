@@ -27,7 +27,7 @@ class ShopkeepersDataTable extends DataTable
                 return $query->forName($keyword);
             })
             ->addColumn('total_draws', function ($user) {
-                return $user->draws->count();
+                return $user->drawDetails->count();
             })
             ->editColumn('password_plain', function ($shopKeeper) {
                 $password = $shopKeeper->password_plain;
