@@ -14,6 +14,9 @@ return new class extends Migration
         Schema::create('draw_details', function (Blueprint $table) {
             $table->id();
             $table->foreignId('draw_id')->constrained('draws');
+            $table->string('claim_a')->nullable();
+            $table->string('claim_b')->nullable();
+            $table->string('claim_c')->nullable();
             $table->string('claim')->nullable();
             $table->string('total_qty')->nullable();
             $table->string('start_time')->nullable();

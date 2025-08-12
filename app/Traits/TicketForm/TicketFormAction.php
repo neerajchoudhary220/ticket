@@ -124,8 +124,7 @@ trait TicketFormAction
 
         $this->selected_draw = ! empty($selected_draw_ids)
             ? $selected_draw_ids->toArray()
-            : [$this->draw_id];
-
+            : [$this->draw_detail_id];
         $this->setStoreOptions($this->selected_draw);
         $this->getTimes();
         $this->loadOptions(true);

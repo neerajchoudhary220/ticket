@@ -10,7 +10,8 @@ class DrawDetail extends Model
 {
     const PRICE = 11;
 
-    protected $fillable = ['draw_id', 'start_time', 'end_time', 'claim', 'total_qty', 'date'];
+    protected $fillable = ['draw_id', 'start_time', 'end_time', 'claim', 'total_qty', 'date',
+        'claim_a', 'claim_b', 'claim_c'];
 
     public function scopeRunningDraw(Builder $drawDetail)
     {

@@ -158,12 +158,12 @@ trait OptonsOperation
     {
         $currentTime = Carbon::now()->timezone('Asia/Kolkata')->format('H:i');
 
-        return Draw::where(function ($q) use ($currentTime) {
+        return DrawDetail::where(function ($q) use ($currentTime) {
             $q->where(function ($q1) use ($currentTime) {
                 $q1->where('start_time', '<=', $currentTime)
                     ->where('end_time', '>=', $currentTime);
             })->orWhere('start_time', '>', $currentTime);
-        })
+        })->where('date', Carbon::today())
             ->pluck('id')->toArray();
 
     }

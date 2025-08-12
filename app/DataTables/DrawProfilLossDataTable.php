@@ -45,21 +45,41 @@ class DrawProfilLossDataTable extends DataTable
             ->addColumn('t_amt', function ($row) {
                 return $row->total_qty ? ($row->total_qty * 100) : 0;
             })
-            ->addColumn('claim', function ($draw) {
-                return 'N/A';
+            ->addColumn('claim', function ($draw_detail) {
+                return $draw_detail->claim ?? 0;
             })
-            ->addColumn('c_amt', function ($draw) {
-                return 'N/A';
+            ->addColumn('c_amt', function ($draw_detail) {
+                return $draw_detail->claim ? $draw_detail->claim * 100 : 0;
             })
-            ->addColumn('p_and_l', function ($draw) {
-                return 'N/A';
-            })
-            ->addColumn('action', function ($draw) {
-                $draw_details = route('dashboard.draw.details.list', ['draw_id' => $draw->id]);
+            ->addColumn('p_and_l', function ($draw_detail) {
+                $total_amount = $draw_detail->total_qty ? ($draw_detail->total_qty * 100) : 0;
+                $c_amt = $draw_detail->claim ? $draw_detail->claim * 100 : 0;
+                $p_and_l = $total_amount - $c_amt;
+
+                $bgClass = $p_and_l < 0 ? 'bg-danger text-white' : 'bg-success text-white';
+                if ($p_and_l == 0) {
+                    $bgClass = 'text-dark';
+                }
 
                 return <<<HTML
-        <a href="{$draw_details}" class ="btn btn-primary">Details</a>
+                <div class="{$bgClass}  text-center">{$p_and_l}</div>
+                HTML;
+
+            })
+            ->addColumn('action', function ($draw_detail) {
+                $draw_details = route('dashboard.draw.details.list', ['draw_id' => $draw_detail->id]);
+                $draw_detail_id = $draw_detail->id;
+
+                if ($draw_detail->claim <= 0) {
+                    return <<<HTML
+                <div class="d-flex justify-content-center">
+        <button class="btn btn-warning addClaim ms-3 text-white" data-draw-detail-id="{$draw_detail_id}">Claim</button>
+            </div>
     HTML;
+                }
+
+                return '--';
+
             })
 
             ->setRowId('id')
@@ -70,6 +90,7 @@ class DrawProfilLossDataTable extends DataTable
                 'c_amt',
                 'claim',
                 'p_and_l', 't_amt']);
+
     }
 
     /**
@@ -112,7 +133,9 @@ class DrawProfilLossDataTable extends DataTable
                     $query->whereBetween('date', [now()->subMonth()->startOfMonth(), now()->subMonth()->endOfMonth()]);
                 }
             })
-            ->orderBy('end_time', 'desc');
+            ->when(! $request->has('order'), function ($query) {
+                $query->orderBy('end_time', 'asc');
+            });
 
         return $ticket_options;
     }
@@ -153,12 +176,12 @@ class DrawProfilLossDataTable extends DataTable
     {
         return [
             Column::make('end_time')->title('Time')->orderable(true)->searchable(true),
-            Column::make('tq')->title('TQ'),
-            Column::make('t_amt')->title('T Amt'),
-            Column::make('claim'),
+            Column::make('tq')->title('TQ')->orderable(true),
+            Column::make('t_amt')->title('T Amt')->orderable(true),
+            Column::make('claim')->orderable(true),
             Column::make('c_amt')->title('C Amt.'),
             Column::make('p_and_l')->title('P&L'),
-            Column::make('action'),
+            Column::make('action')->addClass('text-center'),
 
         ];
     }
