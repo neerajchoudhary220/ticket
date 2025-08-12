@@ -2,12 +2,10 @@
 
 namespace App\DataTables;
 
+use App\Models\DrawDetail;
 use App\Models\Shopkeeper;
-use App\Models\TicketOption;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Button;
@@ -33,19 +31,19 @@ class DrawProfilLossDataTable extends DataTable
 
                 $query->where(function ($q) use ($keyword) {
                     // Match 12-hour with leading zero
-                    $q->whereRaw("TIME_FORMAT(draws.end_time, '%h %i %p') LIKE ?", ["%{$keyword}%"])
+                    $q->whereRaw("TIME_FORMAT(end_time, '%h %i %p') LIKE ?", ["%{$keyword}%"])
                       // Match 12-hour without leading zero
-                        ->orWhereRaw("TIME_FORMAT(draws.end_time, '%l %p') LIKE ?", ["%{$keyword}%"])
+                        ->orWhereRaw("TIME_FORMAT(end_time, '%l %p') LIKE ?", ["%{$keyword}%"])
                       // Match 24-hour format
-                        ->orWhereRaw("TIME_FORMAT(draws.end_time, '%H') LIKE ?", ["%{$keyword}%"]);
+                        ->orWhereRaw("TIME_FORMAT(end_time, '%H') LIKE ?", ["%{$keyword}%"]);
                 });
             })
 
-            ->addColumn('total_tickets', function ($row) {
-                return $row->total_a_qty + $row->total_b_qty + $row->total_c_qty;
+            ->addColumn('tq', function ($row) {
+                return $row->total_qty ?? 0;
             })
             ->addColumn('t_amt', function ($row) {
-                return ($row->total_a_qty + $row->total_b_qty + $row->total_c_qty) * 100;
+                return $row->total_qty ? ($row->total_qty * 100) : 0;
             })
             ->addColumn('claim', function ($draw) {
                 return 'N/A';
@@ -68,7 +66,7 @@ class DrawProfilLossDataTable extends DataTable
             ->rawColumns(['action',
                 'id',
                 'end_time',
-                'total_tickets',
+                'tq',
                 'c_amt',
                 'claim',
                 'p_and_l', 't_amt']);
@@ -79,29 +77,42 @@ class DrawProfilLossDataTable extends DataTable
      *
      * @return QueryBuilder<Shopkeeper>
      */
-    public function query(TicketOption $model, Request $request): QueryBuilder
+    public function query(DrawDetail $model, Request $request): QueryBuilder
     {
 
-        DB::enableQueryLog();
         $ticket_options = $model->newQuery()
-            ->select(
-                'ticket_options.draw_id',
-                'draws.end_time',
-                DB::raw('SUM(ticket_options.a_qty) as total_a_qty'),
-                DB::raw('SUM(ticket_options.b_qty) as total_b_qty'),
-                DB::raw('SUM(ticket_options.c_qty) as total_c_qty')
-            )
-            ->join('draws', 'ticket_options.draw_id', '=', 'draws.id')
             ->when(! auth()->guard('admin')->check() && auth()->user(), function ($q) {
                 return $q->forUser(auth()->user()->id);
             })
-            // keep if you want user filtering
-            ->when($request->get('start_date'), function ($query) use ($request) {
-                $query->whereDate('ticket_options.created_at', $request->get('start_date'))
-                    ->OrWhereDate('ticket_options.created_at', Carbon::today());
+            ->when($request->filled('start_date') && $request->filled('end_date'), function ($query) use ($request) {
+                // Filter between range
+                $query->whereBetween('date', [
+                    $request->get('start_date'),
+                    $request->get('end_date'),
+                ]);
             })
-            ->groupBy('ticket_options.draw_id', 'draws.end_time')
-            ->orderBy('draws.end_time', 'desc');
+            ->when($request->filled('start_date') && ! $request->filled('end_date'), function ($query) use ($request) {
+                // Only start_date provided
+                $query->whereDate('date', $request->get('start_date'));
+            })
+            ->when($request->filled('day'), function ($query) use ($request) {
+                // Optional: if "day" param from predefined ranges exists, handle it here
+                $day = $request->get('day');
+                if ($day === 'Today') {
+                    $query->whereDate('date', now());
+                } elseif ($day === 'Yesterday') {
+                    $query->whereDate('date', now()->subDay());
+                } elseif ($day === 'Last 7 Days') {
+                    $query->whereBetween('date', [now()->subDays(6), now()]);
+                } elseif ($day === 'Last 30 Days') {
+                    $query->whereBetween('date', [now()->subDays(29), now()]);
+                } elseif ($day === 'This Month') {
+                    $query->whereBetween('date', [now()->startOfMonth(), now()->endOfMonth()]);
+                } elseif ($day === 'Last Month') {
+                    $query->whereBetween('date', [now()->subMonth()->startOfMonth(), now()->subMonth()->endOfMonth()]);
+                }
+            })
+            ->orderBy('end_time', 'desc');
 
         return $ticket_options;
     }
@@ -142,7 +153,7 @@ class DrawProfilLossDataTable extends DataTable
     {
         return [
             Column::make('end_time')->title('Time')->orderable(true)->searchable(true),
-            Column::make('total_tickets')->title('TQ'),
+            Column::make('tq')->title('TQ'),
             Column::make('t_amt')->title('T Amt'),
             Column::make('claim'),
             Column::make('c_amt')->title('C Amt.'),

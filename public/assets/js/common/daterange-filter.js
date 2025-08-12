@@ -1,59 +1,70 @@
-        $(document).ready(function() {
-            const dateRangePickerSpan = $('.date-range-picker span');
-            let picker;
+       $(document).ready(function () {
 
-            $(function() {
-                var start = moment();
-                var end = moment();
+    const dateRangePickerSpan = $('.date-range-picker span');
+    let picker;
 
-                function cb(start, end, label) {
-                    const rangeLabels = ['Today', 'Yesterday', 'Last 7 Days', 'Last 30 Days', 'This Month',
-                        'Last Month'
-                    ];
+    // Helper to get query param by name
+    function getQueryParam(param) {
+        return new URLSearchParams(window.location.search).get(param);
+    }
 
-                    if (rangeLabels.includes(label)) {
-                        dateRangePickerSpan.html(label);
-                    } else {
-                        dateRangePickerSpan.html(start.format('MMMM D, YYYY') + ' - ' + end.format(
-                            'MMMM D, YYYY'));
-                    }
+    $(function () {
+        var start = moment();
+        var end = moment();
 
-                    $('#date-range-picker-form input[name=start_date]').val(start.format('YYYY-MM-DD'));
-                    $('#date-range-picker-form input[name=end_date]').val(end.format('YYYY-MM-DD'));
-                    $('#date-range-picker-form input[name=day]').val(rangeLabels.includes(label) ? label :
-                        '');
-                }
+        function cb(start, end, label) {
+            const rangeLabels = ['Today', 'Yesterday', 'Last 7 Days', 'Last 30 Days', 'This Month', 'Last Month'];
 
-                picker = $('.date-range-picker').daterangepicker({
-                    startDate: start,
-                    endDate: end,
-                    ranges: {
-                        'Today': [moment(), moment()],
-                        'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                        'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                        'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                        'This Month': [moment().startOf('month'), moment().endOf('month')],
-                        'Last Month': [moment().subtract(1, 'month').startOf('month'), moment()
-                            .subtract(1, 'month').endOf('month')
-                        ]
-                    }
-                }, cb);
+            if (rangeLabels.includes(label)) {
+                dateRangePickerSpan.html(label);
+            } else {
+                dateRangePickerSpan.html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+            }
 
-                cb(start, end, 'Today');
+            $('#date-range-picker-form input[name=start_date]').val(start.format('YYYY-MM-DD'));
+            $('#date-range-picker-form input[name=end_date]').val(end.format('YYYY-MM-DD'));
+            $('#date-range-picker-form input[name=day]').val(rangeLabels.includes(label) ? label : '');
+        }
 
-                // Reset button
-                $('.reset-btn').on('click', function() {
-                    let today = moment();
+        picker = $('.date-range-picker').daterangepicker({
+            startDate: start,
+            endDate: end,
+            ranges: {
+                'Today': [moment(), moment()],
+                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+            }
+        }, cb);
 
-                    // Reset picker to Today
-                    picker.data('daterangepicker').setStartDate(today);
-                    picker.data('daterangepicker').setEndDate(today);
-                    cb(today, today, 'Today');
+        // Check query params on page load
+        let qStart = getQueryParam('start_date');
+        let qEnd = getQueryParam('end_date');
+        let qDay = getQueryParam('day');
 
-                    // Remove query parameters from URL without reloading
-                    const baseUrl = window.location.origin + window.location.pathname;
-                    window.history.replaceState({}, '', baseUrl);
-                    window.location.reload();
-                });
-            });
+        if (qStart && qEnd) {
+            let s = moment(qStart, 'YYYY-MM-DD');
+            let e = moment(qEnd, 'YYYY-MM-DD');
+            picker.data('daterangepicker').setStartDate(s);
+            picker.data('daterangepicker').setEndDate(e);
+            cb(s, e, qDay || '');
+        } else {
+            cb(start, end, 'Today');
+        }
+
+        // Reset button
+        $('.reset-btn').on('click', function () {
+            let today = moment();
+            picker.data('daterangepicker').setStartDate(today);
+            picker.data('daterangepicker').setEndDate(today);
+            cb(today, today, 'Today');
+
+            // Remove query parameters from URL without reloading
+            const baseUrl = window.location.origin + window.location.pathname;
+            window.history.replaceState({}, '', baseUrl);
+            window.location.reload();
         });
+    });
+});
