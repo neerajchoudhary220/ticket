@@ -6,6 +6,7 @@ use App\Models\DrawDetail;
 use App\Models\Shopkeeper;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Button;
@@ -103,8 +104,9 @@ class DrawProfilLossDataTable extends DataTable
     {
 
         $ticket_options = $model->newQuery()
-            ->when(! auth()->guard('admin')->check() && auth()->user(), function ($q) {
-                return $q->forUser(auth()->user()->id);
+            // ->whereDate('date', Carbon::today())
+            ->when(! $request->get('start_date') && ! $request->get('end_date') && ! $request->get('da7'), function ($query) {
+                $query->whereDate('date', now());
             })
             ->when($request->filled('start_date') && $request->filled('end_date'), function ($query) use ($request) {
                 // Filter between range
@@ -134,6 +136,14 @@ class DrawProfilLossDataTable extends DataTable
                     $query->whereBetween('date', [now()->subMonth()->startOfMonth(), now()->subMonth()->endOfMonth()]);
                 }
             })
+            ->when(auth()->guard('web')->check() && auth()->user(), function ($q) {
+                // $start_date = $request->get('start_date');
+                // $end_date = $request->get('end_date');
+                // $day = $request->get('day');
+
+                return $q->forUserTicketOption(auth()->user()->id);
+            })
+
             ->when(! $request->has('order'), function ($query) {
                 $query->orderBy('end_time', 'asc');
             });
