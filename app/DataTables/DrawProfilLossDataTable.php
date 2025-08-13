@@ -70,8 +70,10 @@ class DrawProfilLossDataTable extends DataTable
             ->addColumn('action', function ($draw_detail) {
                 $draw_details = route('dashboard.draw.details.list', ['draw_id' => $draw_detail->id]);
                 $draw_detail_id = $draw_detail->id;
-
-                if ($draw_detail->claim <= 0 && ! auth()->guard('web')->check()) {
+                $end_time = Carbon::createFromTimeString($draw_detail->end_time)->format('H:i');
+                $now = Carbon::now()->setSecond(0)->timezone('Asia/Kolkata');
+                $segment = request()->segment(1);
+                if ($draw_detail->claim <= 0 && $segment === 'admin' && $now->gte($end_time) && $draw_detail->total_qty != 0) {
 
                     return <<<HTML
                 <div class="d-flex justify-content-center">
@@ -136,11 +138,7 @@ class DrawProfilLossDataTable extends DataTable
                     $query->whereBetween('date', [now()->subMonth()->startOfMonth(), now()->subMonth()->endOfMonth()]);
                 }
             })
-            ->when(auth()->guard('web')->check() && auth()->user(), function ($q) {
-                // $start_date = $request->get('start_date');
-                // $end_date = $request->get('end_date');
-                // $day = $request->get('day');
-
+            ->when(request()->segment(1) !== 'admin' && auth()->user(), function ($q) {
                 return $q->forUserTicketOption(auth()->user()->id);
             })
 
@@ -160,7 +158,7 @@ class DrawProfilLossDataTable extends DataTable
             ->setTableId('shopkeepers-table')
             ->columns($this->getColumns())
             ->minifiedAjax()
-            ->orderBy(0)
+            ->orderBy(0, 'desc')
             ->selectStyleSingle()
             ->parameters(
                 [
@@ -186,6 +184,7 @@ class DrawProfilLossDataTable extends DataTable
     public function getColumns(): array
     {
         return [
+            Column::make('updated_at')->hidden(),
             Column::make('end_time')->title('Time')->orderable(true)->searchable(true),
             Column::make('tq')->title('TQ')->orderable(true),
             Column::make('t_amt')->title('T Amt')->orderable(true),

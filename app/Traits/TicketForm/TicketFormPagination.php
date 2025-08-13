@@ -59,12 +59,15 @@ trait TicketFormPagination
     {
         $current_time = Carbon::now()->timezone('Asia/Kolkata')->format('H:i');
 
-        $drawQuery = DrawDetail::where(function ($query) use ($current_time) {
-            $query->where(function ($q) use ($current_time) {
-                $q->where('start_time', '<=', $current_time)
-                    ->where('end_time', '>=', $current_time);
-            })->orWhere('start_time', '>', $current_time);
-        });
+        $drawQuery = DrawDetail::whereDate('date', now())
+            ->where(function ($q) use ($current_time) {
+                $q->where(function ($inner) use ($current_time) {
+                    $inner->where('start_time', '<=', $current_time)
+                        ->where('end_time', '>=', $current_time);
+                })
+                    ->orWhere('start_time', '>', $current_time);
+            });
+
         $count = (clone $drawQuery)->count();
         $this->drawPerPage = $count <= 10 ? 10 : $this->drawPerPage;
 

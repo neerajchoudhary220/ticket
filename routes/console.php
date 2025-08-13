@@ -10,6 +10,22 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schedule;
 
+Artisan::command('add-details', function () {
+    $draws = Draw::get();
+    foreach ($draws as $draw) {
+        DrawDetail::updateOrCreate([
+            'date' => Carbon::today(),
+            'draw_id' => $draw->id,
+        ],
+            [
+                'draw_id' => $draw->id,
+                'start_time' => $draw->start_time,
+                'end_time' => $draw->end_time,
+            ]
+        );
+    }
+    $this->info('working...');
+});
 Schedule::call(function () {
     $draws = Draw::get();
     foreach ($draws as $draw) {
@@ -66,17 +82,14 @@ function getScrollPage($items, $perPage = 10, $page = 1)
 }
 
 Artisan::command('neeraj', function () {
-    $collection = collect(range(1, 50))->map(function ($id) {
-        return [
-            'id' => $id,
-            'qty' => rand(1, 500), // random qty between 1 and 500
-            'ticket_id' => 1,
-        ];
-    });
-    $collection->forget(2);
-    dd($collection->values()->all());
-    // cache::forget('tickets');
-    // Cache::put('tickets', $collection);
+    $t1 = Carbon::createFromTimeString('16:48')->format('H:i');
+    $t2 = Carbon::now()->setSecond(0)->timezone('Asia/Kolkata'); // keep as Carbon object, remove seconds if you want exact minute comparison
+    $this->info($t1);
+    $this->info($t2->format('H:i')); // only format when displaying
+
+    if ($t2->gte($t1)) {
+        $this->info('yes');
+    }
 });
 
 Artisan::command('getData', function () {

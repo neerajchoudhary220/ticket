@@ -39,35 +39,10 @@ class DrawDetail extends Model
         return $this->hasMany(TicketOption::class);
     }
 
-    public function scopeForUserTicketOption(EloquentBuilder $drawDetail, $user_id, $start_date = null, $end_date = null, $day = null): Builder
+    public function scopeForUserTicketOption(EloquentBuilder $drawDetail, $user_id): Builder
     {
-        return $drawDetail->whereHas('ticketOptions', function ($ticketOption) use ($user_id, $start_date, $end_date, $day) {
-            return $ticketOption->where('user_id', $user_id)
-                ->when($start_date, function ($ticketOption) use ($start_date) {
-                    return $ticketOption->whereDate('created_at', $start_date);
-                })
-                ->when($end_date, function ($ticketOption) use ($end_date) {
-                    return $ticketOption->whereDate('created_at', $end_date);
-                })
-                ->when($start_date && $end_date, function ($ticketOption) use ($start_date, $end_date) {
-                    return $ticketOption->whereBetween('created_at', [$start_date, $end_date]);
-                })
-                ->when($day, function ($query) use ($day) {
-
-                    if ($day === 'Today') {
-                        $query->whereDate('date', now());
-                    } elseif ($day === 'Yesterday') {
-                        $query->whereDate('created_at', now()->subDay());
-                    } elseif ($day === 'Last 7 Days') {
-                        $query->whereBetween('created_at', [now()->subDays(6), now()]);
-                    } elseif ($day === 'Last 30 Days') {
-                        $query->whereBetween('created_at', [now()->subDays(29), now()]);
-                    } elseif ($day === 'This Month') {
-                        $query->whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()]);
-                    } elseif ($day === 'Last Month') {
-                        $query->whereBetween('created_at', [now()->subMonth()->startOfMonth(), now()->subMonth()->endOfMonth()]);
-                    }
-                });
+        return $drawDetail->whereHas('ticketOptions', function ($ticketOption) use ($user_id) {
+            return $ticketOption->where('user_id', $user_id);
         });
     }
 }
