@@ -70,7 +70,8 @@ class DrawProfilLossDataTable extends DataTable
                 $draw_details = route('dashboard.draw.details.list', ['draw_id' => $draw_detail->id]);
                 $draw_detail_id = $draw_detail->id;
 
-                if ($draw_detail->claim <= 0) {
+                if ($draw_detail->claim <= 0 && ! auth()->guard('web')->check()) {
+
                     return <<<HTML
                 <div class="d-flex justify-content-center">
         <button class="btn btn-warning addClaim ms-3 text-white" data-draw-detail-id="{$draw_detail_id}">Claim</button>
