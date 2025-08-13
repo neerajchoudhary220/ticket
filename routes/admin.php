@@ -30,8 +30,9 @@ Route::middleware(['auth:admin'])->group(function () {
         Route::get('/', 'index')->name('admin.draw');
         Route::get('add-draw', 'addDraw')->name('admin.add.draw');
         Route::get('draw-details-list/{drawDetail}', 'drawDetails')->name('admin.draw.detail.list');
+        Route::get('draw-details-of-shopkeeper/{drawDetail}/{user}', 'shopKeeperDrawDetails')->name('admin.draw.details.shopkeeper');
         Route::get('draw-number-details-list', 'numberList')->name('admin.draw.number.details.list');
-        Route::get('draw-tikcet-details-list', 'ticketDetailsList')->name('admin.draw.ticke.details.list');
+        Route::get('draw-tikcet-details-list/{drawDetail}/{ticket}/{user}', 'ticketDetailsList')->name('admin.draw.ticke.details.list');
 
     });
 

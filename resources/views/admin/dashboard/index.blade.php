@@ -35,7 +35,7 @@
                     <div class="col-12">
                         <div class="card" role="button" onclick="window.location.href='{{ route('admin.draw') }}'">
                             <div class="card-header bg-info text-white d-flex justify-content-center">
-                                <h4 class="text-white">Completed Draws</h4>
+                                <h4 class="text-white">Draw Overview</h4>
                             </div>
                             <div class="card-body">
                                 <div class="row text-center">

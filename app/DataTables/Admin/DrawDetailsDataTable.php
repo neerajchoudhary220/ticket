@@ -23,7 +23,11 @@ class DrawDetailsDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('shop_keeper', function ($user_draw) {
-                return $user_draw->user->name;
+                $url = route('admin.draw.details.shopkeeper', ['drawDetail' => $user_draw->draw_detail_id, 'user' => $user_draw->user_id]);
+                $shopkeeper = $user_draw->user->name;
+
+                return "<a href='$url' class='text-primary'>$shopkeeper</a>";
+
             })
             ->addColumn('tq', function ($user_draw) {
                 $ticket_option = $user_draw->ticketOptions;
@@ -33,23 +37,59 @@ class DrawDetailsDataTable extends DataTable
             })
             ->addColumn('t_amt', function ($user_draw) {
                 $ticket_option = $user_draw->ticketOptions;
-                $total_qty = $ticket_option->sum('a_qty') + $ticket_option->sum('b_qty') + $ticket_option->sum('c_qty');
+                $t_amt = $ticket_option->sum('a_qty') + $ticket_option->sum('b_qty') + $ticket_option->sum('c_qty');
 
-                return $total_qty * 100;
+                return $t_amt * 100;
             })
-            ->addColumn('claim', function ($ticket_option) {
-                return 0;
+            ->addColumn('claim', function ($user_draw) {
+                $draw_details = $user_draw->drawDetail;
+                $ticket_option = $user_draw->ticketOptions;
+                $total_a_claim = $ticket_option->where('number', $draw_details->claim_a)->sum('a_qty');
+                $total_b_claim = $ticket_option->where('number', $draw_details->claim_b)->sum('b_qty');
+                $total_c_claim = $ticket_option->where('number', $draw_details->claim_c)->sum('c_qty');
+                $total_claim = $total_a_claim + $total_b_claim + $total_c_claim;
+
+                return $total_claim;
             })
-            ->addColumn('c_amt', function ($ticket_option) {
-                return 0;
+            ->addColumn('c_amt', function ($user_draw) {
+                $draw_details = $user_draw->drawDetail;
+                $ticket_option = $user_draw->ticketOptions;
+                $total_a_claim = $ticket_option->where('number', $draw_details->claim_a)->sum('a_qty');
+                $total_b_claim = $ticket_option->where('number', $draw_details->claim_b)->sum('b_qty');
+                $total_c_claim = $ticket_option->where('number', $draw_details->claim_c)->sum('c_qty');
+                $total_claim = $total_a_claim + $total_b_claim + $total_c_claim;
+
+                return $total_claim * 100;
             })
-            ->addColumn('p_and_l', function ($ticket_option) {
+            ->addColumn('p_and_l', function ($user_draw) {
+
+                $ticket_option = $user_draw->ticketOptions;
+                $total_amount = ($ticket_option->sum('a_qty') + $ticket_option->sum('b_qty') + $ticket_option->sum('c_qty')) * 100;
+
+                $draw_details = $user_draw->drawDetail;
+                $ticket_option = $user_draw->ticketOptions;
+                $total_a_claim = $ticket_option->where('number', $draw_details->claim_a)->sum('a_qty');
+                $total_b_claim = $ticket_option->where('number', $draw_details->claim_b)->sum('b_qty');
+                $total_c_claim = $ticket_option->where('number', $draw_details->claim_c)->sum('c_qty');
+                $c_amt = ($total_a_claim + $total_b_claim + $total_c_claim) * 100;
+
+                $p_and_l = $total_amount - $c_amt;
+
+                $bgClass = $p_and_l < 0 ? 'bg-danger text-white' : 'bg-success text-white';
+                if ($p_and_l == 0) {
+                    $bgClass = 'text-dark';
+                }
+
+                return <<<HTML
+                <div class="{$bgClass}  text-center">{$p_and_l}</div>
+                HTML;
+
                 return 0;
             })
             ->rawColumns([
                 'action',
                 'tq', 't_amt', 'claim',
-                'c_amt', 'p_and_l',
+                'c_amt', 'p_and_l', 'shop_keeper',
             ]);
     }
 

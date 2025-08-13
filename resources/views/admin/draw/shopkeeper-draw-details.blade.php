@@ -1,5 +1,5 @@
 @extends('admin.layouts.base')
-@section('title', 'Ticket Details')
+@section('title', 'Draw Details')
 @section('contents')
     <div class="container-fluid">
         <nav aria-label="breadcrumb">
@@ -9,20 +9,15 @@
                 <li class="breadcrumb-item"><a
                         href="{{ route('admin.draw.detail.list', $drawDetail->id) }}">{{ $drawDetail->formatEndTime() }}</a>
                 </li>
-                <li class="breadcrumb-item"><a
-                        href="{{ route('admin.draw.details.shopkeeper', ['drawDetail' => $drawDetail->id, 'user' => $user->id]) }}">Draw
-                        of
-                        {{ $user->name }}</a></li>
-                <li class="breadcrumb-item active">Details of Ticket Number: {{ $ticket->ticket_number }}</li>
+
+                <li class="breadcrumb-item active">Details of {{ $drawDetail->formatEndTime() }} of {{ $user->name }}</li>
             </ol>
         </nav>
-
-        {{-- <h2></h2> --}}
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    <div class="card-header text-white bg-primary d-flex justify-content-start">
-                        <h4 class="text-white me-auto">Details of Ticket Number: {{ $ticket->ticket_number }}</h4>
+                    <div class="card-header bg-primary d-flex justify-content-start">
+                        <h4 class="text-white">Time: {{ $drawDetail->formatEndTime() }} of {{ $user->name }}</h4>
                     </div>
                     <div class="card-body">
                         {{ $dataTable->table() }}

@@ -2,8 +2,8 @@
 
 namespace App\DataTables\Admin;
 
+use App\Models\Options;
 use App\Models\Shopkeeper;
-use App\Models\TicketOption;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Illuminate\Http\Request;
 use Yajra\DataTables\EloquentDataTable;
@@ -19,61 +19,39 @@ class TicketDetailsDataTable extends DataTable
      *
      * @param  QueryBuilder<Shopkeeper>  $query  Results from query() method.
      */
+    public function query(Options $model, Request $request): QueryBuilder
+    {
+        return $model->newQuery()
+            ->selectRaw('
+            ticket_id,
+            `option` as option_name,
+            number,
+            SUM(qty) as total_qty
+        ')
+            ->where('ticket_id', $request->ticket->id)
+            ->whereJsonContains('draw_details_ids', $request->drawDetail->id)
+            ->where('user_id', $request->user->id)
+            ->groupBy('ticket_id', 'option_name', 'number');
+    }
+
     public function dataTable(QueryBuilder $query, Request $request): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-            ->editColumn('number', function ($ticket_option) {
-                return $ticket_option->number;
+            ->addColumn('option', function ($row) {
+                return $row->option_name;
             })
-            ->filterColumn('number', function ($query, $keyword) {
-                $query->whereRaw('number like ?', ['%'.strtolower($keyword).'%']);
+            ->addColumn('number', function ($row) {
+                return $row->number;
             })
-            ->addColumn('total_collection_of_a', fn ($row) => $row->totalCollection($row->a_qty))
-            ->addColumn('total_collection_of_b', fn ($row) => $row->totalCollection($row->b_qty))
-            ->addColumn('total_collection_of_c', fn ($row) => $row->totalCollection($row->c_qty))
-            ->addColumn('total_distribution_of_a', fn ($row) => $row->totalDistributions($row->a_qty))
-            ->addColumn('total_distribution_of_b', fn ($row) => $row->totalDistributions($row->b_qty))
-            ->addColumn('total_distribution_of_c', fn ($row) => $row->totalDistributions($row->c_qty))
-            // ->addColumn('shopkeeper', function ($row) {
-            //     return "<a href='#'>{$row->user->name}</a>";
-            // })
-            // ->setRowId('number')
-            // ->editColumn('number', function ($row) {
-            //     return "<a href='$row->number'>$row->number</a>";
-            // })
-            // ->addColumn('action', function ($ticket_option) {
-            //     $add_ticket_url = '#';
-
-            //     return <<<HTML
-            //     <div class="d-flex justify-content-center">
-            //     <a href="$add_ticket_url" class="btn btn-primary btn-sm ms-3 text-white">More Details <i class="fa fa-arrow-circle-right"></i></a>
-
-            //     </div>
-            //     HTML;
-            // })
+            ->addColumn('qty', function ($row) {
+                return $row->total_qty;
+            })
+            ->addColumn('amt', function ($row) {
+                return $row->total_qty * 100;
+            })
             ->rawColumns([
-                'action',
-                'number',
-                'total_collection_of_a',
-                'total_collection_of_b',
-                'total_collection_of_c',
-                'total_distribution_of_a',
-                'total_distribution_of_b',
-                'total_distribution_of_c',
+                'option', 'number', 'qty', 'amt',
             ]);
-    }
-
-    /**
-     * Get the query source of dataTable.
-     *
-     * @return QueryBuilder<Shopkeeper>
-     */
-    public function query(TicketOption $model, Request $request): QueryBuilder
-    {
-
-        return $model->newQuery()
-            ->forTicket($request->ticket_id);
-
     }
 
     /**
@@ -109,16 +87,10 @@ class TicketDetailsDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('number')->title('Number(0-9)')->orderable(true)->searchable(true),
-            Column::make('total_collection_of_a')->title('TTL. Coll. Of A'),
-            Column::make('total_distribution_of_a')->title('TTL.  Dist. Of A'),
-            Column::make('total_collection_of_b')->title('TTL. Coll. Of B'),
-            Column::make('total_distribution_of_b')->title('TTL.  Dist. Of B'),
-            Column::make('total_collection_of_c')->title('TTL. Coll. Of C'),
-            Column::make('total_distribution_of_c')->title('TTL.  Dist. Of C'),
-            // Column::make('shopkeeper')->title('Shopkeeper'),
-            // Column::make('action')->addClass('text-center'),
-
+            Column::make('option')->title('Option')->orderable(true)->searchable(true),
+            Column::make('number')->title('Number'),
+            Column::make('qty')->title('Qty'),
+            Column::make('amt')->title('Amt'),
         ];
     }
 
@@ -127,6 +99,6 @@ class TicketDetailsDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Shopkeepers_'.date('YmdHis');
+        return 'Ticket-details'.date('YmdHis');
     }
 }

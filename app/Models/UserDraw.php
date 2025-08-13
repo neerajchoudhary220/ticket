@@ -23,6 +23,11 @@ class UserDraw extends Pivot
             ->where('user_id', $this->user_id);
     }
 
+    public function drawDetail(): BelongsTo
+    {
+        return $this->belongsTo(DrawDetail::class);
+    }
+
     /**
      * Get the user that owns the UserDraw
      */
