@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\AuthUser;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 
 class DrawDetail extends Model
 {
+    use AuthUser;
+
     const PRICE = 11;
 
     protected $fillable = ['draw_id', 'start_time', 'end_time', 'claim', 'total_qty', 'date',
