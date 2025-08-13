@@ -3,10 +3,9 @@
 namespace App\DataTables\Admin;
 
 use App\Models\Shopkeeper;
-use App\Models\TicketOption;
+use App\Models\UserDraw;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Button;
@@ -23,28 +22,34 @@ class DrawDetailsDataTable extends DataTable
     public function dataTable(QueryBuilder $query, Request $request): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-            ->addColumn('total_collection_of_a', fn ($row) => $row->totalCollection($row->a_qty))
-            ->addColumn('total_collection_of_b', fn ($row) => $row->totalCollection($row->b_qty))
-            ->addColumn('total_collection_of_c', fn ($row) => $row->totalCollection($row->c_qty))
-            ->addColumn('total_distribution_of_a', fn ($row) => $row->totalDistributions($row->a_qty))
-            ->addColumn('total_distribution_of_b', fn ($row) => $row->totalDistributions($row->b_qty))
-            ->addColumn('total_distribution_of_c', fn ($row) => $row->totalDistributions($row->c_qty))
-            ->addColumn('action', fn ($row) => '<a href="#" class="btn btn-primary">Details</a>')
-            // ->setRowId('id')
-            ->editColumn('number', function ($row) {
-                $ticket_number_url = route('admin.draw.number.details.list', ['draw_id' => $row->draw_id, 'number' => $row->number]);
+            ->addColumn('shop_keeper', function ($user_draw) {
+                return $user_draw->user->name;
+            })
+            ->addColumn('tq', function ($user_draw) {
+                $ticket_option = $user_draw->ticketOptions;
+                $total_qty = $ticket_option->sum('a_qty') + $ticket_option->sum('b_qty') + $ticket_option->sum('c_qty');
 
-                return "<a href='$ticket_number_url' class='text-primary'>$row->number</a>";
+                return $total_qty;
+            })
+            ->addColumn('t_amt', function ($user_draw) {
+                $ticket_option = $user_draw->ticketOptions;
+                $total_qty = $ticket_option->sum('a_qty') + $ticket_option->sum('b_qty') + $ticket_option->sum('c_qty');
+
+                return $total_qty * 100;
+            })
+            ->addColumn('claim', function ($ticket_option) {
+                return 0;
+            })
+            ->addColumn('c_amt', function ($ticket_option) {
+                return 0;
+            })
+            ->addColumn('p_and_l', function ($ticket_option) {
+                return 0;
             })
             ->rawColumns([
                 'action',
-                'number',
-                'total_collection_of_a',
-                'total_collection_of_b',
-                'total_collection_of_c',
-                'total_distribution_of_a',
-                'total_distribution_of_b',
-                'total_distribution_of_c',
+                'tq', 't_amt', 'claim',
+                'c_amt', 'p_and_l',
             ]);
     }
 
@@ -53,17 +58,10 @@ class DrawDetailsDataTable extends DataTable
      *
      * @return QueryBuilder<Shopkeeper>
      */
-    public function query(TicketOption $model, Request $request): QueryBuilder
+    public function query(UserDraw $model, Request $request): QueryBuilder
     {
-        return $model->newQuery()
-            ->select([
-                'number', 'draw_id',
-                DB::raw('SUM(a_qty) as a_qty'),
-                DB::raw('SUM(b_qty) as b_qty'),
-                DB::raw('SUM(c_qty) as c_qty'),
-            ])
-            ->forDraw($request->draw_id)
-            ->groupBy('number', 'draw_id'); // ← Fix here
+
+        return $model->newQuery()->where('draw_detail_id', $request->drawDetail->id);
     }
 
     /**
@@ -101,13 +99,12 @@ class DrawDetailsDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('number')->title('Number(0-9)'),
-            Column::make('total_collection_of_a')->title('TTL. Coll. Of A'),
-            Column::make('total_distribution_of_a')->title('TTL.  Dist. Of A'),
-            Column::make('total_collection_of_b')->title('TTL. Coll. Of B'),
-            Column::make('total_distribution_of_b')->title('TTL.  Dist. Of B'),
-            Column::make('total_collection_of_c')->title('TTL. Coll. Of C'),
-            Column::make('total_distribution_of_c')->title('TTL.  Dist. Of C'),
+            Column::make('shop_keeper')->title('Shopkeeper'),
+            Column::make('tq')->title('TQ'),
+            Column::make('t_amt')->title('T Amt'),
+            Column::make('claim')->title('Claim'),
+            Column::make('c_amt')->title('C Amt.'),
+            Column::make('p_and_l')->title('P&L'),
 
         ];
     }

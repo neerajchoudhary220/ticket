@@ -8,6 +8,7 @@ use App\DataTables\Admin\NumberTicketListDataTable;
 use App\DataTables\Admin\TicketDetailsDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\Draw;
+use App\Models\DrawDetail;
 use App\Models\Ticket;
 use Illuminate\Http\Request;
 
@@ -19,11 +20,11 @@ class DrawController extends Controller
         // return view('admin.draw.index');
     }
 
-    public function drawDetails(DrawDetailsDataTable $dataTable, Request $request)
+    public function drawDetails(DrawDetailsDataTable $dataTable, Request $request, DrawDetail $drawDetail)
     {
-        $draw = $this->findDraw($request->draw_id);
+        // $draw = $this->findDraw($request->draw_id);
 
-        return $dataTable->render('admin.draw.draw-details-table', compact('draw'));
+        return $dataTable->render('admin.draw.draw-details-table', compact('drawDetail'));
         // return view('admin.draw.draw-details-table');
     }
 

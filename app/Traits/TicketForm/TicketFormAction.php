@@ -48,7 +48,7 @@ trait TicketFormAction
 
             $this->selected_ticket = $this->user_running_ticket;
             $this->current_ticket_id = $this->user_running_ticket->id;
-            $this->auth_user->drawDetails()->syncWithoutDetaching($this->draw_detail_id);
+            // $this->auth_user->drawDetails()->syncWithoutDetaching($this->draw_detail_id);
             $this->loadOptions(true);
             $this->loadTickets(true);
             $this->selected_draw[] = (string) $this->draw_detail_id;

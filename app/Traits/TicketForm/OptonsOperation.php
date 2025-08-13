@@ -275,7 +275,6 @@ trait OptonsOperation
 
         // update Draw Details
         $drawDetails = DrawDetail::whereIn('id', $selected_draw_ids)->get();
-
         foreach ($drawDetails as $detail) {
             $total_a_qty = $detail->ticketOptions->sum('a_qty') ?? 0;
             $total_b_qty = $detail->ticketOptions->sum('b_qty') ?? 0;
@@ -284,6 +283,9 @@ trait OptonsOperation
             $total_qty = $total_a_qty + $total_b_qty + $total_c_qty;
             $detail->update(['total_qty' => $total_qty]);
         }
+
+        // update user draw
+        $this->auth_user->drawDetails()->syncWithoutDetaching($selected_draw_ids);
 
         if (! $this->is_edit_mode) {
             // Generate new Ticket

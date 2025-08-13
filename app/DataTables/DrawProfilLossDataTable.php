@@ -24,8 +24,11 @@ class DrawProfilLossDataTable extends DataTable
     {
 
         return (new EloquentDataTable($query))
-            ->editColumn('end_time', function ($row) {
-                return \Carbon\Carbon::parse($row->end_time)->format('h:i a');
+            ->editColumn('end_time', function ($draw_detail) {
+                $end_time = \Carbon\Carbon::parse($draw_detail->end_time)->format('h:i a');
+                $url = route('admin.draw.detail.list', $draw_detail->id);
+
+                return "<a href='$url' class='text-primary h6'>$end_time</a>";
             })
             ->filterColumn('end_time', function ($query, $keyword) {
                 $keyword = strtolower($keyword);
