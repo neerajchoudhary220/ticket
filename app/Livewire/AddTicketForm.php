@@ -63,6 +63,8 @@ class AddTicketForm extends Component
 
     public $selected_times;
 
+    public $final_total_qty = 0;
+
     public array $stored_options = [];
     // protected $updatesQueryString = ['search', 'filterOption'];
 

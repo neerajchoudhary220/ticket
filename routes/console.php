@@ -96,6 +96,5 @@ Artisan::command('getData', function () {
     $page = $this->ask('Enter the page number:');
     $tickets = cache::get('tickets');
     $outputs = getScrollPage($tickets, 10, (int) $page);
-    dd($outputs);
 
 });

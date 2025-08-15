@@ -57,9 +57,12 @@
 
                            </div>
                            <div class="row mt-3">
-                               <div class="col-12 text-end">
+                               <div class="col-12 d-flex justify-content-start">
+                                   <label class=" me-auto">TQ:{{ collect($stored_options)->sum('total') }}, Final
+                                       TQ:{{ $final_total_qty }}</label>
                                    <button class="btn btn-sm btn-primary" wire:click='submitTicket'>Submit
                                        Ticket</button>
+
                                </div>
 
                            </div>
