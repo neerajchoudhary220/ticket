@@ -1,5 +1,6 @@
        <div>
            <div class="card">
+
                <div class="card-header bg-warning text-white">
                    <div class="d-flex justify-content-start">
                        <div class="d-flex me-auto">
@@ -37,103 +38,51 @@
                            </h5>
                        </div>
 
-
                    </div>
 
                </div>
-               <div class="card-body">
-                   <div class="row mb-3" x-data @focus-qty.window="document.getElementById('qty').focus()"
-                       @focus-abc.window="document.getElementById('abc').focus()">
-                       <div class="col-4">
-                           <div class="d-flex">
-                               <label class="mt-2" for="abc">ABC: </label>
-                               <input type="text" class="form-control" wire:model="abc" id="abc"
-                                   wire:keydown.enter="enterKeyPressOnAbc" placeholder="Enter ABC">
-                           </div>
-                           @error('abc')
-                               <span class="text-danger">{{ $message }}</span>
-                           @enderror
-                       </div>
-                       <div class="col-4">
-                           <div class="d-flex">
-                               <label class="mt-2" for="qty">QTY: </label>
-                               <input type="text" class="form-control" wire:model="abc_qty" id="qty"
-                                   wire:keydown.enter="enterKeyPressOnQty" placeholder="Enter Qty"><br>
-                           </div>
-                           @error('abc_qty')
-                               <span class="text-danger">{{ $message }}</span>
+               <ul class="nav nav-tabs" role="tablist">
+                   <li class="nav-item">
+                       <a class="nav-link {{ $activeTab === 'simple_abc' ? 'active' : '' }}" data-bs-toggle="tab"
+                           href="#simple_abc" wire:click.prevent="setTab('simple_abc')">Simple ABC</a>
+                   </li>
+                   <li class="nav-item">
+                       <a class="nav-link {{ $activeTab === 'cross_abc' ? 'active' : '' }}" id="cross_abc_tab"
+                           data-bs-toggle="tab" href="#cross_abc" wire:click.prevent="setTab('cross_abc')">Cross ABC</a>
+                   </li>
+               </ul>
+
+               <!-- Tab panes -->
+               <div class="tab-content">
+                   <div id="simple_abc"
+                       class="container tab-pane {{ $activeTab === 'simple_abc' ? 'active show' : '' }}">
+                       <br>
+                       @include('livewire.simple-abc')
+                   </div>
+                   <div id="cross_abc"
+                       class="container tab-pane fade {{ $activeTab === 'cross_abc' ? 'active show' : '' }}">
+                       <br>
+                       @include('livewire.cross-abc')
+                   </div>
+
+               </div>
+
+
+               <div class="card-footer mt-3">
+                   <div class="col-12">
+                       <div class="text-center mt-3">
+
+                           @error('submit_error')
+                               <span class="text-danger"><i class="fa fa-warning"></i> {{ $message }}</span>
                            @enderror
                        </div>
                    </div>
-                   <table class="table table-bordered">
-                       <thead>
-                           <tr>
-                               <th>Option</th>
-                               <th>#Numbers (0–9)</th>
-                               <th>Qty</th>
-                               {{-- <th>Price</th> --}}
-                               {{-- <th>Total</th> --}}
-                           </tr>
-                       </thead>
-                       <tbody x-data @focus-b.window="document.getElementById('input_b').focus()"
-                           @focus-a.window="document.getElementById('input_a').focus()"
-                           @focus-c.window="document.getElementById('input_c').focus()"
-                           @focus-a_qty.window="document.getElementById('input_a_qty').focus()"
-                           @focus-b_qty.window="document.getElementById('input_b_qty').focus()"
-                           @focus-c_qty.window="document.getElementById('input_c_qty').focus()">
-                           <!-- Example row -->
-                           <tr>
-                               <td>A</td>
-                               <td>
-                                   <input type="text" id="input_a" wire:model.debounce.250='a'
-                                       wire:keydown.down="move('focus-b','a')"
-                                       wire:keydown.right="move('focus-a_qty','a')" wire:keydown.tab="keyTab('a')"
-                                       class="form-control  zeroToNineNumber">
-                               </td>
-                               <td>
-                                   <input type="text" class="form-control  number_qty" id="input_a_qty"
-                                       wire:model="a_qty" wire:keydown.left="move('focus-a','a')"
-                                       wire:keydown.down="move('focus-b_qty','a')" wire:keydown.tab="keyTab('a')"
-                                       wire:keydown.enter="keyEnter('a','focus-a')">{{-- Qty of A --}}
-                               </td>
-                               {{-- <td>11</td> --}}
-                               {{-- <td>{{ $total_a }}</td> --}}
-                           </tr>
-                           <tr>
-                               <td>B</td>
-                               <td><input type="text" wire:model.debounce.250ms='b' id="input_b"
-                                       wire:keydown.up = "move('focus-a','b')" wire:keydown.down="move('focus-c','b')"
-                                       wire:keydown.right="move('focus-b_qty','b')" wire:keydown.tab="keyTab('b')"
-                                       class="form-control zeroToNineNumber"></td>
-
-                               <td>
-                                   <input type="text" class="form-control  number_qty" id="input_b_qty"
-                                       wire:model="b_qty" wire:keydown.left="move('focus-b','b')"
-                                       wire:keydown.down="move('focus-c_qty','b')" wire:keydown.tab="keyTab('b')"
-                                       wire:keydown.up="move('focus-a_qty','b')"
-                                       wire:keydown.enter="keyEnter('b','focus-b')">
-                               </td>
-                               {{-- <td>11</td> --}}
-                               {{-- <td>{{ $total_b }}</td> --}}
-                           </tr>
-                           <tr>
-                               <td>C</td>
-                               <td><input type="text" wire:model.debounce.250ms='c' id="input_c"
-                                       wire:keydown.up = "move('focus-b','c')"
-                                       wire:keydown.right="move('focus-c_qty','c')" wire:keydown.tab="keyTab('c')"
-                                       class="form-control zeroToNineNumber"></td>
-                               <td>
-                                   <input type="text" class="form-control  number_qty" id="input_c_qty"
-                                       wire:model="c_qty" wire:keydown.left="move('focus-c','c')"
-                                       wire:keydown.up="move('focus-b_qty','c')" wire:keydown.tab="keyTab('c')"
-                                       wire:keydown.enter="keyEnter('c','focus-c')">
-                               </td>
-                               {{-- <td>11</td> --}}
-                               {{-- <td>{{ $total_c }}</td> --}}
-                           </tr>
-                       </tbody>
-                   </table>
+                   <div class="col-12 text-end">
+                       <button class="btn btn-sm btn-primary" wire:click='submitTicket'>Submit
+                           Ticket</button>
+                   </div>
 
                </div>
            </div>
+
        </div>

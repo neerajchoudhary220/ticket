@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\User;
+use App\Traits\TicketForm\CrossAbcOperation;
 use App\Traits\TicketForm\TicketFormAction;
 use App\Traits\TicketForm\TicketFormPagination;
 use Illuminate\Http\Request;
@@ -11,7 +12,7 @@ use Livewire\WithPagination;
 
 class AddTicketForm extends Component
 {
-    use TicketFormAction,TicketFormPagination,WithPagination;
+    use CrossAbcOperation,TicketFormAction,TicketFormPagination,WithPagination;
 
     protected $paginationTheme = 'bootstrap'; // For Bootstrap 5
 

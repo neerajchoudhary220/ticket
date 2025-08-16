@@ -14,7 +14,6 @@
                                    <thead class="table-light position-sticky top-0" style="z-index: 1;">
                                        <tr>
                                            <th>#</th>
-                                           {{-- <th>Draw_ids*</th> --}}
 
                                            <th>Option</th>
                                            <th>Number</th>
@@ -25,32 +24,18 @@
                                        </tr>
                                    </thead>
                                    <tbody>
-                                       @forelse ($stored_options as $option)
-                                           <tr>
-                                               <td>{{ $loop->index + 1 }}</td>
-                                               {{-- <td>{{ implode(',', $option['draw_ids']) }} --}}
-                                               </td>
-                                               <td>{{ $option['option'] }}</td>
-                                               <td>{{ $option['number'] }}</td>
-                                               <td>{{ $option['qty'] }}</td>
-                                               <td>{{ $option['total'] }}</td>
-                                               <td>
-                                                   <button class="btn btn-sm btn-danger"
-                                                       wire:click="deleteOption({{ $loop->index }})">Delete</button>
-                                               </td>
-                                           </tr>
-                                       @empty
-                                           <tr>
-                                               <td colspan="6" class="text-center">No records found.</td>
-                                           </tr>
-                                       @endforelse
+
                                    </tbody>
                                </table>
+
+
+
+
                            </div>
                            <div class="row mt-3">
                                <div class="col-12 d-flex justify-content-start">
-                                   <label class=" me-auto">TQ:{{ collect($stored_options)->sum('total') }}, Final
-                                       TQ:{{ $final_total_qty }}</label>
+                                   {{-- <label class=" me-auto">TQ:{{ collect($stored_options)->sum('total') }}, Final
+                                       TQ:{{ $final_total_qty }}</label> --}}
 
 
                                </div>

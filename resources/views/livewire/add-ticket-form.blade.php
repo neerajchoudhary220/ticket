@@ -5,9 +5,6 @@
                 <div class="col-12">
                     @include('livewire.ticket-data-form')
                 </div>
-                <div class="col-12 mt-3">
-                    @include('livewire.number-display-list')
-                </div>
             </div>
         </div>
         <div class="col-6">
@@ -37,6 +34,14 @@
                     'isChecked': isChecked
                 });
             })
+
+            //cross abc active
+            $wire.on('cross-abc-tab-active', (event) => {
+                $("#cross_abc_tab").trigger("click");
+                alert("working");
+
+            })
+
 
             $wire.on('check-selected-draw', (event) => {
                 const totalSelectedDraw = event.total_selected_draw;
