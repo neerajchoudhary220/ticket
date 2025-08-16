@@ -108,6 +108,7 @@ trait OptonsOperation
             'draw_details_ids' => $this->selected_draw,
 
         ];
+
     }
 
     public function storeOptionsIntoCache($data)
@@ -313,6 +314,7 @@ trait OptonsOperation
 
         Cache::put('options', $options, 7200);
         $this->loadOptions(true);
+        $this->calculateFinalTotal();
 
     }
 }

@@ -138,9 +138,14 @@ trait TicketFormAction
             ->get()
             ->map(fn ($draw) => Carbon::createFromFormat('H:i', $draw->end_time)->format('h:i a'))
             ->implode(',');
+        $this->calculateFinalTotal();
+
+    }
+
+    public function calculateFinalTotal()
+    {
         $total_stored_options = collect($this->stored_options)->sum('total');
         $total_selected_times = $this->selected_draw ? count($this->selected_draw) : 0;
         $this->final_total_qty = $total_stored_options * $total_selected_times;
-
     }
 }

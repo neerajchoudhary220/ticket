@@ -26,7 +26,7 @@ class DrawProfilLossDataTable extends DataTable
         return (new EloquentDataTable($query))
             ->editColumn('end_time', function ($draw_detail) {
                 $end_time = \Carbon\Carbon::parse($draw_detail->end_time)->format('h:i a');
-                $url = route('admin.draw.detail.list', $draw_detail->id);
+                $url = request()->segment(1) === 'admin' ? route('admin.draw.detail.list', $draw_detail->id) : route('dashboard.draw.details.list', ['draw_detail_id' => $draw_detail->id]);
 
                 return "<a href='$url' class='text-primary h6'>$end_time</a>";
             })
@@ -47,7 +47,7 @@ class DrawProfilLossDataTable extends DataTable
                 return $row->total_qty ?? 0;
             })
             ->addColumn('t_amt', function ($row) {
-                return $row->total_qty ? ($row->total_qty * 100) : 0;
+                return $row->total_qty ? ($row->total_qty * 11) : 0;
             })
             ->addColumn('claim', function ($draw_detail) {
                 return $draw_detail->claim ?? 0;
@@ -186,7 +186,7 @@ class DrawProfilLossDataTable extends DataTable
      */
     public function getColumns(): array
     {
-        return [
+        $columes = [
             Column::make('updated_at')->hidden(),
             Column::make('end_time')->title('Time')->orderable(true)->searchable(true),
             Column::make('tq')->title('TQ')->orderable(true),
@@ -194,9 +194,15 @@ class DrawProfilLossDataTable extends DataTable
             Column::make('claim')->orderable(true),
             Column::make('c_amt')->title('C Amt.'),
             Column::make('p_and_l')->title('P&L'),
-            Column::make('action')->addClass('text-center'),
+            // Column::make('action')->addClass('text-center'),
 
         ];
+        if (request()->segment(1) === 'admin') {
+
+            $columes[] = Column::make('action');
+        }
+
+        return $columes;
     }
 
     /**

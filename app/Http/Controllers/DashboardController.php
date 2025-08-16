@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\DataTables\Admin\ShopKeeperDrawDetailsDataTable;
 use App\DataTables\DrawProfilLossDataTable;
 use App\DataTables\NumberListDataTable;
 use App\DataTables\TicketDetailsDataTable;
-use App\DataTables\UserDrawDetailsDataTable;
 use App\Models\Draw;
+use App\Models\DrawDetail;
 use App\Models\Ticket;
 use Illuminate\Http\Request;
 
@@ -41,12 +42,11 @@ class DashboardController extends Controller
         return $dataTable->render('web.dashboard.option-list', compact('draw'));
     }
 
-    public function drawDetailsList(UserDrawDetailsDataTable $dataTable, Request $request)
+    public function drawDetailsList(ShopKeeperDrawDetailsDataTable $dataTable, Request $request)
     {
-        // return view('web.dashboard.draw-details-datatable');
-        $draw = Draw::findOrFail($request->draw_id);
+        $drawDetail = DrawDetail::findOrFail($request->draw_detail_id);
 
-        return $dataTable->render('web.dashboard.draw-details-datatable', compact('draw'));
+        return $dataTable->render('web.dashboard.draw-details-datatable', compact('drawDetail'));
 
     }
 

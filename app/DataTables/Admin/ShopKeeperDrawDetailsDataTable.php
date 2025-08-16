@@ -21,6 +21,13 @@ class ShopKeeperDrawDetailsDataTable extends DataTable
      */
     public function query(TicketOption $model, Request $request): QueryBuilder
     {
+        $user_id = auth()->user()->id;
+        $draw_id = $request->draw_detail_id;
+        if (request()->segment(1) === 'admin') {
+            $user_id = $request->user->id;
+            $draw_id = $request->drawDetail->id;
+        }
+
         return $model->newQuery()
             ->selectRaw('
             draw_detail_id,user_id,
@@ -33,8 +40,8 @@ class ShopKeeperDrawDetailsDataTable extends DataTable
             SUM(CASE WHEN number = draw_details.claim_c THEN c_qty ELSE 0 END) as claim_c_qty
         ')
             ->join('draw_details', 'ticket_options.draw_detail_id', '=', 'draw_details.id')
-            ->where('draw_detail_id', $request->drawDetail->id)
-            ->where('user_id', $request->user->id)
+            ->where('draw_detail_id', $draw_id)
+            ->where('user_id', $user_id)
             // ->groupBy('ticket_id', 'draw_details.claim_a', 'draw_details.claim_b', 'draw_details.claim_c')
             ->groupBy(
                 'ticket_options.draw_detail_id',

@@ -21,6 +21,15 @@ class TicketDetailsDataTable extends DataTable
      */
     public function query(Options $model, Request $request): QueryBuilder
     {
+        $ticket_id = $request->ticket_id;
+        $userId = auth()->user()->id;
+        $drawDetailId = $request->draw_detail_id;
+        if (request()->segment(1) === 'admin') {
+            $ticket_id = $request->ticket->id;
+            $userId = $request->user->id;
+            $drawDetailId = $request->drawDetail->id;
+        }
+
         return $model->newQuery()
             ->selectRaw('
             ticket_id,
@@ -28,9 +37,9 @@ class TicketDetailsDataTable extends DataTable
             number,
             SUM(qty) as total_qty
         ')
-            ->where('ticket_id', $request->ticket->id)
-            ->whereJsonContains('draw_details_ids', $request->drawDetail->id)
-            ->where('user_id', $request->user->id)
+            ->where('ticket_id', $ticket_id)
+            ->whereJsonContains('draw_details_ids', $drawDetailId)
+            ->where('user_id', $userId)
             ->groupBy('ticket_id', 'option_name', 'number');
     }
 
