@@ -11,17 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cross_abcs', function (Blueprint $table) {
+        Schema::create('cross_abc_details', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('ticket_id')->constrained('tickets')->cascadeOnDelete();
-            $table->foreignId('draw_detail_id')->constrained('draw_details')->cascadeOnDelete();
-            $table->string('abc')->nullable();
-            $table->string('combination')->nullable();
-            $table->string('amt');
-            $table->json('ab')->nullable();
-            $table->json('ac')->nullable();
-            $table->json('bc')->nullable();
+            $table->string('ab_number')->nullable();
+            $table->string('ab_amt')->nullable();
+            $table->string('ac_number')->nullable();
+            $table->string('ac_amt')->nullable();
+            $table->string('bc_number')->nullable();
+            $table->string('bc_amt')->nullable();
             $table->timestamps();
         });
     }
@@ -31,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('cross_abcs');
+        Schema::dropIfExists('cross_abc_details');
     }
 };

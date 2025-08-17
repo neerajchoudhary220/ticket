@@ -9,21 +9,42 @@
                            @endif
                        </div>
                        <div class="card-body">
-                           <div class="table-responsive option-list" style="max-height: 250px; overflow-y: auto; ">
+                           <div class="table-responsive cross-data-list" style="max-height: 250px; overflow-y: auto; ">
                                <table class="table table-bordered table-striped table-hover">
                                    <thead class="table-light position-sticky top-0" style="z-index: 1;">
                                        <tr>
                                            <th>#</th>
-
                                            <th>Option</th>
                                            <th>Number</th>
-
-                                           <th>Qty</th>
-                                           <th>Total</th>
+                                           <th>Combination</th>
+                                           <th>Amt</th>
                                            <th>Action</th>
                                        </tr>
                                    </thead>
                                    <tbody>
+                                       @foreach ($stored_cross_abc_data as $d)
+                                           <tr>
+                                               <td>
+                                                   {{ $loop->index + 1 }}
+                                               </td>
+                                               <td>
+                                                   ABC
+                                               </td>
+                                               <td>
+                                                   {{ $d['number'] }}
+                                               </td>
+                                               <td>
+                                                   {{ $d['combination'] }}
+                                               </td>
+                                               <td>
+                                                   {{ $d['amt'] }}
+                                               </td>
+                                               <td>
+                                                   <button class="btn btn-sm btn-danger"
+                                                       wire:click="deleteCrossAbc({{ $loop->index }})">Delete</button>
+                                               </td>
+                                           </tr>
+                                       @endforeach
 
                                    </tbody>
                                </table>

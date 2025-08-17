@@ -118,6 +118,19 @@
                     $wire.set('option_page', option_page);
                 }
             });
+            //abc cross list
+            $('.cross-data-list').on('scroll', function() {
+                let box = $(this);
+                let scrollTop = box.scrollTop();
+                let innerHeight = box.innerHeight();
+                let scrollHeight = box[0].scrollHeight;
+                let option_page = $wire.get('option_page');
+
+                if (scrollTop + innerHeight >= scrollHeight - 10) {
+                    option_page++;
+                    $wire.set('option_page', option_page);
+                }
+            });
 
             //refresh window
             $wire.on('refresh-window', () => {

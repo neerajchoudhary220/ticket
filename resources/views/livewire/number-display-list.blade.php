@@ -14,8 +14,6 @@
                                    <thead class="table-light position-sticky top-0" style="z-index: 1;">
                                        <tr>
                                            <th>#</th>
-                                           {{-- <th>Draw_ids*</th> --}}
-
                                            <th>Option</th>
                                            <th>Number</th>
 

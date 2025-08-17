@@ -4,9 +4,7 @@ use App\Models\Draw;
 use App\Models\DrawDetail;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schedule;
 
@@ -74,27 +72,43 @@ Artisan::command('test', function () {
 
 });
 
-function getScrollPage($items, $perPage = 10, $page = 1)
-{
-    $items = $items instanceof Collection ? $items : collect($items);
-
-    return $items->slice(($page - 1) * $perPage, $perPage)->values();
-}
-
 Artisan::command('neeraj', function () {
-    $t1 = Carbon::createFromTimeString('16:48')->format('H:i');
-    $t2 = Carbon::now()->setSecond(0)->timezone('Asia/Kolkata'); // keep as Carbon object, remove seconds if you want exact minute comparison
-    $this->info($t1);
-    $this->info($t2->format('H:i')); // only format when displaying
+    function makeCombination($cross_abc, $input_combination): array
+    {
+        $chars = str_split($cross_abc);
+        $keys = ['ab', 'ac', 'bc'];
+        $result = [];
 
-    if ($t2->gte($t1)) {
-        $this->info('yes');
+        if ($input_combination > 9) {
+            // Situation 1: generate full combinations with repetition
+            foreach ($keys as $key) {
+                $combis = [];
+                foreach ($chars as $first) {
+                    foreach ($chars as $second) {
+                        $combis[] = (int) ($first.$second);
+                    }
+                }
+                $result[$key] = $combis;
+            }
+        }
+        //  else {
+        //     // Situation 2: take only unique direct pairs
+        //     $pairs = [
+        //         'ab' => (int) ($chars[0].$chars[1]),
+        //         'ac' => (int) ($chars[0].$chars[2]),
+        //         'bc' => (int) ($chars[1].$chars[2]),
+        //     ];
+        //     foreach ($pairs as $key => $value) {
+        //         $result[$key] = [$value];
+        //     }
+        // }
+
+        return $result;
     }
-});
 
-Artisan::command('getData', function () {
-    $page = $this->ask('Enter the page number:');
-    $tickets = cache::get('tickets');
-    $outputs = getScrollPage($tickets, 10, (int) $page);
+    $cross_abc = 186;
+    $input_combination = 27;
+    $output = makeCombination($cross_abc, $input_combination);
+    logger()->info($output);
 
 });

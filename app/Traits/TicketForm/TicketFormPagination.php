@@ -3,7 +3,6 @@
 namespace App\Traits\TicketForm;
 
 use App\Models\DrawDetail;
-use App\Models\Options;
 use App\Models\Ticket;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -15,6 +14,8 @@ trait TicketFormPagination
     public int $draw_page = 1;
 
     public int $option_page = 1;
+
+    public int $cross_abc_page = 1;
 
     public $draw_list = [];
 
@@ -30,6 +31,8 @@ trait TicketFormPagination
 
     public int $optionPerPage = 10;
 
+    public int $crossAbcPerPage = 10;
+
     public $hasMoreDrawPages = true;
 
     public $loaded_tickets_ids = [];
@@ -39,6 +42,10 @@ trait TicketFormPagination
     public $selected_ticket = '';
 
     public int $total_options = 0;
+
+    public array $stored_cross_abc_data = [];
+
+    public int $total_cross_data = 0;
 
     public function updatedDrawPage()
     {
@@ -53,6 +60,11 @@ trait TicketFormPagination
     public function updatedOptionPage()
     {
         $this->loadOptions();
+    }
+
+    public function updatedCrossAbcPage()
+    {
+        $this->loadAbcData();
     }
 
     public function loadDraws()
@@ -163,6 +175,40 @@ trait TicketFormPagination
         // $newOptions = Options::forTicket($this->current_ticket_id)
         //     ->forUser($this->auth_user->id)
         //     ->orderBy('id', 'DESC')->get();
+
+    }
+
+    public function loadAbcData($reset = false)
+    {
+        if ($reset) {
+            $this->cross_abc_page = 1; // Reset page to 1
+            $this->stored_cross_abc_data = [];
+        }
+        $crossAbcData = $this->getCrossOptions();
+
+        if ($crossAbcData) {
+            if (count($this->stored_cross_abc_data) >= count($crossAbcData)) {
+                return true; // already loaded all
+            }
+
+            if (count($crossAbcData) <= 10) {
+                $this->crossAbcPerPage = 10;
+                $this->cross_abc_page = 1;
+            }
+
+            $newData = $this->collectionPage(
+                $crossAbcData,
+                $this->crossAbcPerPage,
+                $this->cross_abc_page
+            );
+
+            if ($reset) {
+                $this->stored_cross_abc_data = $newData;
+            } else {
+                $this->stored_cross_abc_data = array_merge($this->stored_cross_abc_data, $newData);
+            }
+
+        }
 
     }
 }
