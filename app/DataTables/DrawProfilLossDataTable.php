@@ -55,6 +55,12 @@ class DrawProfilLossDataTable extends DataTable
             ->addColumn('c_amt', function ($draw_detail) {
                 return $draw_detail->claim ? $draw_detail->claim * 100 : 0;
             })
+            ->addColumn('cross_amt', function ($draw_detail) {
+                return $draw_detail->total_cross_amt ?? 0;
+            })
+            ->addColumn('cross_claim', function ($draw_detail) {
+                return $draw_detail->claim_ab ?? 0 + $draw_detail->claim_ac ?? 0 + $draw_detail->claim_bc ?? 0;
+            })
             ->addColumn('p_and_l', function ($draw_detail) {
                 $total_amount = $draw_detail->total_qty ? ($draw_detail->total_qty * 100) : 0;
                 $c_amt = $draw_detail->claim ? $draw_detail->claim * 100 : 0;
@@ -95,7 +101,7 @@ class DrawProfilLossDataTable extends DataTable
                 'end_time',
                 'tq',
                 'c_amt',
-                'claim',
+                'claim', 'cross_amt', 'cross_claim',
                 'p_and_l', 't_amt']);
 
     }
@@ -193,6 +199,9 @@ class DrawProfilLossDataTable extends DataTable
             Column::make('t_amt')->title('T Amt')->orderable(true),
             Column::make('claim')->orderable(true),
             Column::make('c_amt')->title('C Amt.'),
+            Column::make('cross_amt')->title('Cross Amt.'),
+            Column::make('cross_claim')->title('Cross Claim'),
+
             Column::make('p_and_l')->title('P&L'),
             // Column::make('action')->addClass('text-center'),
 

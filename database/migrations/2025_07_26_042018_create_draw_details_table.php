@@ -21,10 +21,10 @@ return new class extends Migration
             $table->string('ab')->nullable();
             $table->string('ac')->nullable();
             $table->string('bc')->nullable();
-            $table->string('total_ab_amt')->nullable();
-            $table->string('total_ac_amt')->nullable();
-            $table->string('total_bc_amt')->nullable();
-            $table->string('total_cross_claim_amt')->nullable();
+            $table->string('claim_ab')->nullable();
+            $table->string('claim_ac')->nullable();
+            $table->string('claim_bc')->nullable();
+            $table->string('total_cross_amt')->nullable();
 
             $table->string('total_qty')->nullable();
             $table->string('start_time')->nullable();
