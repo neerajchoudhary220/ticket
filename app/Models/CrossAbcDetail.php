@@ -3,12 +3,12 @@
 namespace App\Models;
 
 use App\Traits\AuthUser;
+use App\Traits\DrawDetailsTrait;
 use Illuminate\Database\Eloquent\Model;
 
 class CrossAbcDetail extends Model
 {
-    use AuthUser;
+    use AuthUser,DrawDetailsTrait;
 
-    protected $fillable = ['user_id', 'ticket_id', 'ab_number', 'ab_amt', 'ac_number',
-        'ac_amt', 'bc_number', 'bc_amt'];
+    protected $fillable = ['user_id', 'ticket_id', 'draw_detail_id', 'option', 'number', 'type', 'combination', 'amount'];
 }

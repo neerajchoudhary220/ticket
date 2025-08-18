@@ -60,7 +60,6 @@ trait TicketFormAction
     #[On('draw-selected')]
     public function handleDrawSelected($draw_detail_id, $isChecked)
     {
-
         if ($isChecked) {
             if (! in_array($draw_detail_id, $this->selected_draw)) {
                 $this->selected_draw[] = (string) $draw_detail_id;
@@ -101,6 +100,7 @@ trait TicketFormAction
         $this->selected_ticket = $this->auth_user->tickets()->where('id', $selected_ticket_id)->first();
 
         $drawIds = $this->getActiveDrawIds();
+        // get options
         $option_query = $this->auth_user->options()
             ->where('ticket_id', $selected_ticket_id)
             ->where(function ($query) use ($drawIds) {
@@ -109,18 +109,40 @@ trait TicketFormAction
                 }
             });
 
+        $cross_abc_query = $this->auth_user->crossAbc()
+            ->where('ticket_id', $selected_ticket_id)
+            ->where(function ($query) use ($drawIds) {
+                foreach ($drawIds as $id) {
+                    $query->orWhereJsonContains('draw_details_ids', $id);
+                }
+            });
         $options = $option_query->get(); // empty
+
+        $cross_abc = $cross_abc_query->get(); // empty
         $this->clearAllOptionsIntoCache();
+        $this->clearAllCrossAbcIntoCache();
+
         if ($options->isNotEmpty()) {
             $this->optionStoreToCache($options);
+            $selected_draw_ids = $options
+                ->pluck('draw_details_ids')      // [[56,58], [58,59], ...]
+                ->flatten()              // [56,58,58,59,...]
+                ->unique()
+                ->intersect($drawIds)    // keep only active draw IDs
+                ->values();
         }
 
-        $selected_draw_ids = $options
-            ->pluck('draw_details_ids')      // [[56,58], [58,59], ...]
-            ->flatten()              // [56,58,58,59,...]
-            ->unique()
-            ->intersect($drawIds)    // keep only active draw IDs
-            ->values();                                    // reset keys
+        if ($cross_abc->isNotEmpty()) {
+            $this->storeCrossAbcIntoCache($cross_abc);
+            $selected_draw_ids = $options
+                ->pluck('draw_details_ids')      // [[56,58], [58,59], ...]
+                ->flatten()              // [56,58,58,59,...]
+                ->unique()
+                ->intersect($drawIds)    // keep only active draw IDs
+                ->values();
+        }
+
+        // reset keys
 
         $this->selected_draw = ! empty($selected_draw_ids)
             ? $selected_draw_ids->toArray()
@@ -128,6 +150,7 @@ trait TicketFormAction
         $this->setStoreOptions($this->selected_draw);
         $this->getTimes();
         $this->loadOptions(true);
+        $this->loadAbcData(true);
         $this->dispatch('checked-draws', drawIds: $this->selected_draw);
 
     }

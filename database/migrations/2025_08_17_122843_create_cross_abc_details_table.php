@@ -15,12 +15,12 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('ticket_id')->constrained('tickets')->cascadeOnDelete();
-            $table->string('ab_number')->nullable();
-            $table->string('ab_amt')->nullable();
-            $table->string('ac_number')->nullable();
-            $table->string('ac_amt')->nullable();
-            $table->string('bc_number')->nullable();
-            $table->string('bc_amt')->nullable();
+            $table->foreignId('draw_detail_id')->constrained('draw_details')->cascadeOnDelete();
+            $table->string('type')->nullable();
+            $table->string('number')->nullable();
+            $table->string('amount')->nullable();
+            $table->string('option')->nullable();
+            $table->string('combination')->nullable();
             $table->timestamps();
         });
     }

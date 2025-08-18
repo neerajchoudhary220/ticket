@@ -2,6 +2,8 @@
 
 namespace App\Traits\TicketForm;
 
+use App\Models\CrossAbc;
+use App\Models\CrossAbcDetail;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 
@@ -204,7 +206,7 @@ trait CrossAbcOperation
                 $this->storeCrossAbcIntoCache($data);
                 $this->cross_abc_input = $this->cross_abc_amt = $this->cross_combination = '';
                 $this->resetCrossError();
-                $this->loadAbcData(true);
+                $this->AddTicketAndDrawDetailsIntoCrossAbc($this->selected_draw);
                 $this->dispatch($focus);
 
                 break;
@@ -249,7 +251,7 @@ trait CrossAbcOperation
             );
             $this->storeCrossAbcIntoCache($data);
             $this->cross_ab = $this->cross_ab_amt = '';
-            $this->loadAbcData(true);
+            $this->AddTicketAndDrawDetailsIntoCrossAbc($this->selected_draw);
             $this->dispatch($focus);
 
         }
@@ -293,7 +295,8 @@ trait CrossAbcOperation
             );
             $this->storeCrossAbcIntoCache($data);
             $this->cross_ac = $this->cross_ac_amt = '';
-            $this->loadAbcData(true);
+            $this->AddTicketAndDrawDetailsIntoCrossAbc($this->selected_draw);
+
             $this->dispatch($focus);
 
         }
@@ -306,10 +309,10 @@ trait CrossAbcOperation
         $b = $this->cross_b;
         $c = $this->cross_c;
 
-        // Convert each into array of digits
-        $aDigits = str_split((string) $a);
-        $bDigits = str_split((string) $b);
-        $cDigits = str_split((string) $c);
+        // Convert each into array of digits only if not null/empty
+        $aDigits = $a ? str_split((string) $a) : [];
+        $bDigits = $b ? str_split((string) $b) : [];
+        $cDigits = $c ? str_split((string) $c) : [];
 
         // Helper closure to generate combinations
         $makePairs = function ($x, $y) {
@@ -323,10 +326,10 @@ trait CrossAbcOperation
             return $pairs;
         };
 
-        // ✅ Only forward direction, not both
-        $ab = $makePairs($aDigits, $bDigits);
-        $ac = $makePairs($aDigits, $cDigits);
-        $bc = $makePairs($bDigits, $cDigits);
+        // Generate only if both inputs exist
+        $ab = (! empty($aDigits) && ! empty($bDigits)) ? $makePairs($aDigits, $bDigits) : [];
+        $ac = (! empty($aDigits) && ! empty($cDigits)) ? $makePairs($aDigits, $cDigits) : [];
+        $bc = (! empty($bDigits) && ! empty($cDigits)) ? $makePairs($bDigits, $cDigits) : [];
 
         // Total count
         $total = count($ab) + count($ac) + count($bc);
@@ -335,7 +338,7 @@ trait CrossAbcOperation
             $ab,
             $ac,
             $bc,
-            $total, // total combinations
+            $total,
         ];
     }
 
@@ -378,7 +381,7 @@ trait CrossAbcOperation
             );
             $this->storeCrossAbcIntoCache($data);
             $this->cross_bc = $this->cross_bc_amt = '';
-            $this->loadAbcData(true);
+            $this->AddTicketAndDrawDetailsIntoCrossAbc($this->selected_draw);
             $this->dispatch($focus);
 
         }
@@ -390,49 +393,48 @@ trait CrossAbcOperation
     {
         switch ($value) {
             case 'cross_a':
-                $this->validate(['cross_a' => [
-                    'required', 'integer', 'min:1',
-                ]], [], ['cross_a' => 'A']);
+                // $this->validate(['cross_a' => [
+                //     'sometimes', 'integer', 'min:1',
+                // ]], [], ['cross_a' => 'A']);
                 $this->dispatch($focus);
                 break;
             case 'cross_b':
-                $this->validate(['cross_a' => [
-                    'required', 'integer', 'min:1',
-                ]], [], ['cross_a' => 'A']);
-                $this->validate(['cross_b' => [
-                    'required', 'integer', 'min:1',
-                ]], [], ['cross_b' => 'B']);
+                // $this->validate(['cross_a' => [
+                //     'sometimes', 'integer', 'min:1',
+                // ]], [], ['cross_a' => 'A']);
+                // $this->validate(['cross_b' => [
+                //     'sometimes', 'integer', 'min:1',
+                // ]], [], ['cross_b' => 'B']);
                 $this->dispatch($focus);
                 break;
             case 'cross_c':
-                $this->validate(['cross_a' => [
-                    'required', 'integer', 'min:1',
-                ]], [], ['cross_a' => 'A']);
-                $this->validate(['cross_b' => [
-                    'required', 'integer', 'min:1',
-                ]], [], ['cross_b' => 'B']);
-                $this->validate(['cross_c' => [
-                    'required', 'integer', 'min:1',
-                ]], [], ['cross_c' => 'C']);
+                // $this->validate(['cross_a' => [
+                //     'sometimes', 'integer', 'min:1',
+                // ]], [], ['cross_a' => 'A']);
+                // $this->validate(['cross_b' => [
+                //     'sometimes', 'integer', 'min:1',
+                // ]], [], ['cross_b' => 'B']);
+                // $this->validate(['cross_c' => [
+                //     'sometimes', 'integer', 'min:1',
+                // ]], [], ['cross_c' => 'C']);
                 $this->dispatch($focus);
                 break;
             case 'cross_single_amount':
-                $this->validate(['cross_a' => [
-                    'required', 'integer', 'min:1',
-                ]], [], ['cross_a' => 'A']);
-                $this->validate(['cross_b' => [
-                    'required', 'integer', 'min:1',
-                ]], [], ['cross_b' => 'B']);
-                $this->validate(['cross_c' => [
-                    'required', 'integer', 'min:1',
-                ]], [], ['cross_c' => 'C']);
+                // $this->validate(['cross_a' => [
+                //     'sometimes', 'integer', 'min:1',
+                // ]], [], ['cross_a' => 'A']);
+                // $this->validate(['cross_b' => [
+                //     'sometimes', 'integer', 'min:1',
+                // ]], [], ['cross_b' => 'B']);
+                // $this->validate(['cross_c' => [
+                //     'sometimes', 'integer', 'min:1',
+                // ]], [], ['cross_c' => 'C']);
 
-                $this->validate(['cross_single_amount' => [
-                    'required', 'integer', 'min:1',
-                ]], [], ['cross_single_amount' => 'Amount']);
+                // $this->validate(['cross_single_amount' => [
+                //     'required', 'integer', 'min:1',
+                // ]], [], ['cross_single_amount' => 'Amount']);
 
                 [$ab,$ac,$bc,$comb] = $this->generateRegularCombinations();
-                logger()->info($comb);
                 $data[] = $this->addCrossOptions(
                     ab: $ab,
                     ac: $ac,
@@ -444,9 +446,134 @@ trait CrossAbcOperation
                 );
                 $this->storeCrossAbcIntoCache($data);
                 $this->cross_a = $this->cross_b = $this->cross_c = $this->cross_single_amount = '';
-                $this->loadAbcData(true);
+                $this->AddTicketAndDrawDetailsIntoCrossAbc($this->selected_draw);
                 $this->dispatch($focus);
                 break;
         }
+    }
+
+    public function AddTicketAndDrawDetailsIntoCrossAbc(array $selected_draw_ids): void
+    {
+        $selected_ticket_id = $this->current_ticket_id;
+        $crossAbc = $this->getCrossOptions()
+            ->map(function ($crossData) use ($selected_draw_ids, $selected_ticket_id) {
+                $crossData['draw_details_ids'] = $selected_draw_ids;
+                $crossData['ticket_id'] = $selected_ticket_id;
+
+                return $crossData;
+            })
+            ->values()
+            ->all();
+        Cache::put('cross_abc', $crossAbc, 7200);
+        $this->loadAbcData(true);
+        // $this->calculateFinalTotal();
+
+    }
+
+    public function saveCrossAbc()
+    {
+        $cross_data = $this->getCrossOptions();
+        foreach ($cross_data as $data) {
+            $cross_input_data = [
+                'number' => $data['number'],
+                'combination' => $data['combination'],
+                'option' => $data['option'],
+                'draw_details_ids' => array_map('intval', array_values($data['draw_details_ids'])),
+                'ticket_id' => $this->current_ticket_id,
+                'ab' => $data['ab'],
+                'ac' => $data['ac'],
+                'bc' => $data['bc'],
+                'amt' => $data['amt'],
+                'user_id' => $this->auth_user->id,
+            ];
+            CrossAbc::create($cross_input_data);
+        }
+
+    }
+
+    public function saveCrossAbcDetail()
+    {
+        $cross_data = $this->getCrossOptions();
+        $cross_abc = collect(['ab', 'ac', 'bc'])->mapWithKeys(function ($key) use ($cross_data) {
+            $items = $cross_data->flatMap(function ($row) use ($key) {
+                return collect($row[$key])->map(function ($number) use ($row) {
+                    return [
+                        'number' => $number,
+                        'amount' => $row['amt'],
+                        'combination' => $row['combination'],
+                        'option' => $row['option'],
+                        'ticket_id' => $row['ticket_id'],
+                        'user_id' => $this->auth_user->id,
+                    ];
+                });
+            })->values();
+
+            return [$key => $items];
+        })->toArray();
+
+        $bulkData = [];
+
+        // collect ab
+        $ab_data = $cross_abc['ab'];
+        $ac_data = $cross_abc['ac'];
+        $bc_data = $cross_abc['bc'];
+        foreach ($this->selected_draw as $draw_id) {
+            // ab
+            if (count($ab_data) > 0) {
+                foreach ($ab_data as $d) {
+                    $bulkData[] = [
+                        'number' => $d['number'],
+                        'amount' => $d['amount'],
+                        'combination' => $d['combination'],
+                        'option' => $d['option'],
+                        'ticket_id' => $this->current_ticket_id,
+                        'user_id' => $this->auth_user->id,
+                        'draw_detail_id' => $draw_id,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                        'type' => 'AB',
+                    ];
+                }
+            }
+            // ac
+            if (count($ac_data) > 0) {
+                foreach ($ac_data as $d) {
+                    $bulkData[] = [
+                        'number' => $d['number'],
+                        'amount' => $d['amount'],
+                        'combination' => $d['combination'],
+                        'option' => $d['option'],
+                        'ticket_id' => $this->current_ticket_id,
+                        'user_id' => $this->auth_user->id,
+                        'draw_detail_id' => $draw_id,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                        'type' => 'AC',
+                    ];
+                }
+            }
+            // bc
+            if (count($bc_data) > 0) {
+                foreach ($bc_data as $d) {
+                    $bulkData[] = [
+                        'number' => $d['number'],
+                        'amount' => $d['amount'],
+                        'combination' => $d['combination'],
+                        'option' => $d['option'],
+                        'ticket_id' => $this->current_ticket_id,
+                        'user_id' => $this->auth_user->id,
+                        'draw_detail_id' => $draw_id,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                        'type' => 'BC',
+                    ];
+                }
+            }
+        }
+        // Insert in chunks of 500 (or whatever size you prefer)
+        collect($bulkData)->chunk(500)->each(function ($chunk) {
+            CrossAbcDetail::insert($chunk->toArray());
+        });
+
     }
 }

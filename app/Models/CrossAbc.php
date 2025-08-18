@@ -9,11 +9,13 @@ class CrossAbc extends Model
 {
     use AuthUser;
 
-    protected $fillable = ['user_id', 'ticket_id', 'abc', 'combination', 'qty', 'ab', 'ac', 'bc'];
+    protected $fillable = ['user_id', 'ticket_id', 'abc',
+        'combination', 'qty', 'ab', 'ac', 'bc', 'number', 'option', 'draw_details_ids', 'amt'];
 
     protected $casts = [
         'ab' => 'array',
         'ac' => 'array',
         'bc' => 'array',
+        'draw_details_ids' => 'array',
     ];
 }

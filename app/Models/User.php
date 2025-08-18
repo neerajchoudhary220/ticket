@@ -115,4 +115,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(TicketOption::class);
     }
+
+    public function crossAbc()
+    {
+        return $this->hasMany(CrossAbc::class);
+    }
+
+    public function crossAbcDetail()
+    {
+        return $this->hasMany(CrossAbcDetail::class);
+    }
 }

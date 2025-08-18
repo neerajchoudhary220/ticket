@@ -15,8 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('ticket_id')->constrained('tickets')->cascadeOnDelete();
-            $table->foreignId('draw_detail_id')->constrained('draw_details')->cascadeOnDelete();
+            $table->json('draw_details_ids')->nullable();
             $table->string('abc')->nullable();
+            $table->string('option')->nullable(); // e.g., ABC, AB like this type
+            $table->string('number')->nullable();
             $table->string('combination')->nullable();
             $table->string('amt');
             $table->json('ab')->nullable();

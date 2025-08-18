@@ -50,7 +50,8 @@ Artisan::command('test', function () {
     DB::table('tickets')->truncate();
     DB::table('options')->truncate();
     DB::table('user_draws')->truncate();
-
+    DB::table('cross_abc_details')->truncate();
+    DB::table('cross_abcs')->truncate();
     DB::table('draw_details')->truncate();
     $draws = Draw::get();
     foreach ($draws as $draw) {
@@ -73,44 +74,44 @@ Artisan::command('test', function () {
 });
 
 Artisan::command('neeraj', function () {
-    function generateCombinations($a, $b, $c)
-    {
-        // Convert each into array of digits
-        $aDigits = str_split((string) $a);
-        $bDigits = str_split((string) $b);
-        $cDigits = str_split((string) $c);
+    $my_collection = collect([
+        [
+            'ab' => [23, 12, 78, 9],
+            'ac' => [13, 22],
+            'bc' => [],
+            'amt' => 10,
+            'combination' => 5,
+        ],
+        [
+            'ab' => [23, 12, 78, 9],
+            'ac' => [13, 22, 90],
+            'bc' => [13, 22, 90],
+            'amt' => 15,
+            'combination' => 10,
 
-        // Helper closure to generate combinations
-        $makePairs = function ($x, $y) {
-            $pairs = [];
-            foreach ($x as $dx) {
-                foreach ($y as $dy) {
-                    $pairs[] = (int) ($dx.$dy);
-                }
-            }
+        ],
+        [
+            'ab' => [12],
+            'ac' => [],
+            'bc' => [13],
+            'amt' => 15,
+            'combination' => 5,
 
-            return $pairs;
-        };
+        ],
+    ]);
 
-        // ✅ Only forward direction, not both
-        $ab = $makePairs($aDigits, $bDigits);
-        $ac = $makePairs($aDigits, $cDigits);
-        $bc = $makePairs($bDigits, $cDigits);
+    $output = collect(['ab', 'ac', 'bc'])->mapWithKeys(function ($key) use ($my_collection) {
+        $items = $my_collection->flatMap(function ($row) use ($key) {
+            return collect($row[$key])->map(function ($number) use ($row) {
+                return [
+                    'number' => $number,
+                    'amt' => $row['amt'],
+                    'combination' => $row['combination'],
+                ];
+            });
+        })->values();
 
-        // Total count
-        $total = count($ab) + count($ac) + count($bc);
-
-        return [
-            'ab' => $ab,
-            'ac' => $ac,
-            'bc' => $bc,
-            'total' => $total,
-        ];
-    }
-
-    $a = 18;
-    $b = 43;
-    $c = 74;
-    $output = generateCombinations($a, $b, $c);
-    logger()->info($output);
+        return [$key => $items];
+    })->toArray();
+    $this->info(print_r($output, true));
 });

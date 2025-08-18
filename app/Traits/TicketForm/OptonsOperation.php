@@ -209,6 +209,29 @@ trait OptonsOperation
             })
             ->delete();
 
+        // delete crossabc
+        $this->auth_user->crossAbc()
+            ->where('ticket_id', $selected_ticket_id)
+            ->where(function ($query) use ($drawIds) {
+                foreach ($drawIds as $id) {
+                    $query->orWhereJsonContains('draw_details_ids', $id);
+                }
+            })
+            ->delete();
+
+        // delete unchecked draw's ticket abc cross details
+        $this->auth_user->crossAbcDetail()
+            ->where('ticket_id', $selected_ticket_id)
+            ->whereHas('drawDetail', function ($query) use ($currentTime) {
+                $query->where(function ($q) use ($currentTime) {
+                    $q->where(function ($q1) use ($currentTime) {
+                        $q1->where('start_time', '<=', $currentTime)
+                            ->where('end_time', '>=', $currentTime);
+                    })->orWhere('start_time', '>', $currentTime);
+                });
+            })
+            ->delete();
+
         // Store options
         $options = $this->auth_user->options();
         $stored_options = $this->getOptionsIntoCache()->toArray();
@@ -287,6 +310,12 @@ trait OptonsOperation
 
         // update user draw
         $this->auth_user->drawDetails()->syncWithoutDetaching($selected_draw_ids);
+
+        // save cross abc
+        $this->saveCrossAbc();
+
+        // Save Cross Details
+        $this->saveCrossAbcDetail();
 
         if (! $this->is_edit_mode) {
             // Generate new Ticket

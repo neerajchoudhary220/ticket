@@ -103,8 +103,8 @@
              <div class="d-flex justify-content-start gap-3">
                  <div>
                      <label class="form-label mb-1" for="cross_a">A</label>
-                     <input type="text" wire:model='cross_a' id="cross_a" class="form-control text-center"
-                         style="width:60px; font-size:24px;"
+                     <input type="text" wire:model='cross_a' id="cross_a"
+                         class="mynumber form-control text-center" style="width:60px; font-size:24px;"
                          wire:keydown.enter="enterKeyPressOnCrossA('focus-cross-b','cross_a')">
                      @error('cross_a')
                          <span class="text-danger"> {{ $message }}</span>
@@ -112,7 +112,7 @@
                  </div>
                  <div>
                      <label class="form-label mb-1" for="cross_b">B</label>
-                     <input type="text" id="cross_b" class="form-control text-center"
+                     <input type="text" id="cross_b" class="mynumber form-control text-center"
                          style="width:60px; font-size:24px;" wire:model='cross_b'
                          wire:keydown.enter="enterKeyPressOnCrossA('focus-cross-c','cross_b')">
                      @error('cross_b')
@@ -121,7 +121,7 @@
                  </div>
                  <div>
                      <label class="form-label mb-1" for="cross_c">C</label>
-                     <input type="text" id="cross_c" class="form-control text-center"
+                     <input type="text" id="cross_c" class="mynumber form-control text-center"
                          style="width:60px; font-size:24px;" wire:model='cross_c'
                          wire:keydown.enter="enterKeyPressOnCrossA('focus-cross-single-amt','cross_c')">
                      @error('cross_c')
@@ -131,7 +131,7 @@
 
                  <div>
                      <label class="form-label mb-1" for="cross_single_amount">Amt</label>
-                     <input type="text" id="cross_single_amount" class="form-control text-center"
+                     <input type="text" id="cross_single_amount" class="mynumber form-control text-center"
                          style="width:100px; font-size:24px;" wire:model='cross_single_amount'
                          wire:keydown.enter="enterKeyPressOnCrossA('focus-cross-a','cross_single_amount')">
                      @error('cross_single_amount')
@@ -162,6 +162,10 @@
              }
 
              $(this).val(val);
+         });
+         $(document).on("input", ".mynumber", function() {
+             // Replace any non-digit character
+             this.value = this.value.replace(/[^0-9]/g, '');
          });
      </script>
  @endscript
