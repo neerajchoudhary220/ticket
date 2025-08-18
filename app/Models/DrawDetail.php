@@ -12,7 +12,8 @@ class DrawDetail extends Model
     const PRICE = 11;
 
     protected $fillable = ['draw_id', 'start_time', 'end_time', 'claim', 'total_qty', 'date',
-        'claim_a', 'claim_b', 'claim_c'];
+        'claim_a', 'claim_b', 'claim_c', 'ab', 'ac', 'bc', 'total_ab_amt', 'total_ac_amt', 'total_bc_amt',
+        'total_cross_claim_amt'];
 
     public function scopeRunningDraw(Builder $drawDetail)
     {
@@ -37,6 +38,11 @@ class DrawDetail extends Model
     public function ticketOptions()
     {
         return $this->hasMany(TicketOption::class);
+    }
+
+    public function crossAbcDetail()
+    {
+        return $this->hasMany(CrossAbcDetail::class);
     }
 
     public function scopeForUserTicketOption(EloquentBuilder $drawDetail, $user_id): Builder

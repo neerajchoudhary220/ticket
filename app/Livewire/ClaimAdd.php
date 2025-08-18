@@ -46,8 +46,24 @@ class ClaimAdd extends Component
         $a_claim = $draw_details->ticketOptions->where('number', $this->claim_a)->sum('a_qty');
         $b_claim = $draw_details->ticketOptions->where('number', $this->claim_b)->sum('b_qty');
         $c_claim = $draw_details->ticketOptions->where('number', $this->claim_c)->sum('c_qty');
+        $ab = (int) ($this->claim_a.$this->claim_b);
+        $ac = (int) ($this->claim_a.$this->claim_c);
+        $bc = (int) ($this->claim_b.$this->claim_c);
+        $total_ab_amt = $draw_details->crossAbcDetail->where('number', $ab)->where('type', 'AB')->sum('amount');
+        $total_ac_amt = $draw_details->crossAbcDetail->where('number', $ac)->where('type', 'AC')->sum('amount');
+        $total_bc_amt = $draw_details->crossAbcDetail->where('number', $bc)->where('type', 'BC')->sum('amount');
+
+        // $toal_ab_amt =
+
         $total_qty = $a_claim + $b_claim + $c_claim;
         $input['claim'] = $total_qty;
+        $input['ab'] = $ab;
+        $input['ac'] = $ac;
+        $input['bc'] = $bc;
+        $input['total_ab_amt'] = $total_ab_amt;
+        $input['total_ac_amt'] = $total_ac_amt;
+        $input['total_bc_amt'] = $total_bc_amt;
+        $input['total_cross_claim_amt'] = $total_ab_amt + $total_ac_amt + $total_bc_amt;
         $draw_details->update($input);
 
         return redirect()->route('admin.dashboard');
