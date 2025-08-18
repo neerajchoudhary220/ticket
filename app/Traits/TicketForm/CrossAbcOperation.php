@@ -91,7 +91,7 @@ trait CrossAbcOperation
         return [$result['ab'], $result['ac'], $result['bc']];
     }
 
-    public function addCrossOptions($amt, $comb, $number = null, $ab = null, $ac = null, $bc = null)
+    public function addCrossOptions($amt, $comb, $number = null, $ab = null, $ac = null, $bc = null, $option = null)
     {
         return [
             'number' => $number,
@@ -100,6 +100,7 @@ trait CrossAbcOperation
             'bc' => $bc,
             'amt' => $amt,
             'combination' => $comb,
+            'option' => $option,
             // 'total' => $total,
             'created_at' => Carbon::now(),
             'draw_details_ids' => $this->selected_draw,
@@ -190,7 +191,7 @@ trait CrossAbcOperation
                 // $data[] = $this->addCrossOptions($this->cross_abc_input, $ab, $ac, $bc, $this->cross_abc_amt, $this->cross_combination);
                 $data[] = $this->addCrossOptions(number: $this->cross_abc_input,
                     ab: $ab, ac: $ac, bc: $bc,
-                    amt: $this->cross_abc_amt, comb: $this->cross_combination);
+                    amt: $this->cross_abc_amt, comb: $this->cross_combination, option: 'ABC');
 
                 $this->storeCrossAbcIntoCache($data);
                 $this->cross_abc_input = $this->cross_abc_amt = $this->cross_combination = '';
@@ -235,10 +236,100 @@ trait CrossAbcOperation
                 ab: $this->cross_ab,
                 amt: $this->cross_ab_amt,
                 comb: 1,
-                number: $this->cross_ab
+                number: $this->cross_ab,
+                option: 'AB'
             );
             $this->storeCrossAbcIntoCache($data);
             $this->cross_ab = $this->cross_ab_amt = '';
+            $this->loadAbcData(true);
+            $this->dispatch($focus);
+
+        }
+
+    }
+
+    // Entey AC
+    public function enterKeyPressOnCrossAc($focus, $value)
+    {
+        if ($value == 'cross_ac') {
+            $this->validate([
+                'cross_ac' => [
+                    'required',
+                    'regex:/^(?!.*(.).*\\1)[0-9]{2}$/',
+                ],
+            ], [], ['cross_ac' => 'AC']);
+            $this->dispatch($focus);
+
+        } elseif ($value == 'cross_ac_amt') {
+            $this->validate([
+                'cross_ac' => [
+                    'required',
+                    'regex:/^(?!.*(.).*\\1)[0-9]{2}$/',
+                ],
+            ], [], ['cross_ac' => 'AC']);
+
+            $this->validate([
+                'cross_ac_amt' => [
+                    'required',
+                    'min:1', 'integer',
+                ]],
+                [], ['cross_ac_amt' => 'Amount'],
+            );
+
+            $data[] = $this->addCrossOptions(
+                ab: $this->cross_ac,
+                amt: $this->cross_ac_amt,
+                comb: 1,
+                number: $this->cross_ac,
+                option: 'AC'
+            );
+            $this->storeCrossAbcIntoCache($data);
+            $this->cross_ac = $this->cross_ac_amt = '';
+            $this->loadAbcData(true);
+            $this->dispatch($focus);
+
+        }
+
+    }
+
+    // Enter BC
+    public function enterKeyPressOnCrossBc($focus, $value)
+    {
+        if ($value == 'cross_bc') {
+            $this->validate([
+                'cross_bc' => [
+                    'required',
+                    'regex:/^(?!.*(.).*\\1)[0-9]{2}$/',
+                ],
+            ], [], ['cross_bc' => 'BC']);
+            $this->dispatch($focus);
+
+        } elseif ($value == 'cross_bc_amt') {
+            $this->validate([
+                'cross_bc' => [
+                    'required',
+                    'regex:/^(?!.*(.).*\\1)[0-9]{2}$/',
+                ],
+            ], [], ['cross_bc' => 'BC']);
+
+            $this->validate([
+                'cross_bc_amt' => [
+                    'required',
+                    'min:1', 'integer',
+                ]],
+                [], ['cross_bc_amt' => 'Amount'],
+            );
+
+            $data[] = $this->addCrossOptions(
+                ab: $this->cross_bc,
+                amt: $this->cross_bc_amt,
+                comb: 1,
+                number: $this->cross_bc,
+                option: 'BC'
+
+            );
+            $this->storeCrossAbcIntoCache($data);
+            $this->cross_bc = $this->cross_bc_amt = '';
             $this->loadAbcData(true);
             $this->dispatch($focus);
 

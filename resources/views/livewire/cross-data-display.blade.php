@@ -18,6 +18,7 @@
                                            <th>Number</th>
                                            <th>Combination</th>
                                            <th>Amt</th>
+                                           <th>Total</th>
                                            <th>Action</th>
                                        </tr>
                                    </thead>
@@ -28,7 +29,7 @@
                                                    {{ $loop->index + 1 }}
                                                </td>
                                                <td>
-                                                   ABC
+                                                   {{ $d['option'] }}
                                                </td>
                                                <td>
                                                    {{ $d['number'] }}
@@ -38,6 +39,9 @@
                                                </td>
                                                <td>
                                                    {{ $d['amt'] }}
+                                               </td>
+                                               <td>
+                                                   {{ $d['combination'] * $d['amt'] }}
                                                </td>
                                                <td>
                                                    <button class="btn btn-sm btn-danger"

@@ -57,10 +57,13 @@
              @enderror
          </div>
      </div>
-     <div class="row">
+     {{-- AC --}}
+     <div class="row" x-data @focus-cross_ac.window="document.getElementById('cross_ac').focus()"
+         @focus-cross-ac-amt.window="document.getElementById('cross_ac_amt').focus()">
          <div class="col-3">
              <label for="cross_ac">AC</label>
-             <input type="text" id="cross_ab" placeholder="Enter AC" class="form-control" wire:model="cross_ac">
+             <input type="text" id="cross_ac" placeholder="Enter AC" class="form-control" wire:model="cross_ac"
+                 wire:keydown.enter="enterKeyPressOnCrossAc('focus-cross-ac-amt','cross_ac')">
              @error('cross_ac')
                  <span class="text-danger"> {{ $message }}</span>
              @enderror
@@ -68,23 +71,27 @@
          <div class="col-3">
              <label for="cross_ac_amt">Amt</label>
              <input type="text" id="cross_ac_amt" placeholder="Enter AC" class="form-control"
-                 wire:model="cross_ac_amt">
+                 wire:model="cross_ac_amt" wire:keydown.enter="enterKeyPressOnCrossAc('focus-cross-ac','cross_ac_amt')">
              @error('cross_ac_amt')
                  <span class="text-danger"> {{ $message }}</span>
              @enderror
          </div>
      </div>
-     <div class="row">
+     {{-- BC --}}
+     <div class="row" x-data @focus-cross-bc.window="document.getElementById('cross_bc').focus()"
+         @focus-cross-bc-amt.window="document.getElementById('cross_bc_amt').focus()">
          <div class="col-3">
              <label for="cross_bc">BC</label>
-             <input type="text" id="cross_bc" class="form-control" wire:model="cross_bc">
+             <input type="text" id="cross_bc" placeholder="Enter BC" class="form-control" wire:model="cross_bc"
+                 wire:keydown.enter="enterKeyPressOnCrossBc('focus-cross-bc-amt','cross_bc')">
              @error('cross_bc')
                  <span class="text-danger"> {{ $message }}</span>
              @enderror
          </div>
          <div class="col-3">
              <label for="cross_bc_amt">Amt</label>
-             <input type="text" class="form-control" wire:model="cross_bc_amt">
+             <input type="text" class="form-control" placeholder="Enter Amount" id="cross_bc_amt"
+                 wire:model="cross_bc_amt" wire:keydown.enter="enterKeyPressOnCrossBc('focus-cross-bc','cross_bc_amt')">
              @error('cross_bc_amt')
                  <span class="text-danger"> {{ $message }}</span>
              @enderror
