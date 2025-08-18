@@ -73,42 +73,44 @@ Artisan::command('test', function () {
 });
 
 Artisan::command('neeraj', function () {
-    function makeCombination($cross_abc, $input_combination): array
+    function generateCombinations($a, $b, $c)
     {
-        $chars = str_split($cross_abc);
-        $keys = ['ab', 'ac', 'bc'];
-        $result = [];
+        // Convert each into array of digits
+        $aDigits = str_split((string) $a);
+        $bDigits = str_split((string) $b);
+        $cDigits = str_split((string) $c);
 
-        if ($input_combination > 9) {
-            // Situation 1: generate full combinations with repetition
-            foreach ($keys as $key) {
-                $combis = [];
-                foreach ($chars as $first) {
-                    foreach ($chars as $second) {
-                        $combis[] = (int) ($first.$second);
-                    }
+        // Helper closure to generate combinations
+        $makePairs = function ($x, $y) {
+            $pairs = [];
+            foreach ($x as $dx) {
+                foreach ($y as $dy) {
+                    $pairs[] = (int) ($dx.$dy);
                 }
-                $result[$key] = $combis;
             }
-        }
-        //  else {
-        //     // Situation 2: take only unique direct pairs
-        //     $pairs = [
-        //         'ab' => (int) ($chars[0].$chars[1]),
-        //         'ac' => (int) ($chars[0].$chars[2]),
-        //         'bc' => (int) ($chars[1].$chars[2]),
-        //     ];
-        //     foreach ($pairs as $key => $value) {
-        //         $result[$key] = [$value];
-        //     }
-        // }
 
-        return $result;
+            return $pairs;
+        };
+
+        // ✅ Only forward direction, not both
+        $ab = $makePairs($aDigits, $bDigits);
+        $ac = $makePairs($aDigits, $cDigits);
+        $bc = $makePairs($bDigits, $cDigits);
+
+        // Total count
+        $total = count($ab) + count($ac) + count($bc);
+
+        return [
+            'ab' => $ab,
+            'ac' => $ac,
+            'bc' => $bc,
+            'total' => $total,
+        ];
     }
 
-    $cross_abc = 186;
-    $input_combination = 27;
-    $output = makeCombination($cross_abc, $input_combination);
+    $a = 18;
+    $b = 43;
+    $c = 74;
+    $output = generateCombinations($a, $b, $c);
     logger()->info($output);
-
 });

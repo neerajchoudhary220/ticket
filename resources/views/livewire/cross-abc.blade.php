@@ -31,14 +31,10 @@
                  @enderror
              </div>
          </div>
-         <div class="col-3 text-end">
-             <div class="mt-4 pt-2">
-                 <button class="btn btn-primary btn-sm" wire:click.prevent='crossSubmit'>Submit</button>
-             </div>
-         </div>
+
      </div>
      {{-- AB --}}
-     <div class="row" x-data @focus-cross-ab.window="document.getElementById('cross_ab').focus()"
+     <div class="row mb-3" x-data @focus-cross-ab.window="document.getElementById('cross_ab').focus()"
          @focus-cross-ab-amt.window="document.getElementById('cross_ab_amt').focus()">
          <div class="col-3">
              <label for="cross_ab">AB</label>
@@ -58,7 +54,7 @@
          </div>
      </div>
      {{-- AC --}}
-     <div class="row" x-data @focus-cross_ac.window="document.getElementById('cross_ac').focus()"
+     <div class="row mb-3" x-data @focus-cross_ac.window="document.getElementById('cross_ac').focus()"
          @focus-cross-ac-amt.window="document.getElementById('cross_ac_amt').focus()">
          <div class="col-3">
              <label for="cross_ac">AC</label>
@@ -78,7 +74,7 @@
          </div>
      </div>
      {{-- BC --}}
-     <div class="row" x-data @focus-cross-bc.window="document.getElementById('cross_bc').focus()"
+     <div class="row mb-3" x-data @focus-cross-bc.window="document.getElementById('cross_bc').focus()"
          @focus-cross-bc-amt.window="document.getElementById('cross_bc_amt').focus()">
          <div class="col-3">
              <label for="cross_bc">BC</label>
@@ -97,6 +93,55 @@
              @enderror
          </div>
      </div>
+
+     {{-- ABC --}}
+     <div class="row mb-3">
+         <div class="col-12" x-data @focus-cross-a.window="document.getElementById('cross_a').focus()"
+             @focus-cross-b.window="document.getElementById('cross_b').focus()"
+             @focus-cross-c.window="document.getElementById('cross_c').focus()"
+             @focus-cross-single-amt.window="document.getElementById('cross_single_amount').focus()">
+             <div class="d-flex justify-content-start gap-3">
+                 <div>
+                     <label class="form-label mb-1" for="cross_a">A</label>
+                     <input type="text" wire:model='cross_a' id="cross_a" class="form-control text-center"
+                         style="width:60px; font-size:24px;"
+                         wire:keydown.enter="enterKeyPressOnCrossA('focus-cross-b','cross_a')">
+                     @error('cross_a')
+                         <span class="text-danger"> {{ $message }}</span>
+                     @enderror
+                 </div>
+                 <div>
+                     <label class="form-label mb-1" for="cross_b">B</label>
+                     <input type="text" id="cross_b" class="form-control text-center"
+                         style="width:60px; font-size:24px;" wire:model='cross_b'
+                         wire:keydown.enter="enterKeyPressOnCrossA('focus-cross-c','cross_b')">
+                     @error('cross_b')
+                         <span class="text-danger"> {{ $message }}</span>
+                     @enderror
+                 </div>
+                 <div>
+                     <label class="form-label mb-1" for="cross_c">C</label>
+                     <input type="text" id="cross_c" class="form-control text-center"
+                         style="width:60px; font-size:24px;" wire:model='cross_c'
+                         wire:keydown.enter="enterKeyPressOnCrossA('focus-cross-single-amt','cross_c')">
+                     @error('cross_c')
+                         <span class="text-danger"> {{ $message }}</span>
+                     @enderror
+                 </div>
+
+                 <div>
+                     <label class="form-label mb-1" for="cross_single_amount">Amt</label>
+                     <input type="text" id="cross_single_amount" class="form-control text-center"
+                         style="width:100px; font-size:24px;" wire:model='cross_single_amount'
+                         wire:keydown.enter="enterKeyPressOnCrossA('focus-cross-a','cross_single_amount')">
+                     @error('cross_single_amount')
+                         <span class="text-danger"> {{ $message }}</span>
+                     @enderror
+                 </div>
+             </div>
+         </div>
+     </div>
+
  </div>
  @include('livewire.cross-data-display')
 

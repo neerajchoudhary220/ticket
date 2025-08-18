@@ -27,6 +27,14 @@ trait CrossAbcOperation
 
     public $cross_bc_amt;
 
+    public $cross_a;
+
+    public $cross_b;
+
+    public $cross_c;
+
+    public $cross_single_amount;
+
     public function setTab($tab)
     {
         $this->activeTab = $tab;
@@ -292,9 +300,49 @@ trait CrossAbcOperation
 
     }
 
+    public function generateRegularCombinations()
+    {
+        $a = $this->cross_a;
+        $b = $this->cross_b;
+        $c = $this->cross_c;
+
+        // Convert each into array of digits
+        $aDigits = str_split((string) $a);
+        $bDigits = str_split((string) $b);
+        $cDigits = str_split((string) $c);
+
+        // Helper closure to generate combinations
+        $makePairs = function ($x, $y) {
+            $pairs = [];
+            foreach ($x as $dx) {
+                foreach ($y as $dy) {
+                    $pairs[] = (int) ($dx.$dy);
+                }
+            }
+
+            return $pairs;
+        };
+
+        // ✅ Only forward direction, not both
+        $ab = $makePairs($aDigits, $bDigits);
+        $ac = $makePairs($aDigits, $cDigits);
+        $bc = $makePairs($bDigits, $cDigits);
+
+        // Total count
+        $total = count($ab) + count($ac) + count($bc);
+
+        return [
+            $ab,
+            $ac,
+            $bc,
+            $total, // total combinations
+        ];
+    }
+
     // Enter BC
     public function enterKeyPressOnCrossBc($focus, $value)
     {
+
         if ($value == 'cross_bc') {
             $this->validate([
                 'cross_bc' => [
@@ -335,5 +383,70 @@ trait CrossAbcOperation
 
         }
 
+    }
+
+    // Enter A B and C
+    public function enterKeyPressOnCrossA($focus, $value)
+    {
+        switch ($value) {
+            case 'cross_a':
+                $this->validate(['cross_a' => [
+                    'required', 'integer', 'min:1',
+                ]], [], ['cross_a' => 'A']);
+                $this->dispatch($focus);
+                break;
+            case 'cross_b':
+                $this->validate(['cross_a' => [
+                    'required', 'integer', 'min:1',
+                ]], [], ['cross_a' => 'A']);
+                $this->validate(['cross_b' => [
+                    'required', 'integer', 'min:1',
+                ]], [], ['cross_b' => 'B']);
+                $this->dispatch($focus);
+                break;
+            case 'cross_c':
+                $this->validate(['cross_a' => [
+                    'required', 'integer', 'min:1',
+                ]], [], ['cross_a' => 'A']);
+                $this->validate(['cross_b' => [
+                    'required', 'integer', 'min:1',
+                ]], [], ['cross_b' => 'B']);
+                $this->validate(['cross_c' => [
+                    'required', 'integer', 'min:1',
+                ]], [], ['cross_c' => 'C']);
+                $this->dispatch($focus);
+                break;
+            case 'cross_single_amount':
+                $this->validate(['cross_a' => [
+                    'required', 'integer', 'min:1',
+                ]], [], ['cross_a' => 'A']);
+                $this->validate(['cross_b' => [
+                    'required', 'integer', 'min:1',
+                ]], [], ['cross_b' => 'B']);
+                $this->validate(['cross_c' => [
+                    'required', 'integer', 'min:1',
+                ]], [], ['cross_c' => 'C']);
+
+                $this->validate(['cross_single_amount' => [
+                    'required', 'integer', 'min:1',
+                ]], [], ['cross_single_amount' => 'Amount']);
+
+                [$ab,$ac,$bc,$comb] = $this->generateRegularCombinations();
+                logger()->info($comb);
+                $data[] = $this->addCrossOptions(
+                    ab: $ab,
+                    ac: $ac,
+                    bc: $bc,
+                    amt: $this->cross_single_amount,
+                    comb: $comb,
+                    number: $this->cross_a.'-'.$this->cross_b.'-'.$this->cross_c,
+                    option: 'A-B-C'
+                );
+                $this->storeCrossAbcIntoCache($data);
+                $this->cross_a = $this->cross_b = $this->cross_c = $this->cross_single_amount = '';
+                $this->loadAbcData(true);
+                $this->dispatch($focus);
+                break;
+        }
     }
 }
