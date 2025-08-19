@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\DrawDetail;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -49,9 +50,11 @@ class ClaimAdd extends Component
         $ab = (int) ($this->claim_a.$this->claim_b);
         $ac = (int) ($this->claim_a.$this->claim_c);
         $bc = (int) ($this->claim_b.$this->claim_c);
-        $claim_ab = $draw_details->crossAbcDetail->where('number', $ab)->where('type', 'AB')->sum('amount');
-        $claim_ac = $draw_details->crossAbcDetail->where('number', $ac)->where('type', 'AC')->sum('amount');
-        $claim_bc = $draw_details->crossAbcDetail->where('number', $bc)->where('type', 'BC')->sum('amount');
+        $sum_of_type = $draw_details->crossAbcDetail()
+            ->select('type', DB::raw('SUM(amount) as total_amount'))
+            ->where('number', $ab)
+            ->groupBy('type')
+            ->pluck('total_amount', 'type');
 
         // $toal_ab_amt =
 
@@ -60,10 +63,9 @@ class ClaimAdd extends Component
         $input['ab'] = $ab;
         $input['ac'] = $ac;
         $input['bc'] = $bc;
-        $input['claim_ab'] = $claim_ab;
-        $input['claim_ac'] = $claim_ac;
-        $input['claim_bc'] = $claim_bc;
-        $input['total_cross_amt'] = $draw_details->crossAbcDetail->sum('amount');
+        $input['claim_ab'] = $sum_of_type['AB'] ?? 0;
+        $input['claim_ac'] = $sum_of_type['AC'] ?? 0;
+        $input['claim_bc'] = $sum_of_type['BC'] ?? 0;
         $draw_details->update($input);
 
         return redirect()->route('admin.dashboard');

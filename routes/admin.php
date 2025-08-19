@@ -15,6 +15,7 @@ Route::controller(AuthController::class)->group(function () {
 Route::middleware(['auth:admin'])->group(function () {
     Route::controller(DashboardController::class)->group(function () {
         Route::get('/', 'index')->name('admin.dashboard');
+        Route::get('cross-abc', 'crossAbc')->name('admin.dashboard.cross.abc');
     });
 
     // Shopkeeper's Routes

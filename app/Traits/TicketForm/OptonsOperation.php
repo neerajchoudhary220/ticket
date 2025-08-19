@@ -297,6 +297,12 @@ trait OptonsOperation
             }
         }
 
+        // save cross abc
+        $this->saveCrossAbc();
+
+        // Save Cross Details
+        $this->saveCrossAbcDetail();
+
         // update Draw Details
         $drawDetails = DrawDetail::whereIn('id', $selected_draw_ids)->get();
         foreach ($drawDetails as $detail) {
@@ -305,17 +311,18 @@ trait OptonsOperation
             $total_c_qty = $detail->ticketOptions->sum('c_qty') ?? 0;
 
             $total_qty = $total_a_qty + $total_b_qty + $total_c_qty;
-            $detail->update(['total_qty' => $total_qty]);
+            $detail->update(
+                [
+                    'total_qty' => $total_qty,
+                    'total_cross_amt' => $detail->crossAbcDetail->sum('amount') ?? 0,
+                ],
+
+            );
+
         }
 
         // update user draw
         $this->auth_user->drawDetails()->syncWithoutDetaching($selected_draw_ids);
-
-        // save cross abc
-        $this->saveCrossAbc();
-
-        // Save Cross Details
-        $this->saveCrossAbcDetail();
 
         if (! $this->is_edit_mode) {
             // Generate new Ticket

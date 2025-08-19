@@ -17,7 +17,10 @@
               <span class="hide-menu">Home</span>
             </li> --}}
                 <li class="sidebar-item">
-                    <a class="sidebar-link" href="{{ route('admin.dashboard') }}" aria-expanded="false">
+                    <a @class([
+                        'sidebar-link',
+                        'active' => request()->is(['admin/dashboard/*']),
+                    ]) href="{{ route('admin.dashboard') }}" aria-expanded="false">
                         <i class="ti ti-atom"></i>
                         <span class="hide-menu">Dashboard</span>
                     </a>

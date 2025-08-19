@@ -74,44 +74,19 @@ Artisan::command('test', function () {
 });
 
 Artisan::command('neeraj', function () {
-    $my_collection = collect([
-        [
-            'ab' => [23, 12, 78, 9],
-            'ac' => [13, 22],
-            'bc' => [],
-            'amt' => 10,
-            'combination' => 5,
-        ],
-        [
-            'ab' => [23, 12, 78, 9],
-            'ac' => [13, 22, 90],
-            'bc' => [13, 22, 90],
-            'amt' => 15,
-            'combination' => 10,
+    $draw_details = DrawDetail::find(28);
+    $ab = 12;
+    $ac = 14;
+    $bc = 24;
+    $sum_of_type = $draw_details->crossAbcDetail()
+        ->select('type', DB::raw('SUM(amount) as total_amount'))
+        ->where('number', $ab)
+        ->groupBy('type')
+        ->pluck('total_amount', 'type');
 
-        ],
-        [
-            'ab' => [12],
-            'ac' => [],
-            'bc' => [13],
-            'amt' => 15,
-            'combination' => 5,
-
-        ],
-    ]);
-
-    $output = collect(['ab', 'ac', 'bc'])->mapWithKeys(function ($key) use ($my_collection) {
-        $items = $my_collection->flatMap(function ($row) use ($key) {
-            return collect($row[$key])->map(function ($number) use ($row) {
-                return [
-                    'number' => $number,
-                    'amt' => $row['amt'],
-                    'combination' => $row['combination'],
-                ];
-            });
-        })->values();
-
-        return [$key => $items];
-    })->toArray();
-    $this->info(print_r($output, true));
+    $input['claim_ab'] = $sum_of_type['AB'] ?? 0;
+    $input['claim_ac'] = $sum_of_type['AC'] ?? 0;
+    $input['claim_bc'] = $sum_of_type['BC'] ?? 0;
+    $draw_details->update($input);
+    $this->info('updated');
 });
