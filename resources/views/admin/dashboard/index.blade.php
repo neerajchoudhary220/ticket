@@ -39,15 +39,18 @@
                             </div>
                             <div class="card-body">
                                 <div class="row text-center">
-                                    <div class="col-6">
-                                        Draws: <strong>{{ $data['total_draws'] }}</strong>
+                                    <div class="col-3">
+                                        Tickets: <strong>{{ $data['total_tickets'] }}</strong>
 
                                     </div>
-                                    <div class="col-6">
-                                        Claimed: <strong>{{ $data['claimed'] }}</strong>
-
+                                    <div class="col-4">
+                                        TTL Claim: <strong>{{ $data['total_claims'] }}</strong>
+                                    </div>
+                                    <div class="col-5">
+                                        TTL Cross Claim: <strong>{{ $data['total_cross_claim'] }}</strong>
                                     </div>
                                 </div>
+
 
                             </div>
                         </div>

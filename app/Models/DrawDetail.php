@@ -51,4 +51,21 @@ class DrawDetail extends Model
             return $ticketOption->where('user_id', $user_id);
         });
     }
+
+    public function totalAqty($number)
+    {
+        return $this->ticketOptions()
+            ->where('number', $number)
+            ->sum('a_qty');
+    }
+
+    public function totalBqty($number)
+    {
+        return $this->ticketOptions()->where('number', $number)->sum('b_qty');
+    }
+
+    public function totalCqty($number)
+    {
+        return $this->ticketOptions()->where('number', $number)->sum('c_qty');
+    }
 }

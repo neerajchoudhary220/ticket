@@ -6,6 +6,7 @@ use App\DataTables\CrossAbcDataTable;
 use App\DataTables\DrawProfilLossDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\DrawDetail;
+use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -16,7 +17,9 @@ class DashboardController extends Controller
     {
         $data = [
             'total_shopkeepers' => User::count(),
-            'total_draws' => DrawDetail::where('date', Carbon::today())->count(),
+            'total_tickets' => Ticket::count(),
+            'total_claims' => DrawDetail::sum('claim'),
+            'total_cross_claim' => DrawDetail::sum('total_cross_amt'),
             'claimed' => DrawDetail::where('date', Carbon::today())
                 ->where('claim', '!=', 0)
                 ->count(),
@@ -34,5 +37,11 @@ class DashboardController extends Controller
 
         return $dataTable->render('admin.dashboard.cross-abc-details', compact('drawDetail', 'type'));
         // return view('admin.dashboard.cross-abc-details')
+    }
+
+    public function totalQtyDetailList(DrawDetail $drawDetail)
+    {
+
+        return view('admin.dashboard.total-qty-details-table', compact('drawDetail'));
     }
 }

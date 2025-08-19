@@ -44,7 +44,11 @@ class DrawProfilLossDataTable extends DataTable
             })
 
             ->addColumn('tq', function ($row) {
-                return $row->total_qty ?? 0;
+                $total_qty_list_details_url = route('admin.dashboard.total.qty.details.list', $row->id);
+                $tq = $row->total_qty ?? 0;
+
+                return "<a href='$total_qty_list_details_url' class='text-primary h6'>$tq</a>";
+
             })
             ->addColumn('t_amt', function ($row) {
                 return $row->total_qty ? ($row->total_qty * 11) : 0;
@@ -65,10 +69,11 @@ class DrawProfilLossDataTable extends DataTable
                 return $draw_detail->claim_ab + $draw_detail->claim_ac + $draw_detail->claim_bc;
             })
             ->addColumn('p_and_l', function ($draw_detail) {
-                $total_amount = $draw_detail->total_qty ? ($draw_detail->total_qty * 100) : 0;
-                $c_amt = $draw_detail->claim ? $draw_detail->claim * 100 : 0;
-                $p_and_l = $total_amount - $c_amt;
-
+                $tq_11 = $draw_detail->total_qty ? ($draw_detail->total_qty * 11) : 0;
+                $claim_q_100 = $draw_detail->claim ? $draw_detail->claim * 100 : 0;
+                $cross_amt = $draw_detail->total_cross_amt ?? 0;
+                $cross_claim_100 = ($draw_detail->claim_ab + $draw_detail->claim_ac + $draw_detail->claim_bc) * 100;
+                $p_and_l = ($tq_11 - $claim_q_100) + $cross_amt - $cross_claim_100;
                 $bgClass = $p_and_l < 0 ? 'bg-danger text-white' : 'bg-success text-white';
                 if ($p_and_l == 0) {
                     $bgClass = 'text-dark';
@@ -167,11 +172,13 @@ class DrawProfilLossDataTable extends DataTable
     public function html(): HtmlBuilder
     {
         return $this->builder()
-            ->setTableId('shopkeepers-table')
+            ->setTableId('draw-details-table')
             ->columns($this->getColumns())
             ->minifiedAjax()
             ->orderBy(0, 'desc')
             ->selectStyleSingle()
+            ->addTableClass('table table-bordered  table-hover')
+            ->setTableHeadClass('bg-warning text-white')
             ->parameters(
                 [
                     'searching' => true,
@@ -195,13 +202,14 @@ class DrawProfilLossDataTable extends DataTable
      */
     public function getColumns(): array
     {
+
         $columes = [
             Column::make('updated_at')->hidden(),
             Column::make('end_time')->title('Time')->orderable(true)->searchable(true),
             Column::make('tq')->title('TQ')->orderable(true),
-            Column::make('t_amt')->title('T Amt')->orderable(true),
+            // Column::make('t_amt')->title('T Amt'),
             Column::make('claim')->orderable(true),
-            Column::make('c_amt')->title('C Amt.'),
+            // Column::make('c_amt')->title('C Amt.'),
             Column::make('cross_amt')->title('Cross Amt.'),
             Column::make('cross_claim')->title('Cross Claim'),
 
