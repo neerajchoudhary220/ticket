@@ -43,7 +43,14 @@
                                     <tr>
                                         <td class="bg-success text-white">AB</td>
                                         <td>{{ $drawDetail->totalAbAmt() }}</td>
-                                        <td>{{ $ab_claim }}</td>
+                                        <td>
+                                            @if ($ab_claim != 0)
+                                                <a href="{{ route('dashboard.draw.details.list', ['drawDetail' => $drawDetail->id, 'claim' => 1]) }}"
+                                                    class="text-primary">{{ $ab_claim }}</a>
+                                            @else
+                                                {{ $ab_claim }}
+                                            @endif
+                                        </td>
                                         <td @class([
                                             'text-white bg-danger' => $ab_pl < 0,
                                             'text-white bg-success' => $ab_pl > 0,
@@ -54,7 +61,14 @@
                                         <td class="bg-warning text-white">AC</td>
                                         <td>{{ $drawDetail->totalAcAmt() }}</td>
 
-                                        <td>{{ $ac_claim }}</td>
+                                        <td>
+                                            @if ($ac_claim != 0)
+                                                <a href="{{ route('dashboard.draw.details.list', ['drawDetail' => $drawDetail->id, 'claim' => 1]) }}"
+                                                    class="text-primary">{{ $ac_claim }}</a>
+                                            @else
+                                                {{ $ac_claim }}
+                                            @endif
+                                        </td>
 
                                         <td @class([
                                             'text-white bg-danger' => $ac_pl < 0,
@@ -66,7 +80,14 @@
                                         <td class="bg-info text-white">BC</td>
                                         <td>{{ $drawDetail->totalBcAmt() }}</td>
 
-                                        <td>{{ $bc_claim }}</td>
+                                        <td>
+                                            @if ($bc_claim != 0)
+                                                <a href="{{ route('dashboard.draw.details.list', ['draw_detail_id' => $drawDetail->id, 'claim' => 1]) }}"
+                                                    class="text-primary">{{ $bc_claim }}</a>
+                                            @else
+                                                {{ $bc_claim }}
+                                            @endif
+                                        </td>
 
                                         <td @class([
                                             'text-white bg-danger' => $bc_pl < 0,

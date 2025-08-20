@@ -102,6 +102,9 @@ class DrawProfilLossDataTable extends DataTable
                 return '--';
 
             })
+            ->editColumn('created_at', function ($draw_detail) {
+                return Carbon::parse($draw_detail->created_at)->format('Y-m-d');
+            })
 
             ->setRowId('id')
             ->rawColumns(['action',
@@ -110,7 +113,7 @@ class DrawProfilLossDataTable extends DataTable
                 'tq',
                 'c_amt',
                 'claim', 'cross_amt', 'cross_claim',
-                'p_and_l', 't_amt']);
+                'p_and_l', 't_amt', 'created_at']);
 
     }
 
@@ -158,10 +161,11 @@ class DrawProfilLossDataTable extends DataTable
             ->when(request()->segment(1) !== 'admin' && auth()->user(), function ($q) {
                 return $q->forUserTicketOption(auth()->user()->id);
             })
-
-            ->when(! $request->has('order'), function ($query) {
-                $query->orderBy('end_time', 'asc');
-            });
+            ->orderBy('claim', 'desc')
+            ->orderBy('end_time', 'desc');
+        // ->when(! $request->has('order'), function ($query) {
+        //     $query->orderBy('end_time', 'asc');
+        // });
 
         return $ticket_options;
     }
@@ -214,6 +218,7 @@ class DrawProfilLossDataTable extends DataTable
             Column::make('cross_claim')->title('Cross Claim'),
 
             Column::make('p_and_l')->title('P&L'),
+            Column::make('created_at'),
             // Column::make('action')->addClass('text-center'),
 
         ];
