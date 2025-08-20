@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\DataTables\Admin\ShopKeeperDrawDetailsDataTable;
+use App\DataTables\CrossAbDataTable;
+use App\DataTables\CrossAcDataTable;
+use App\DataTables\CrossBcDataTable;
 use App\DataTables\DrawProfilLossDataTable;
-use App\DataTables\NumberListDataTable;
 use App\DataTables\TicketDetailsDataTable;
 use App\Models\Draw;
 use App\Models\DrawDetail;
@@ -50,18 +52,31 @@ class DashboardController extends Controller
 
     }
 
-    public function numberDetailsList(NumberListDataTable $dataTable, Request $request)
+    public function totalQtyDetailList(DrawDetail $drawDetail)
     {
-        $draw = $this->findDraw($request->draw_id);
-        $number = $request->number;
+        return view('web.dashboard.total-qty-list-detail', compact('drawDetail'));
+    }
 
-        // return view('web.dashboard.ticket-number-details-list');
-        return $dataTable->render('web.dashboard.ticket-number-details-list', compact('draw', 'number'));
+    public function crossAbcList(CrossAbDataTable $dataTable, CrossAcDataTable $crossAcDataTable, CrossBcDataTable $crossBcDataTable, DrawDetail $drawDetail, Request $request)
+    {
+        $drawDetail = DrawDetail::findOrFail($request->get('draw_detail_id'));
+
+        return $dataTable->render('web.dashboard.abc-cross-detail-list', [
+            'drawDetail' => $drawDetail,
+            'crossAcDataTable' => $crossAcDataTable->html(),
+            'crossBcDataTable' => $crossBcDataTable->html(),
+        ]);
+        // return view('web.dashboard.abc-cross-detail-list');
 
     }
 
-    private function findDraw($draw_id)
+    public function getCrossAcList(CrossAcDataTable $crossAcDataTable, CrossBcDataTable $crossBcDataTable)
     {
-        return Draw::findOrFail($draw_id);
+        return $crossAcDataTable->render('web.dashboard.abc-cross-detail-list', compact('crossBcDataTable'));
+    }
+
+    public function getCrossBcList(CrossAcDataTable $crossAcDataTable, CrossBcDataTable $crossBcDataTable)
+    {
+        return $crossBcDataTable->render('web.dashboard.abc-cross-detail-list', compact('crossAcDataTable'));
     }
 }

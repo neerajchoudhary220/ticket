@@ -59,9 +59,15 @@ class ShopKeeperDrawDetailsDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('ticket_no', function ($TicketOption) {
-                $url = route('admin.draw.ticke.details.list', ['drawDetail' => $TicketOption->draw_detail_id, 'ticket' => $TicketOption->ticket_id, 'user' => $TicketOption->user_id]);
+                $ticket_number = $TicketOption->ticket->ticket_number;
+                if (request()->segment(1) === 'admin') {
+                    $url = route('admin.draw.ticke.details.list', ['drawDetail' => $TicketOption->draw_detail_id, 'ticket' => $TicketOption->ticket_id, 'user' => $TicketOption->user_id]);
 
-                return "<a href='$url' class='text-primary'>{$TicketOption->ticket->ticket_number}</a>";
+                    return "<a href='$url' class='text-primary'>{$ticket_number}</a>";
+                }
+
+                return $ticket_number;
+
             })
             ->addColumn('tq', function ($row) {
                 return $row->total_a_qty + $row->total_b_qty + $row->total_c_qty;
@@ -93,7 +99,12 @@ class ShopKeeperDrawDetailsDataTable extends DataTable
                 <div class="{$bgClass} text-center">{$p_and_l}</div>
             HTML;
             })
-            ->rawColumns(['ticket_no', 'tq', 't_amt', 'claim', 'c_amt', 'p_and_l']);
+            ->addColumn('action', function ($TicketOption) {
+                $url = '#';
+
+                return "<a href='$url' class='btn btn-sm btn-warning text-white'>Edit</a>";
+            })
+            ->rawColumns(['ticket_no', 'tq', 't_amt', 'claim', 'c_amt', 'p_and_l', 'action']);
     }
 
     /**
@@ -122,7 +133,7 @@ class ShopKeeperDrawDetailsDataTable extends DataTable
      */
     public function getColumns(): array
     {
-        return [
+        $columes = [
             Column::make('ticket_no')->title('Tno.'),
             Column::make('tq')->title('TQ'),
             Column::make('t_amt')->title('T amt.'),
@@ -131,6 +142,12 @@ class ShopKeeperDrawDetailsDataTable extends DataTable
             Column::make('p_and_l')->title('P&L'),
 
         ];
+        if (request()->segment(1) !== 'admin') {
+            $columes[] = Column::make('action');
+
+        }
+
+        return $columes;
     }
 
     /**

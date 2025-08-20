@@ -44,7 +44,7 @@ class DrawProfilLossDataTable extends DataTable
             })
 
             ->addColumn('tq', function ($row) {
-                $total_qty_list_details_url = route('admin.dashboard.total.qty.details.list', $row->id);
+                $total_qty_list_details_url = request()->segment(1) === 'admin' ? route('admin.dashboard.total.qty.details.list', $row->id) : route('dashboard.draw.total.qty.list.details', $row->id);
                 $tq = $row->total_qty ?? 0;
 
                 return "<a href='$total_qty_list_details_url' class='text-primary h6'>$tq</a>";
@@ -60,7 +60,7 @@ class DrawProfilLossDataTable extends DataTable
                 return $draw_detail->claim ? $draw_detail->claim * 100 : 0;
             })
             ->addColumn('cross_amt', function ($draw_detail) {
-                $abc_cross_url = route('admin.dashboard.cross.abc', ['draw_detail_id' => $draw_detail->id]);
+                $abc_cross_url = request()->segment(1) === 'admin' ? route('admin.dashboard.cross.abc', ['draw_detail_id' => $draw_detail->id]) : route('dashboard.draw.cross.abc.details.list', ['draw_detail_id' => $draw_detail->id]);
                 $total_cross_amt = $draw_detail->total_cross_amt ?? 0;
 
                 return "<a href='$abc_cross_url'  class='text-primary h6'>$total_cross_amt</a>";

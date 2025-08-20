@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\TicketController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -23,15 +22,10 @@ Route::middleware('auth')->group(function () {
         Route::get('add-ticket', 'addTicket')->name('ticket.add');
         // Route::get('/option-list', 'optionList')->name('dashboard.option.list');
         Route::get('/draw-details-list', 'drawDetailsList')->name('dashboard.draw.details.list');
-        Route::get('/draw-ticket-number-list', 'numberDetailsList')->name('dashboard.draw.ticket.number.list');
+        Route::get('/total-qty-detail-list/{drawDetail}', 'totalQtyDetailList')->name('dashboard.draw.total.qty.list.details');
+        Route::get('cross-abc-detail-list', 'crossAbcList')->name('dashboard.draw.cross.abc.details.list');
 
     });
-
-    // Tickets Route
-    // Route::controller(TicketController::class)->prefix('ticket')->group(function () {
-    //     Route::get('/', 'index')->name('ticket');
-
-    // });
 
     // Logout User
     Route::get('logout', function () {
