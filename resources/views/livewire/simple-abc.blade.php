@@ -1,9 +1,12 @@
   <div class="card-body">
+      <div class="card-header bg-success mb-3">
+          <h3 class="text-center text-white">Simple ABC</h3>
+      </div>
       <div class="row mb-3" x-data @focus-qty.window="document.getElementById('qty').focus()"
           @focus-abc.window="document.getElementById('abc').focus()">
           <div class="col-6">
               <div class="d-flex">
-                  <label class="mt-2" for="abc">ABC: </label>
+                  <label class="mt-2" for="abc">ABC</label>
                   <input type="text" class="form-control" wire:model="abc" id="abc"
                       wire:keydown.enter="enterKeyPressOnAbc" placeholder="Enter ABC">
               </div>

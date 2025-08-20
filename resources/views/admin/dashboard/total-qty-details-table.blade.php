@@ -48,7 +48,7 @@
                         <table class="table table-bordered ">
                             <thead class="">
                                 <tr>
-                                    <th>Option</th>
+                                    <th style="width: 50px">Option</th>
                                     <th>0</th>
                                     <th>1</th>
                                     <th>2</th>
@@ -67,7 +67,7 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>A</td>
+                                    <td class="bg-success text-white text-center">A</td>
                                     @foreach ($indices as $i)
                                         <td>{{ $drawDetail->totalAqty($i) }}</td>
                                     @endforeach
@@ -80,7 +80,7 @@
                                     <td>{{ $drawDetail->claim_a ?? 'N/A' }}</td>
                                 </tr>
                                 <tr>
-                                    <td>B</td>
+                                    <td class="bg-warning text-white text-center">B</td>
                                     @foreach ($indices as $i)
                                         <td>{{ $drawDetail->totalBqty($i) }}</td>
                                     @endforeach
@@ -94,7 +94,8 @@
 
                                 </tr>
                                 <tr>
-                                    <td>C</td>
+                                    <td class="bg-info text-white text-center">C</td>
+
                                     @foreach ($indices as $i)
                                         <td>{{ $drawDetail->totalCqty($i) }}</td>
                                     @endforeach

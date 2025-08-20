@@ -1,4 +1,7 @@
  <div class="card-body bg-white">
+     <div class="card-header bg-info mb-3">
+         <h3 class="text-center text-white">Cross ABC</h3>
+     </div>
      <div class="row mb-3" x-data @focus-cross-abc.window="document.getElementById('corss_abc').focus()"
          @focus-cross-abc-combination.window="document.getElementById('cross_combination').focus()"
          @focus-cross-abc-qty.window="document.getElementById('cross_qty').focus()">
@@ -104,7 +107,7 @@
                  <div>
                      <label class="form-label mb-1" for="cross_a">A</label>
                      <input type="text" wire:model='cross_a' id="cross_a"
-                         class="mynumber form-control text-center" style="width:60px; font-size:24px;"
+                         class="mynumber form-control text-center"
                          wire:keydown.enter="enterKeyPressOnCrossA('focus-cross-b','cross_a')">
                      @error('cross_a')
                          <span class="text-danger"> {{ $message }}</span>
@@ -113,8 +116,7 @@
                  <div>
                      <label class="form-label mb-1" for="cross_b">B</label>
                      <input type="text" id="cross_b" class="mynumber form-control text-center"
-                         style="width:60px; font-size:24px;" wire:model='cross_b'
-                         wire:keydown.enter="enterKeyPressOnCrossA('focus-cross-c','cross_b')">
+                         wire:model='cross_b' wire:keydown.enter="enterKeyPressOnCrossA('focus-cross-c','cross_b')">
                      @error('cross_b')
                          <span class="text-danger"> {{ $message }}</span>
                      @enderror
@@ -122,7 +124,7 @@
                  <div>
                      <label class="form-label mb-1" for="cross_c">C</label>
                      <input type="text" id="cross_c" class="mynumber form-control text-center"
-                         style="width:60px; font-size:24px;" wire:model='cross_c'
+                         wire:model='cross_c'
                          wire:keydown.enter="enterKeyPressOnCrossA('focus-cross-single-amt','cross_c')">
                      @error('cross_c')
                          <span class="text-danger"> {{ $message }}</span>
@@ -132,7 +134,7 @@
                  <div>
                      <label class="form-label mb-1" for="cross_single_amount">Amt</label>
                      <input type="text" id="cross_single_amount" class="mynumber form-control text-center"
-                         style="width:100px; font-size:24px;" wire:model='cross_single_amount'
+                         wire:model='cross_single_amount'
                          wire:keydown.enter="enterKeyPressOnCrossA('focus-cross-a','cross_single_amount')">
                      @error('cross_single_amount')
                          <span class="text-danger"> {{ $message }}</span>

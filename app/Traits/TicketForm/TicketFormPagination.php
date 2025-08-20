@@ -114,6 +114,7 @@ trait TicketFormPagination
 
         $query = Ticket::query()
             ->whereDate('created_at', Carbon::today())
+            ->where('status', '!=', 'COMPLETED')
             ->forUser($this->auth_user->id);
         $count = (clone $query)->count();
         $this->ticketPerPage = $count <= 5 ? 10 : $this->ticketPerPage;

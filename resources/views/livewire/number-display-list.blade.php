@@ -9,7 +9,7 @@
                            @endif
                        </div>
                        <div class="card-body">
-                           <div class="mb-3">
+                           <div class="mb-3" style="border-bottom: 2px solid ; ">
                                <div class="table-responsive option-list" style="max-height: 250px; overflow-y: auto; ">
                                    <h5>Simple ABC</h5>
                                    <table class="table table-bordered table-striped table-hover">
@@ -118,6 +118,25 @@
 
                            </div>
 
+                       </div>
+
+                       <div class="row mb-3">
+                           <div class="mt-3 px-3">
+                               <div class="col-12">
+                                   <div class="text-center mt-3">
+
+                                       @error('submit_error')
+                                           <span class="text-danger"><i class="fa fa-warning"></i>
+                                               {{ $message }}</span>
+                                       @enderror
+                                   </div>
+                               </div>
+                               <div class="col-12 text-end">
+                                   <button class="btn  btn-primary" wire:click='submitTicket'>Submit
+                                       Ticket</button>
+                               </div>
+
+                           </div>
                        </div>
 
                    </div>

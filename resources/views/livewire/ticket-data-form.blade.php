@@ -44,11 +44,10 @@
 
                @include('livewire.number-display-list')
                <div class="row">
-                   <div class="col-6">
+                   <div class="col-12" style="border-bottom: 3px solid">
                        @include('livewire.simple-abc')
-
                    </div>
-                   <div class="col-6">
+                   <div class="col-qw">
                        @include('livewire.cross-abc')
 
                    </div>
@@ -57,25 +56,12 @@
 
 
 
+
                <!-- Tab panes -->
 
 
 
-               <div class="card-footer mt-3">
-                   <div class="col-12">
-                       <div class="text-center mt-3">
 
-                           @error('submit_error')
-                               <span class="text-danger"><i class="fa fa-warning"></i> {{ $message }}</span>
-                           @enderror
-                       </div>
-                   </div>
-                   <div class="col-12 text-end">
-                       <button class="btn btn-sm btn-primary" wire:click='submitTicket'>Submit
-                           Ticket</button>
-                   </div>
-
-               </div>
            </div>
 
        </div>

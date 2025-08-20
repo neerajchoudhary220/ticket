@@ -50,9 +50,19 @@ class ClaimAdd extends Component
         $ab = (int) ($this->claim_a.$this->claim_b);
         $ac = (int) ($this->claim_a.$this->claim_c);
         $bc = (int) ($this->claim_b.$this->claim_c);
-        $sum_of_type = $draw_details->crossAbcDetail()
+        $sum_of_ab = $draw_details->crossAbcDetail()
             ->select('type', DB::raw('SUM(amount) as total_amount'))
             ->where('number', $ab)
+            ->groupBy('type')
+            ->pluck('total_amount', 'type');
+        $sum_of_ac = $draw_details->crossAbcDetail()
+            ->select('type', DB::raw('SUM(amount) as total_amount'))
+            ->where('number', $ac)
+            ->groupBy('type')
+            ->pluck('total_amount', 'type');
+        $sum_of_bc = $draw_details->crossAbcDetail()
+            ->select('type', DB::raw('SUM(amount) as total_amount'))
+            ->where('number', $bc)
             ->groupBy('type')
             ->pluck('total_amount', 'type');
 
@@ -63,9 +73,9 @@ class ClaimAdd extends Component
         $input['ab'] = $ab;
         $input['ac'] = $ac;
         $input['bc'] = $bc;
-        $input['claim_ab'] = $sum_of_type['AB'] ?? null;
-        $input['claim_ac'] = $sum_of_type['AC'] ?? null;
-        $input['claim_bc'] = $sum_of_type['BC'] ?? null;
+        $input['claim_ab'] = $sum_of_ab ?? null;
+        $input['claim_ac'] = $sum_of_ac ?? null;
+        $input['claim_bc'] = $sum_of_bc ?? null;
         $draw_details->update($input);
 
         return redirect()->route('admin.dashboard');
