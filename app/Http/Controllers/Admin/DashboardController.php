@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\DataTables\CrossAbcDataTable;
+use App\DataTables\CrossAbDataTable;
+use App\DataTables\CrossAcDataTable;
+use App\DataTables\CrossBcDataTable;
 use App\DataTables\DrawProfilLossDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\DrawDetail;
@@ -30,12 +32,19 @@ class DashboardController extends Controller
         return $dataTable->render('admin.dashboard.index', compact('data'));
     }
 
-    public function crossAbc(CrossAbcDataTable $dataTable, Request $request)
+    public function crossAbc(CrossAbDataTable $dataTable, CrossAcDataTable $crossAcDataTable, CrossBcDataTable $crossBcDataTable, Request $request)
     {
         $drawDetail = DrawDetail::findOrFail($request->get('draw_detail_id'));
         $type = $request->get('type') ?? 'AB';
 
-        return $dataTable->render('admin.dashboard.cross-abc-details', compact('drawDetail', 'type'));
+        // return $dataTable->render('admin.dashboard.cross-abc-details', compact('drawDetail', 'type', 'crossAcDataTable', 'crossBcDataTable'));
+        return $dataTable->render('admin.dashboard.cross-abc-details', [
+            'drawDetail' => $drawDetail,
+            'crossAcDataTable' => $crossAcDataTable->html(),
+            'crossBcDataTable' => $crossBcDataTable->html(),
+
+        ]);
+
         // return view('admin.dashboard.cross-abc-details')
     }
 

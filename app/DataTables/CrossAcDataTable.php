@@ -1,0 +1,108 @@
+<?php
+
+namespace App\DataTables;
+
+use App\Models\CrossAbcDetail;
+use App\Models\Shopkeeper;
+use Illuminate\Database\Eloquent\Builder as QueryBuilder;
+use Illuminate\Http\Request;
+use Yajra\DataTables\EloquentDataTable;
+use Yajra\DataTables\Html\Builder as HtmlBuilder;
+use Yajra\DataTables\Html\Button;
+use Yajra\DataTables\Html\Column;
+use Yajra\DataTables\Services\DataTable;
+
+class CrossAcDataTable extends DataTable
+{
+    /**
+     * Build the DataTable class.
+     *
+     * @param  QueryBuilder<Shopkeeper>  $query  Results from query() method.
+     */
+    public function dataTable(QueryBuilder $query, Request $request): EloquentDataTable
+    {
+
+        return (new EloquentDataTable($query))
+            ->addIndexColumn() // ✅ Add index column here
+            ->addColumn('action', function ($draw_detail) {
+                return '--';
+
+            })
+
+            ->setRowId('id')
+            ->rawColumns(['action']);
+
+    }
+
+    /**
+     * Get the query source of dataTable.
+     *
+     * @return QueryBuilder<Shopkeeper>
+     */
+    public function query(CrossAbcDetail $model, Request $request): QueryBuilder
+    {
+        $draw_detail_id = $request->get('draw_detail_id');
+
+        return $model->newQuery()
+            ->where('draw_detail_id', $draw_detail_id)
+            ->where('type', 'AC')
+            ->when(request()->segment(1) !== 'admin' && auth()->user(), function ($q) {
+                return $q->where('user_id', auth()->user()->id);
+            });
+    }
+
+    /**
+     * Optional method if you want to use the html builder.
+     */
+    public function html(): HtmlBuilder
+    {
+        return $this->builder()
+            ->setTableId('cross-ac-table')
+            ->columns($this->getColumns())
+            ->minifiedAjax()
+            ->orderBy(0, 'desc')
+            ->selectStyleSingle()
+            ->parameters(
+                [
+                    'searching' => true,
+                    'language' => [
+                        'searchPlaceholder' => 'Enter Amt. or Num.',
+                    ],
+                ]
+            )
+            ->buttons([
+                Button::make('excel'),
+                Button::make('csv'),
+                Button::make('pdf'),
+                Button::make('print'),
+                Button::make('reset'),
+                Button::make('reload'),
+            ]);
+    }
+
+    /**
+     * Get the dataTable columns definition.
+     */
+    public function getColumns(): array
+    {
+        $columes = [
+            Column::make('DT_RowIndex')
+                ->title('#') // ✅ Table heading
+                ->searchable(false)
+                ->orderable(false),
+            Column::make('updated_at')->hidden(),
+            Column::make('number')->title('Number')->orderable(true)->searchable(true),
+            Column::make('amount')->title('Amount')->orderable(true),
+        ];
+
+        return $columes;
+    }
+
+    /**
+     * Get the filename for export.
+     */
+    protected function filename(): string
+    {
+        return 'ac_cross-'.date('YmdHis');
+    }
+}

@@ -12,7 +12,7 @@ use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Services\DataTable;
 
-class CrossAbcDataTable extends DataTable
+class CrossBcDataTable extends DataTable
 {
     /**
      * Build the DataTable class.
@@ -42,11 +42,10 @@ class CrossAbcDataTable extends DataTable
     public function query(CrossAbcDetail $model, Request $request): QueryBuilder
     {
         $draw_detail_id = $request->get('draw_detail_id');
-        $type = $request->get('type') ?? 'AB';
 
         return $model->newQuery()
             ->where('draw_detail_id', $draw_detail_id)
-            ->where('type', $type)
+            ->where('type', 'BC')
             ->when(request()->segment(1) !== 'admin' && auth()->user(), function ($q) {
                 return $q->where('user_id', auth()->user()->id);
             });
@@ -58,7 +57,7 @@ class CrossAbcDataTable extends DataTable
     public function html(): HtmlBuilder
     {
         return $this->builder()
-            ->setTableId('shopkeepers-table')
+            ->setTableId('cross-bc-table')
             ->columns($this->getColumns())
             ->minifiedAjax()
             ->orderBy(0, 'desc')
@@ -104,6 +103,6 @@ class CrossAbcDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'ab_cross-'.date('YmdHis');
+        return 'bc_cross-'.date('YmdHis');
     }
 }

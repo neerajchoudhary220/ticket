@@ -68,4 +68,19 @@ class DrawDetail extends Model
     {
         return $this->ticketOptions()->where('number', $number)->sum('c_qty');
     }
+
+    public function totalAbAmt()
+    {
+        return $this->crossAbcDetail()->where('type', 'AB')->sum('amount');
+    }
+
+    public function totalAcAmt()
+    {
+        return $this->crossAbcDetail()->where('type', 'AC')->sum('amount');
+    }
+
+    public function totalBcAmt()
+    {
+        return $this->crossAbcDetail()->where('type', 'BC')->sum('amount');
+    }
 }

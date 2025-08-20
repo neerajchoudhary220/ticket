@@ -36,9 +36,13 @@
                                 $c_amounts[] = $drawDetail->totalCqty($i);
                             }
 
-                            $a_pl = $tq_a * 11 - $a_amounts[$drawDetail->claim_a] * 100;
-                            $b_pl = $tq_b * 11 - $b_amounts[$drawDetail->claim_b] * 100;
-                            $c_pl = $tq_c * 11 - $c_amounts[$drawDetail->claim_c] * 100;
+                            $claim_a_amt = $drawDetail->claim_a ? $a_amounts[$drawDetail->claim_a] : 0;
+                            $claim_b_amt = $drawDetail->claim_b ? $a_amounts[$drawDetail->claim_b] : 0;
+                            $claim_c_amt = $drawDetail->claim_c ? $c_amounts[$drawDetail->claim_c] : 0;
+
+                            $a_pl = $tq_a * 11 - $claim_a_amt * 100;
+                            $b_pl = $tq_b * 11 - $claim_b_amt * 100;
+                            $c_pl = $tq_c * 11 - $claim_c_amt * 100;
 
                         @endphp
                         <table class="table table-bordered ">
@@ -55,7 +59,7 @@
                                     <th>7</th>
                                     <th>8</th>
                                     <th>9</th>
-                                    <th>tq</th>
+                                    <th>TQ</th>
                                     <th>Claim Q</th>
                                     <th>P & L</th>
                                     <th>Result</th>
@@ -68,12 +72,12 @@
                                         <td>{{ $drawDetail->totalAqty($i) }}</td>
                                     @endforeach
                                     <td>{{ $tq_a }}</td>
-                                    <td>{{ $a_amounts[$drawDetail->claim_a] }}</td>
+                                    <td>{{ $claim_a_amt }}</td>
                                     <td @class([
                                         'bg-danger text-white' => $a_pl < 0,
                                         'bg-success text-white' => $a_pl > 0,
                                     ])>{{ $a_pl }}</td>
-                                    <td>{{ $drawDetail->claim_a }}</td>
+                                    <td>{{ $drawDetail->claim_a ?? 'N/A' }}</td>
                                 </tr>
                                 <tr>
                                     <td>B</td>
@@ -81,12 +85,12 @@
                                         <td>{{ $drawDetail->totalBqty($i) }}</td>
                                     @endforeach
                                     <td>{{ $tq_b }}</td>
-                                    <td>{{ $b_amounts[$drawDetail->claim_b] }}</td>
+                                    <td>{{ $claim_b_amt }}</td>
                                     <td @class([
                                         'bg-danger text-white' => $b_pl < 0,
                                         'bg-success text-white' => $b_pl > 0,
                                     ])>{{ $b_pl }}</td>
-                                    <td>{{ $drawDetail->claim_b }}</td>
+                                    <td>{{ $drawDetail->claim_b ?? 'N/A' }}</td>
 
                                 </tr>
                                 <tr>
@@ -95,12 +99,19 @@
                                         <td>{{ $drawDetail->totalCqty($i) }}</td>
                                     @endforeach
                                     <td>{{ $tq_c }}</td>
-                                    <td>{{ $c_amounts[$drawDetail->claim_c] }}</td>
+                                    <td>{{ $claim_c_amt }}</td>
                                     <td @class([
                                         'bg-danger text-white' => $c_pl < 0,
                                         'bg-success text-white' => $c_pl > 0,
                                     ])>{{ $c_pl }}</td>
-                                    <td>{{ $drawDetail->claim_c }}</td>
+                                    <td>{{ $drawDetail->claim_c ?? 'N/A' }}</td>
+
+                                </tr>
+                                <tr>
+                                    <td colspan="11"><b>Total</b></td>
+                                    <td class="text-success"><b>{{ $tq_a + $tq_b + $tq_c }}</b></td>
+                                    <td class="text-warning"><b>{{ $claim_a_amt + $claim_b_amt + $claim_c_amt }}</b></td>
+                                    <td><b>{{ $a_pl + $b_pl + $c_pl }}</b></td>
 
                                 </tr>
                                 <!-- Add more rows as needed -->
