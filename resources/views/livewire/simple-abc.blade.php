@@ -1,7 +1,7 @@
   <div class="card-body">
       <div class="row mb-3" x-data @focus-qty.window="document.getElementById('qty').focus()"
           @focus-abc.window="document.getElementById('abc').focus()">
-          <div class="col-4">
+          <div class="col-6">
               <div class="d-flex">
                   <label class="mt-2" for="abc">ABC: </label>
                   <input type="text" class="form-control" wire:model="abc" id="abc"
@@ -11,7 +11,7 @@
                   <span class="text-danger">{{ $message }}</span>
               @enderror
           </div>
-          <div class="col-4">
+          <div class="col-6">
               <div class="d-flex">
                   <label class="mt-2" for="qty">QTY: </label>
                   <input type="text" class="form-control" wire:model="abc_qty" id="qty"
@@ -27,7 +27,7 @@
           <thead>
               <tr>
                   <th>Option</th>
-                  <th>#Numbers (0–9)</th>
+                  <th>#Num.(0–9)</th>
                   <th>Qty</th>
 
               </tr>
@@ -40,7 +40,7 @@
               @focus-c_qty.window="document.getElementById('input_c_qty').focus()">
               <!-- Example row -->
               <tr>
-                  <td>A</td>
+                  <td class="bg-success text-white text-center"><b>A</b></td>
                   <td>
                       <input type="text" id="input_a" wire:model.debounce.250='a'
                           wire:keydown.down="move('focus-b','a')" wire:keydown.right="move('focus-a_qty','a')"
@@ -55,7 +55,8 @@
 
               </tr>
               <tr>
-                  <td>B</td>
+                  <td class="bg-warning text-white text-center"><b>B</b></td>
+
                   <td><input type="text" wire:model.debounce.250ms='b' id="input_b"
                           wire:keydown.up = "move('focus-a','b')" wire:keydown.down="move('focus-c','b')"
                           wire:keydown.right="move('focus-b_qty','b')" wire:keydown.tab="keyTab('b')"
@@ -71,7 +72,8 @@
 
               </tr>
               <tr>
-                  <td>C</td>
+                  <td class="bg-info text-white text-center"><b>C</b></td>
+
                   <td><input type="text" wire:model.debounce.250ms='c' id="input_c"
                           wire:keydown.up = "move('focus-b','c')" wire:keydown.right="move('focus-c_qty','c')"
                           wire:keydown.tab="keyTab('c')" class="form-control zeroToNineNumber">
@@ -88,4 +90,3 @@
 
 
   </div>
-  @include('livewire.number-display-list')

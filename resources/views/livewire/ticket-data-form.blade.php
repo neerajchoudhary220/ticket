@@ -41,31 +41,24 @@
                    </div>
 
                </div>
-               <ul class="nav nav-tabs" role="tablist">
-                   <li class="nav-item">
-                       <a class="nav-link {{ $activeTab === 'simple_abc' ? 'active' : '' }}" data-bs-toggle="tab"
-                           href="#simple_abc" wire:click.prevent="setTab('simple_abc')">Simple ABC</a>
-                   </li>
-                   <li class="nav-item">
-                       <a class="nav-link {{ $activeTab === 'cross_abc' ? 'active' : '' }}" id="cross_abc_tab"
-                           data-bs-toggle="tab" href="#cross_abc" wire:click.prevent="setTab('cross_abc')">Cross ABC</a>
-                   </li>
-               </ul>
+
+               @include('livewire.number-display-list')
+               <div class="row">
+                   <div class="col-6">
+                       @include('livewire.simple-abc')
+
+                   </div>
+                   <div class="col-6">
+                       @include('livewire.cross-abc')
+
+                   </div>
+               </div>
+
+
+
 
                <!-- Tab panes -->
-               <div class="tab-content">
-                   <div id="simple_abc"
-                       class="container tab-pane {{ $activeTab === 'simple_abc' ? 'active show' : '' }}">
-                       <br>
-                       @include('livewire.simple-abc')
-                   </div>
-                   <div id="cross_abc"
-                       class="container tab-pane fade {{ $activeTab === 'cross_abc' ? 'active show' : '' }}">
-                       <br>
-                       @include('livewire.cross-abc')
-                   </div>
 
-               </div>
 
 
                <div class="card-footer mt-3">

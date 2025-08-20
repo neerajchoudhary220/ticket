@@ -2,7 +2,7 @@
      <div class="row mb-3" x-data @focus-cross-abc.window="document.getElementById('corss_abc').focus()"
          @focus-cross-abc-combination.window="document.getElementById('cross_combination').focus()"
          @focus-cross-abc-qty.window="document.getElementById('cross_qty').focus()">
-         <div class="col-3">
+         <div class="col-4">
              <label for="corss_abc">ABC </label>
              <input type="text" id="corss_abc"
                  wire:keydown.enter="enterKeyPressOnCrossAbc('focus-cross-abc-qty','cross_abc_input')"
@@ -11,8 +11,8 @@
                  <span class="text-danger">{{ $message }}</span>
              @enderror
          </div>
-         <div class="col-3">
-             <label for="cross_qty">Amt</label>
+         <div class="col-4">
+             <label for="cross_qty">Amt.</label>
              <input type="text" id="cross_qty"
                  wire:keydown.enter="enterKeyPressOnCrossAbc('focus-cross-abc-combination','cross_abc_amt')"
                  wire:model="cross_abc_amt" class="form-control" id="cross_qty" placeholder="Enter Qty">
@@ -20,9 +20,9 @@
                  <span class="text-danger">{{ $message }}</span>
              @enderror
          </div>
-         <div class="col-3">
+         <div class="col-4">
              <div>
-                 <label for="cross_combination">Combination</label>
+                 <label for="cross_combination">Comb.</label>
                  <input type="text" class="form-control" id="cross_combination" wire:model="cross_combination"
                      wire:keydown.enter="enterKeyPressOnCrossAbc('focus-cross-abc','cross_combination')"
                      placeholder="Enter Combination">
@@ -36,7 +36,7 @@
      {{-- AB --}}
      <div class="row mb-3" x-data @focus-cross-ab.window="document.getElementById('cross_ab').focus()"
          @focus-cross-ab-amt.window="document.getElementById('cross_ab_amt').focus()">
-         <div class="col-3">
+         <div class="col-6">
              <label for="cross_ab">AB</label>
              <input type="text" wire:keydown.enter="enterKeyPressOnCrossAb('focus-cross-ab-amt','cross_ab')"
                  id="cross_ab" placeholder="Enter AB" class="form-control" wire:model="cross_ab">
@@ -44,7 +44,7 @@
                  <span class="text-danger"> {{ $message }}</span>
              @enderror
          </div>
-         <div class="col-3">
+         <div class="col-6">
              <label for="cross_ab_amt">Amt</label>
              <input type="text" id="cross_ab_amt" placeholder="Enter Amt" class="form-control"
                  wire:keydown.enter="enterKeyPressOnCrossAb('focus-cross-ab','cross_ab_amt')" wire:model="cross_ab_amt">
@@ -56,7 +56,7 @@
      {{-- AC --}}
      <div class="row mb-3" x-data @focus-cross_ac.window="document.getElementById('cross_ac').focus()"
          @focus-cross-ac-amt.window="document.getElementById('cross_ac_amt').focus()">
-         <div class="col-3">
+         <div class="col-6">
              <label for="cross_ac">AC</label>
              <input type="text" id="cross_ac" placeholder="Enter AC" class="form-control" wire:model="cross_ac"
                  wire:keydown.enter="enterKeyPressOnCrossAc('focus-cross-ac-amt','cross_ac')">
@@ -64,7 +64,7 @@
                  <span class="text-danger"> {{ $message }}</span>
              @enderror
          </div>
-         <div class="col-3">
+         <div class="col-6">
              <label for="cross_ac_amt">Amt</label>
              <input type="text" id="cross_ac_amt" placeholder="Enter AC" class="form-control"
                  wire:model="cross_ac_amt" wire:keydown.enter="enterKeyPressOnCrossAc('focus-cross-ac','cross_ac_amt')">
@@ -76,7 +76,7 @@
      {{-- BC --}}
      <div class="row mb-3" x-data @focus-cross-bc.window="document.getElementById('cross_bc').focus()"
          @focus-cross-bc-amt.window="document.getElementById('cross_bc_amt').focus()">
-         <div class="col-3">
+         <div class="col-6">
              <label for="cross_bc">BC</label>
              <input type="text" id="cross_bc" placeholder="Enter BC" class="form-control" wire:model="cross_bc"
                  wire:keydown.enter="enterKeyPressOnCrossBc('focus-cross-bc-amt','cross_bc')">
@@ -84,7 +84,7 @@
                  <span class="text-danger"> {{ $message }}</span>
              @enderror
          </div>
-         <div class="col-3">
+         <div class="col-6">
              <label for="cross_bc_amt">Amt</label>
              <input type="text" class="form-control" placeholder="Enter Amount" id="cross_bc_amt"
                  wire:model="cross_bc_amt" wire:keydown.enter="enterKeyPressOnCrossBc('focus-cross-bc','cross_bc_amt')">
@@ -100,7 +100,7 @@
              @focus-cross-b.window="document.getElementById('cross_b').focus()"
              @focus-cross-c.window="document.getElementById('cross_c').focus()"
              @focus-cross-single-amt.window="document.getElementById('cross_single_amount').focus()">
-             <div class="d-flex justify-content-start gap-3">
+             <div class="d-flex justify-content-start gap-2">
                  <div>
                      <label class="form-label mb-1" for="cross_a">A</label>
                      <input type="text" wire:model='cross_a' id="cross_a"
@@ -143,7 +143,6 @@
      </div>
 
  </div>
- @include('livewire.cross-data-display')
 
  @script
      <script>
