@@ -52,35 +52,41 @@ class DrawDetail extends Model
         });
     }
 
-    public function totalAqty($number)
+    public function totalAqty($number = null, $user_id = null)
     {
         return $this->ticketOptions()
-            ->where('number', $number)
+            ->when($number, fn ($q) => $q->where('number', $number))
+            ->when($user_id, fn ($q) => $q->where('user_id', $user_id))
             ->sum('a_qty');
     }
 
-    public function totalBqty($number)
+    public function totalBqty($number = null, $user_id = null)
     {
-        return $this->ticketOptions()->where('number', $number)->sum('b_qty');
+        return $this->ticketOptions()->when($number, fn ($q) => $q->where('number', $number))
+            ->when($user_id, fn ($q) => $q->where('user_id', $user_id))->sum('b_qty');
     }
 
-    public function totalCqty($number)
+    public function totalCqty($number = null, $user_id = null)
     {
-        return $this->ticketOptions()->where('number', $number)->sum('c_qty');
+        return $this->ticketOptions()->when($number, fn ($q) => $q->where('number', $number))
+            ->when($user_id, fn ($q) => $q->where('user_id', $user_id))->sum('c_qty');
     }
 
-    public function totalAbAmt()
+    public function totalAbAmt($user_id = null)
     {
-        return $this->crossAbcDetail()->where('type', 'AB')->sum('amount');
+        return $this->crossAbcDetail()->where('type', 'AB')
+            ->when($user_id, fn ($q) => $q->where('user_id', $user_id))->sum('amount');
     }
 
-    public function totalAcAmt()
+    public function totalAcAmt($user_id = null)
     {
-        return $this->crossAbcDetail()->where('type', 'AC')->sum('amount');
+        return $this->crossAbcDetail()->where('type', 'AC')
+            ->when($user_id, fn ($q) => $q->where('user_id', $user_id))->sum('amount');
     }
 
-    public function totalBcAmt()
+    public function totalBcAmt($user_id = null)
     {
-        return $this->crossAbcDetail()->where('type', 'BC')->sum('amount');
+        return $this->crossAbcDetail()->where('type', 'BC')
+            ->when($user_id, fn ($q) => $q->where('user_id', $user_id))->sum('amount');
     }
 }

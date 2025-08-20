@@ -2,7 +2,6 @@
 
 namespace App\Traits\TicketForm;
 
-use App\Models\Draw;
 use App\Models\DrawDetail;
 use App\Models\Ticket;
 use Carbon\Carbon;

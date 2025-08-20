@@ -89,6 +89,7 @@ class AddTicketForm extends Component
         $this->getTimes();
         $this->loadDraws();
         $this->loadTickets();
+        $this->loadLatestDraws();
     }
 
     public function render()

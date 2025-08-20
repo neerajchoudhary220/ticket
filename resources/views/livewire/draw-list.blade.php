@@ -10,8 +10,10 @@
                         value="{{ $draw_detail->id }}" @checked($draw_detail->id == $selected_draw_id)>
                     <label class="form-check-label" for="draw_{{ $draw_detail->id }}">
                         {{ $draw_detail->formatEndTime() }}
-                        {{-- (TC:{{ $draw_detail->totalCollection($draw_detail->id) }},
-                        TD:{{ $draw_detail->totalDistributions($draw_detail->id) }}) --}}
+                        (<strong>Cross Amt:</strong>
+                        {{ $draw_detail->totalAbAmt(auth()->user()->id) + $draw_detail->totalAcAmt(auth()->user()->id) + $draw_detail->totalBcAmt(auth()->user()->id) }}
+                        <strong>TQ: </strong>
+                        {{ $draw_detail->totalAqty(user_id: auth()->user()->id) + $draw_detail->totalBqty(user_id: auth()->user()->id) + $draw_detail->totalCqty(user_id: auth()->user()->id) }})
                     </label>
                 </div>
             @endforeach

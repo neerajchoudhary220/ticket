@@ -15,6 +15,9 @@
                 <div class="col-12 mt-3">
                     @include('livewire.draw-list')
                 </div>
+                <div class="col-12 mt-3">
+                    @include('livewire.latest-draw-details-list')
+                </div>
 
 
             </div>
@@ -129,6 +132,20 @@
                 if (scrollTop + innerHeight >= scrollHeight - 10) {
                     option_page++;
                     $wire.set('option_page', option_page);
+                }
+            });
+
+            //latest draw list scrollbar
+            $('.latest-draw-list').on('scroll', function() {
+                let box = $(this);
+                let scrollTop = box.scrollTop();
+                let innerHeight = box.innerHeight();
+                let scrollHeight = box[0].scrollHeight;
+                let latest_draw_page = $wire.get('latest_draw_page');
+
+                if (scrollTop + innerHeight >= scrollHeight - 10) {
+                    latest_draw_page++;
+                    $wire.set('latest_draw_page', latest_draw_page);
                 }
             });
 

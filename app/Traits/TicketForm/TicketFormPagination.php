@@ -23,6 +23,14 @@ trait TicketFormPagination
 
     public $option_list = [];
 
+    public $latest_draw_list = [];
+
+    public $latestDrawPerPage = 10;
+
+    public int $latest_draw_page = 1;
+
+    public array $latest_draw_ids = [];
+
     public array $selected_draw = [];
 
     public $drawPerPage = 12;
@@ -55,6 +63,11 @@ trait TicketFormPagination
     public function updatedTicketPage()
     {
         $this->loadTickets();
+    }
+
+    public function updatedLatestDrawPage()
+    {
+        $this->loadLatestDraws();
     }
 
     public function updatedOptionPage()
@@ -104,6 +117,44 @@ trait TicketFormPagination
         $this->hasMoreDrawPages = $paginatedDraws->hasMorePages();
     }
 
+    public function loadLatestDraws()
+    {
+        $current_time = Carbon::now()->timezone('Asia/Kolkata')->format('H:i');
+
+        $drawQuery = DrawDetail::whereHas('crossAbcDetail', function ($q) {
+            return $q->where('user_id', $this->auth_user->id)
+                ->whereDate('created_at', Carbon::today());
+        }
+        )
+            ->whereHas('ticketOptions', function ($q) {
+                return $q->where('user_id', $this->auth_user->id)
+                    ->whereDate('created_at', Carbon::today());
+            }
+            )
+            ->with([
+                'crossAbcDetail' => fn ($q) => $q->where('user_id', $this->auth_user->id),
+                'ticketOptions' => fn ($q) => $q->where('user_id', $this->auth_user->id),
+            ]);
+
+        $count = (clone $drawQuery)->count();
+        $this->latestDrawPerPage = $count <= 10 ? 10 : $this->latestDrawPerPage;
+
+        $paginatedDraws = $drawQuery->orderBy('updated_at', 'DESC')
+            ->paginate($this->latestDrawPerPage, ['*'], 'latest_draw_page', $this->latest_draw_page);
+        $newDraws = collect($paginatedDraws->items());
+
+        $uniqueDraws = $newDraws->reject(function ($draw) {
+            return in_array($draw['id'], $this->latest_draw_ids, true);
+        })->values()->all();
+
+        foreach ($uniqueDraws as $uniqueDraw) {
+            $this->latest_draw_ids[] = $uniqueDraw['id'];
+        }
+
+        $this->latest_draw_list = array_merge($this->latest_draw_list, $uniqueDraws);
+        // $this->hasMoreDrawPages = $paginatedDraws->hasMorePages();
+    }
+
     public function loadTickets($reset = false)
     {
         if ($reset) {
@@ -111,11 +162,11 @@ trait TicketFormPagination
             $this->ticket_list = [];
             $this->loaded_tickets_ids = [];
         }
-
         $query = Ticket::query()
             ->whereDate('created_at', Carbon::today())
             ->where('status', '!=', 'COMPLETED')
             ->forUser($this->auth_user->id);
+
         $count = (clone $query)->count();
         $this->ticketPerPage = $count <= 5 ? 10 : $this->ticketPerPage;
 
