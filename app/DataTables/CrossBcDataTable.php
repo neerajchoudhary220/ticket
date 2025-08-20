@@ -100,7 +100,7 @@ class CrossBcDataTable extends DataTable
     {
         $columes = [
             Column::make('DT_RowIndex')
-                ->title('#number') // ✅ Table heading
+                ->title('#') // ✅ Table heading
                 ->searchable(false)
                 ->orderable(false),
             Column::make('updated_at')->hidden(),

@@ -18,14 +18,11 @@ class DrawDataTable extends DataTable
     {
 
         return (new EloquentDataTable($query))
-            ->addColumn('action', function ($draw) {
-                return view('admin.draw.draw-action', compact('draw'))->render();
-            })
-            ->editColumn('id', function ($draw) {
-                $draw_details_list = route('admin.draw.detail.list', ['draw_id' => $draw->id]);
+            ->addIndexColumn() // ✅ Add index column here
 
-                return "<a class='text-primary' href='$draw_details_list'>DN - {$draw->id}</a>";
-            })
+            // ->addColumn('action', function ($draw) {
+            //     return view('admin.draw.draw-action', compact('draw'))->render();
+            // })
             ->editColumn('end_time', function ($draw) {
                 return $draw->formatEndTime();
 
@@ -70,7 +67,7 @@ class DrawDataTable extends DataTable
             ->setTableId('shopkeepers-table')
             ->columns($this->getColumns())
             ->minifiedAjax()
-            ->orderBy(0)
+            // ->orderBy(0)
             ->selectStyleSingle()
             ->buttons([
                 Button::make('excel'),
@@ -88,14 +85,14 @@ class DrawDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('id')->title('#Draw No.'),
+            Column::make('DT_RowIndex')
+                ->title('#') // ✅ Table heading
+                ->searchable(false)
+                ->orderable(false),
             Column::make('start_time')->title('Start Time'),
             Column::make('end_time')->title('End Time'),
-            Column::make('total_collection')->title('Total collection'),
-            Column::make('total_rewards')->title('Total Rewards'),
             Column::make('created_at'),
             Column::make('updated_at'),
-            Column::make('action')->addClass('text-center'),
 
         ];
     }
