@@ -69,10 +69,13 @@ class CrossBcDataTable extends DataTable
      */
     public function html(): HtmlBuilder
     {
+        $draw_detail_id = ['draw_detail_id' => request()->get('draw_detail_id')];
+        $json_url = request()->segment('1') === 'admin' ? route('admin.dashboard.cross.get.bc', $draw_detail_id) : route('dashboard.draw.cross.bc.list', $draw_detail_id);
+
         return $this->builder()
             ->setTableId('cross-bc-table')
             ->columns($this->getColumns())
-            ->minifiedAjax(route('admin.dashboard.cross.get.bc', ['draw_detail_id' => request()->get('draw_detail_id')]))
+            ->minifiedAjax($json_url)
             ->orderBy(0, 'desc')
             ->selectStyleSingle()
             ->parameters(

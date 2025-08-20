@@ -69,10 +69,13 @@ class CrossAcDataTable extends DataTable
      */
     public function html(): HtmlBuilder
     {
+        $draw_details_id = ['draw_detail_id' => request()->get('draw_detail_id')];
+        $json_url = request()->segment(1) === 'admin' ? route('admin.dashboard.cross.get.ac', $draw_details_id) : route('dashboard.draw.cross.ac.list', $draw_details_id);
+
         return $this->builder()
             ->setTableId('cross-ac-table')
             ->columns($this->getColumns())
-            ->minifiedAjax(route('admin.dashboard.cross.get.ac', ['draw_detail_id' => request()->get('draw_detail_id')]))
+            ->minifiedAjax($json_url)
             ->orderBy(0, 'desc')
             ->selectStyleSingle()
             ->parameters(

@@ -24,6 +24,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/draw-details-list', 'drawDetailsList')->name('dashboard.draw.details.list');
         Route::get('/total-qty-detail-list/{drawDetail}', 'totalQtyDetailList')->name('dashboard.draw.total.qty.list.details');
         Route::get('cross-abc-detail-list', 'crossAbcList')->name('dashboard.draw.cross.abc.details.list');
+        Route::get('cross-ab-list', 'getCrossAcList')->name('dashboard.draw.cross.ac.list');
+        Route::get('cross-bc-list', 'getCrossBcList')->name('dashboard.draw.cross.bc.list');
 
     });
 
