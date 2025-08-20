@@ -18,6 +18,9 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::controller(DashboardController::class)->prefix('dashboard')->group(function () {
         Route::get('/', 'index')->name('admin.dashboard');
         Route::get('cross-abc', 'crossAbc')->name('admin.dashboard.cross.abc');
+        Route::get('get-cross-ac', 'getCrossAcList')->name('admin.dashboard.cross.get.ac');
+        Route::get('get-cross-bc', 'getCrossBcList')->name('admin.dashboard.cross.get.bc');
+
         Route::get('total_qty_details/{drawDetail}', 'totalQtyDetailList')->name('admin.dashboard.total.qty.details.list');
 
     });

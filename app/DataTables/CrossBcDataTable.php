@@ -24,13 +24,23 @@ class CrossBcDataTable extends DataTable
 
         return (new EloquentDataTable($query))
             ->addIndexColumn() // ✅ Add index column here
-            ->addColumn('action', function ($draw_detail) {
+            ->addColumn('action', function ($abc_detail) {
                 return '--';
+
+            })
+            ->editColumn('number', function ($abc_detail) {
+                $number = $abc_detail->number;
+                $bc = $abc_detail->drawDetail?->bc;
+                if ($number == $bc) {
+                    return "<span class='bg-danger text-white p-2'>$number</span>";
+                }
+
+                return $number;
 
             })
 
             ->setRowId('id')
-            ->rawColumns(['action']);
+            ->rawColumns(['action', 'number']);
 
     }
 
@@ -48,7 +58,10 @@ class CrossBcDataTable extends DataTable
             ->where('type', 'BC')
             ->when(request()->segment(1) !== 'admin' && auth()->user(), function ($q) {
                 return $q->where('user_id', auth()->user()->id);
-            });
+            })
+            ->with(['drawDetail' => function ($draw_details) {
+                return $draw_details->where('id', request()->get('draw_detail_id'))->whereNotNull('claim_bc');
+            }]);
     }
 
     /**
@@ -59,7 +72,7 @@ class CrossBcDataTable extends DataTable
         return $this->builder()
             ->setTableId('cross-bc-table')
             ->columns($this->getColumns())
-            ->minifiedAjax()
+            ->minifiedAjax(route('admin.dashboard.cross.get.bc', ['draw_detail_id' => request()->get('draw_detail_id')]))
             ->orderBy(0, 'desc')
             ->selectStyleSingle()
             ->parameters(
@@ -87,7 +100,7 @@ class CrossBcDataTable extends DataTable
     {
         $columes = [
             Column::make('DT_RowIndex')
-                ->title('#') // ✅ Table heading
+                ->title('#number') // ✅ Table heading
                 ->searchable(false)
                 ->orderable(false),
             Column::make('updated_at')->hidden(),

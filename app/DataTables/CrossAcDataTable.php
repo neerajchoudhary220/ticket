@@ -24,13 +24,23 @@ class CrossAcDataTable extends DataTable
 
         return (new EloquentDataTable($query))
             ->addIndexColumn() // ✅ Add index column here
-            ->addColumn('action', function ($draw_detail) {
+            ->addColumn('action', function ($abc_detail) {
                 return '--';
+
+            })
+            ->editColumn('number', function ($abc_detail) {
+                $number = $abc_detail->number;
+                $ac = $abc_detail->drawDetail?->ac;
+                if ($number == $ac) {
+                    return "<span class='bg-danger text-white p-2'>$number</span>";
+                }
+
+                return $number;
 
             })
 
             ->setRowId('id')
-            ->rawColumns(['action']);
+            ->rawColumns(['action', 'number']);
 
     }
 
@@ -48,7 +58,10 @@ class CrossAcDataTable extends DataTable
             ->where('type', 'AC')
             ->when(request()->segment(1) !== 'admin' && auth()->user(), function ($q) {
                 return $q->where('user_id', auth()->user()->id);
-            });
+            })
+            ->with(['drawDetail' => function ($draw_details) {
+                return $draw_details->where('id', request()->get('draw_detail_id'))->whereNotNull('claim_ac');
+            }]);
     }
 
     /**
@@ -59,7 +72,7 @@ class CrossAcDataTable extends DataTable
         return $this->builder()
             ->setTableId('cross-ac-table')
             ->columns($this->getColumns())
-            ->minifiedAjax()
+            ->minifiedAjax(route('admin.dashboard.cross.get.ac', ['draw_detail_id' => request()->get('draw_detail_id')]))
             ->orderBy(0, 'desc')
             ->selectStyleSingle()
             ->parameters(

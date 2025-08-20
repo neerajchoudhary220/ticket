@@ -63,9 +63,9 @@ class ClaimAdd extends Component
         $input['ab'] = $ab;
         $input['ac'] = $ac;
         $input['bc'] = $bc;
-        $input['claim_ab'] = $sum_of_type['AB'] ?? 0;
-        $input['claim_ac'] = $sum_of_type['AC'] ?? 0;
-        $input['claim_bc'] = $sum_of_type['BC'] ?? 0;
+        $input['claim_ab'] = $sum_of_type['AB'] ?? null;
+        $input['claim_ac'] = $sum_of_type['AC'] ?? null;
+        $input['claim_bc'] = $sum_of_type['BC'] ?? null;
         $draw_details->update($input);
 
         return redirect()->route('admin.dashboard');

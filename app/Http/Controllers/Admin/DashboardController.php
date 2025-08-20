@@ -34,10 +34,9 @@ class DashboardController extends Controller
 
     public function crossAbc(CrossAbDataTable $dataTable, CrossAcDataTable $crossAcDataTable, CrossBcDataTable $crossBcDataTable, Request $request)
     {
-        $drawDetail = DrawDetail::findOrFail($request->get('draw_detail_id'));
-        $type = $request->get('type') ?? 'AB';
 
-        // return $dataTable->render('admin.dashboard.cross-abc-details', compact('drawDetail', 'type', 'crossAcDataTable', 'crossBcDataTable'));
+        $drawDetail = DrawDetail::findOrFail($request->get('draw_detail_id'));
+
         return $dataTable->render('admin.dashboard.cross-abc-details', [
             'drawDetail' => $drawDetail,
             'crossAcDataTable' => $crossAcDataTable->html(),
@@ -46,6 +45,16 @@ class DashboardController extends Controller
         ]);
 
         // return view('admin.dashboard.cross-abc-details')
+    }
+
+    public function getCrossAcList(CrossAcDataTable $crossAcDataTable, CrossBcDataTable $crossBcDataTable)
+    {
+        return $crossAcDataTable->render('admin.dashboard.cross-abc-details', compact('crossBcDataTable'));
+    }
+
+    public function getCrossBcList(CrossAcDataTable $crossAcDataTable, CrossBcDataTable $crossBcDataTable)
+    {
+        return $crossBcDataTable->render('admin.dashboard.cross-abc-details', compact('crossAcDataTable'));
     }
 
     public function totalQtyDetailList(DrawDetail $drawDetail)

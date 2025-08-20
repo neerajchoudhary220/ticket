@@ -30,9 +30,9 @@ class CrossAbDataTable extends DataTable
             })
             ->editColumn('number', function ($abc_detail) {
                 $number = $abc_detail->number;
-                $claim_ab = $abc_detail->drawDetail->claim_ab;
-                if ($number == $claim_ab) {
-                    return "<span class='bg-danger text-white'>$number</span>";
+                $ab = $abc_detail->drawDetail?->ab;
+                if ($number == $ab) {
+                    return "<span class='bg-danger text-white p-2'>$number</span>";
                 }
 
                 return $number;
@@ -40,7 +40,7 @@ class CrossAbDataTable extends DataTable
             })
 
             ->setRowId('id')
-            ->rawColumns(['action']);
+            ->rawColumns(['action', 'number']);
 
     }
 
@@ -58,7 +58,10 @@ class CrossAbDataTable extends DataTable
             ->where('type', 'AB')
             ->when(request()->segment(1) !== 'admin' && auth()->user(), function ($q) {
                 return $q->where('user_id', auth()->user()->id);
-            });
+            })
+            ->with(['drawDetail' => function ($draw_details) {
+                return $draw_details->where('id', request()->get('draw_detail_id'))->whereNotNull('claim_ab');
+            }]);
     }
 
     /**
