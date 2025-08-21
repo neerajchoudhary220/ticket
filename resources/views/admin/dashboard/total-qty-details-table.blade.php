@@ -73,7 +73,8 @@
                                         <td @class([
                                             'bg-danger text-white' =>
                                                 $drawDetail->claim_a == $i &&
-                                                $drawDetail->totalAqty($i) == $claim_a_amt,
+                                                $drawDetail->totalAqty($i) == $claim_a_amt &&
+                                                $drawDetail->totalAqty($i) != 0,
                                         ])>{{ $drawDetail->totalAqty($i) }}</td>
                                     @endforeach
                                     <td>{{ $tq_a }}</td>
@@ -90,7 +91,8 @@
                                         <td @class([
                                             'bg-danger text-white' =>
                                                 $drawDetail->claim_b == $i &&
-                                                $drawDetail->totalBqty($i) == $claim_b_amt,
+                                                $drawDetail->totalBqty($i) == $claim_b_amt &&
+                                                $drawDetail->totalBqty($i) != 0,
                                         ])>{{ $drawDetail->totalBqty($i) }}</td>
                                     @endforeach
                                     <td>{{ $tq_b }}</td>
@@ -108,7 +110,8 @@
                                         <td @class([
                                             'bg-danger text-white' =>
                                                 $drawDetail->claim_c == $i &&
-                                                $drawDetail->totalCqty($i) == $claim_c_amt,
+                                                $drawDetail->totalCqty($i) == $claim_c_amt &&
+                                                $drawDetail->totalCqty($i) != 0,
                                         ])>{{ $drawDetail->totalCqty($i) }}</td>
                                     @endforeach
                                     <td>{{ $tq_c }}</td>
