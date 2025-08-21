@@ -62,20 +62,25 @@
             })
 
             //checked draws
-            $wire.on('checked-draws', (event) => {
-                const drawIds = event.drawIds;
-                $(document).find(".draw_checkbox").prop('checked', false);
-                if (Array.isArray(drawIds) && drawIds.length > 0) {
-                    drawIds.forEach(drawId => {
-                        $(`#draw_${drawId}`).prop('checked', true);
-                    });
-                } else if (typeof drawIds === 'object' && Object.keys(drawIds).length > 0) {
-                    Object.values(drawIds).forEach(drawId => {
-                        $(`#draw_${drawId}`).prop('checked', true);
-                    });
-                }
+            // $wire.on('checked-draws', (event) => {
+            //     const drawIds = event.drawIds;
+            //     alert(drawIds);
+            //     $(document).find(".draw_checkbox").prop('checked', false);
+            //     if (Array.isArray(drawIds) && drawIds.length > 0) {
+            //         drawIds.forEach(drawId => {
+            //             $(`#draw_${drawId}`).prop('checked', true);
+            //         });
+            //     } else if (typeof drawIds === 'object' && Object.keys(drawIds).length > 0) {
+            //         Object.values(drawIds).forEach(drawId => {
+            //             $(`#draw_${drawId}`).prop('checked', true);
+            //         });
+            //     }
 
-            });
+            // });
+
+            // $wire.on('neeraj', (event) => {
+            //     alert("working");
+            // })
 
 
 

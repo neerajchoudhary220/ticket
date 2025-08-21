@@ -108,10 +108,18 @@ class ShopKeeperDrawDetailsDataTable extends DataTable
                 <div class="{$bgClass} text-center">{$p_and_l}</div>
             HTML;
             })
-            ->addColumn('action', function ($TicketOption) {
-                $url = '#';
+            ->addColumn('action', function ($ticketOption) {
+                // if ($ticketOption->ticket->status !== 'COMPLETED') {
+                //     $url = route('ticket.add',['ticket_id'=>$ticketOption->ticket_id]);
+
+                //     return "<a href='$url' class='btn btn-sm btn-warning text-white'>Edit</a>";
+                // } else {
+                //     return '-';
+                // }
+                $url = route('ticket.add', ['ticket_id' => $ticketOption->ticket_id]);
 
                 return "<a href='$url' class='btn btn-sm btn-warning text-white'>Edit</a>";
+
             })
             ->rawColumns(['ticket_no', 'tq', 't_amt', 'claim', 'c_amt', 'p_and_l', 'action']);
     }

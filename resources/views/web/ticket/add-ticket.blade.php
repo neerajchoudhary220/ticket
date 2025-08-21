@@ -11,8 +11,7 @@
     <div class="card">
         <div class="card-header d-flex justify-content-start">
             @if ($ticket)
-                <a href="{{ route('dashboard.draw.ticket.number.list', ['draw_id' => $ticket->draw->id, 'number' => $number]) }}"
-                    class="btn btn-dark text-white">
+                <a href="{{ route('dashboard') }}" class="btn btn-dark text-white">
                     <i class="fa fa-arrow-circle-left"></i> Ticket List
                 </a>
             @else
@@ -31,9 +30,7 @@
     </div>
     @push('custom-js')
         <script>
-            document.addEventListener('livewire:init', () => {
-                console.log("working livewire/..")
-            })
+            document.addEventListener('livewire:init', () => {})
 
             $(document).ready(function() {
                 $(document).on('input', '.zeroToNineNumber', function() {
@@ -58,6 +55,24 @@
 
                 //
             })
+
+            document.addEventListener('checked-draws', e => {
+                const drawIds = e.detail.drawIds;
+                $(document).find(".draw_checkbox").prop('checked', false);
+                if (Array.isArray(drawIds) && drawIds.length > 0) {
+                    drawIds.forEach(drawId => {
+                        $(`#draw_${drawId}`).prop('checked', true);
+                    });
+                } else if (typeof drawIds === 'object' && Object.keys(drawIds).length > 0) {
+                    Object.values(drawIds).forEach(drawId => {
+                        $(`#draw_${drawId}`).prop('checked', true);
+                    });
+                }
+            });
+            //   $wire.on('checked-draws', (event) => {
+
+
+            // });
         </script>
     @endpush
 @endsection

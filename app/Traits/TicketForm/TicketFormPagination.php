@@ -162,10 +162,16 @@ trait TicketFormPagination
             $this->ticket_list = [];
             $this->loaded_tickets_ids = [];
         }
-        $query = Ticket::query()
-            ->whereDate('created_at', Carbon::today())
-            ->where('status', '!=', 'COMPLETED')
-            ->forUser($this->auth_user->id);
+        if ($this->is_edit_mode) {
+            $query = Ticket::query()
+                ->where('id', $this->current_ticket_id)
+                ->forUser($this->auth_user->id);
+        } else {
+            $query = Ticket::query()
+                ->whereDate('created_at', Carbon::today())
+                ->where('status', '!=', 'COMPLETED')
+                ->forUser($this->auth_user->id);
+        }
 
         $count = (clone $query)->count();
         $this->ticketPerPage = $count <= 5 ? 10 : $this->ticketPerPage;

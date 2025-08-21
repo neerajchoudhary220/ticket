@@ -71,6 +71,7 @@ class AddTicketForm extends Component
 
     public function mount(Request $request, $ticket = null)
     {
+
         $this->clearAllOptionsIntoCache();
         $this->clearAllCrossAbcIntoCache();
 
@@ -82,6 +83,9 @@ class AddTicketForm extends Component
             $this->is_edit_mode = true;
 
             $this->selected_draw[] = (string) $this->draw_detail_id;
+
+            $this->handleTicketSelect($ticket->id);
+
         } else {
             $this->addTicket();
         }
