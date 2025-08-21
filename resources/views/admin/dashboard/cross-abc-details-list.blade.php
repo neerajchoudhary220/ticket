@@ -1,12 +1,12 @@
 <div class="col-12">
     @php
-        $ab_claim = $drawDetail->claim_ab ?? 0;
-        $ac_claim = $drawDetail->claim_ac ?? 0;
-        $bc_claim = $drawDetail->claim_bc ?? 0;
+        $ab_claim = (int) $drawDetail->claim_ab ?? 0;
+        $ac_claim = (int) $drawDetail->claim_ac ?? 0;
+        $bc_claim = (int) $drawDetail->claim_bc ?? 0;
 
-        $ab_pl = $drawDetail->totalAbAmt() - $ab_claim * 100;
-        $ac_pl = $drawDetail->totalAcAmt() - $ac_claim * 100;
-        $bc_pl = $drawDetail->totalBcAmt() - $bc_claim * 100;
+        $ab_pl = (int) $drawDetail->totalAbAmt() - $ab_claim * 100;
+        $ac_pl = (int) $drawDetail->totalAcAmt() - $ac_claim * 100;
+        $bc_pl = (int) $drawDetail->totalBcAmt() - $bc_claim * 100;
 
     @endphp
     <div class="card">
@@ -84,7 +84,7 @@
                     </tr>
                     <tr>
                         <td><b>Total</b></td>
-                        <td><b>{{ $drawDetail->totalAbAmt() + $drawDetail->totalAcAmt() + $drawDetail->totalBcAmt() }}</b>
+                        <td><b>{{ (int) $drawDetail->totalAbAmt() + (int) $drawDetail->totalAcAmt() + (int) $drawDetail->totalBcAmt() }}</b>
                         </td>
                         <td><b>{{ $ab_claim + $ac_claim + $bc_claim }}
                             </b></td>
