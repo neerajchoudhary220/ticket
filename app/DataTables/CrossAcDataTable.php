@@ -54,14 +54,14 @@ class CrossAcDataTable extends DataTable
         $draw_detail_id = $request->get('draw_detail_id');
 
         return $model->newQuery()
+            ->selectRaw('draw_detail_id, number, SUM(amount) as amount, MAX(updated_at) as updated_at')
             ->where('draw_detail_id', $draw_detail_id)
             ->where('type', 'AC')
             ->when(request()->segment(1) !== 'admin' && auth()->user(), function ($q) {
                 return $q->where('user_id', auth()->user()->id);
             })
-            ->with(['drawDetail' => function ($draw_details) {
-                return $draw_details->where('id', request()->get('draw_detail_id'))->whereNotNull('claim_ac');
-            }]);
+            ->with('drawDetail') // don’t overfilter
+            ->groupBy('draw_detail_id', 'number');
     }
 
     /**
@@ -82,7 +82,7 @@ class CrossAcDataTable extends DataTable
                 [
                     'searching' => true,
                     'language' => [
-                        'searchPlaceholder' => 'Enter Amt. or Num.',
+                        'searchPlaceholder' => 'Enter The Number',
                     ],
                 ]
             )
