@@ -176,7 +176,7 @@ trait OptonsOperation
         $selected_ticket_id = $this->current_ticket_id;
         $selected_draw_ids = $this->selected_draw;
 
-        if (count($this->getOptionsIntoCache()) == 0) {
+        if (count($this->getOptionsIntoCache()) == 0 && count($this->getCrossOptions()) == 0) {
             $this->addError('submit_error', 'Please add at least one entry!');
 
             return true;

@@ -466,7 +466,7 @@ trait CrossAbcOperation
             ->all();
         Cache::put('cross_abc', $crossAbc, 7200);
         $this->loadAbcData(true);
-        // $this->calculateFinalTotal();
+        $this->calculateCrossFinalTotal();
 
     }
 

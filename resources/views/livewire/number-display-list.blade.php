@@ -104,10 +104,10 @@
                                    </tbody>
                                    <tfoot>
                                        <div class="col-12 d-flex justify-content-start">
-                                           <label class=" me-auto">TQ:{{ collect($stored_options)->sum('total') }},
+                                           <label class=" me-auto">
+                                               Total Amt:{{ collect($stored_cross_abc_data)->sum('amt') }},
                                                Final
-                                               TQ:{{ $final_total_qty }}</label>
-
+                                               Cross Amt:{{ $cross_final_total_qty }}</label>
 
                                        </div>
                                    </tfoot>

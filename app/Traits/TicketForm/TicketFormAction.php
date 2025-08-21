@@ -161,6 +161,7 @@ trait TicketFormAction
             ->map(fn ($draw) => Carbon::createFromFormat('H:i', $draw->end_time)->format('h:i a'))
             ->implode(',');
         $this->calculateFinalTotal();
+        $this->calculateCrossFinalTotal();
 
     }
 
@@ -169,5 +170,13 @@ trait TicketFormAction
         $total_stored_options = collect($this->stored_options)->sum('total');
         $total_selected_times = $this->selected_draw ? count($this->selected_draw) : 0;
         $this->final_total_qty = $total_stored_options * $total_selected_times;
+    }
+
+    public function calculateCrossFinalTotal()
+    {
+        $total_stored_cross = collect($this->stored_cross_abc_data)
+            ->sum(fn ($item) => $item['combination'] * $item['amt']);
+        $total_selected_times = $this->selected_draw ? count($this->selected_draw) : 0;
+        $this->cross_final_total_qty = $total_stored_cross * $total_selected_times;
     }
 }
