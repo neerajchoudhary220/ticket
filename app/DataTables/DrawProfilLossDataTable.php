@@ -90,7 +90,11 @@ class DrawProfilLossDataTable extends DataTable
                 $end_time = Carbon::createFromTimeString($draw_detail->end_time)->format('H:i');
                 $now = Carbon::now()->setSecond(0)->timezone('Asia/Kolkata');
                 $segment = request()->segment(1);
-                if ($draw_detail->claim <= 0 && $segment === 'admin' && $now->gte($end_time) && ($draw_detail->total_qty != 0 || $draw_detail->total_cross_amt != 0)) {
+
+                if ($draw_detail->claim <= 0 &&
+                $segment === 'admin' && $now->gte($end_time)
+                && ($draw_detail->total_qty != 0 || $draw_detail->total_cross_amt != 0)
+                && (empty($draw_detail->claim_ab) && empty($draw_detail->claim_ac) && empty($draw_detail->claim_bc))) {
 
                     return <<<HTML
                 <div class="d-flex justify-content-center">
@@ -196,8 +200,8 @@ class DrawProfilLossDataTable extends DataTable
                 Button::make('csv'),
                 Button::make('pdf'),
                 Button::make('print'),
-                Button::make('reset'),
-                Button::make('reload'),
+                // Button::make('reset'),
+                // Button::make('reload'),
             ]);
     }
 
