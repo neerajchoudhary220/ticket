@@ -90,7 +90,7 @@ class DrawProfilLossDataTable extends DataTable
                 $end_time = Carbon::createFromTimeString($draw_detail->end_time)->format('H:i');
                 $now = Carbon::now()->setSecond(0)->timezone('Asia/Kolkata');
                 $segment = request()->segment(1);
-                if ($draw_detail->claim <= 0 && $segment === 'admin' && $now->gte($end_time) && $draw_detail->total_qty != 0) {
+                if ($draw_detail->claim <= 0 && $segment === 'admin' && $now->gte($end_time) && ($draw_detail->total_qty != 0 || $draw_detail->total_cross_amt != 0)) {
 
                     return <<<HTML
                 <div class="d-flex justify-content-center">

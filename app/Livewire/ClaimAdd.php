@@ -3,7 +3,6 @@
 namespace App\Livewire;
 
 use App\Models\DrawDetail;
-use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -51,21 +50,15 @@ class ClaimAdd extends Component
         $ac = (int) ($this->claim_a.$this->claim_c);
         $bc = (int) ($this->claim_b.$this->claim_c);
         $sum_of_ab = $draw_details->crossAbcDetail()
-            ->select('type', DB::raw('SUM(amount) as total_amount'))
-            ->where('number', $ab)
-            ->groupBy('type')
-            ->pluck('total_amount', 'type');
-        $sum_of_ac = $draw_details->crossAbcDetail()
-            ->select('type', DB::raw('SUM(amount) as total_amount'))
-            ->where('number', $ac)
-            ->groupBy('type')
-            ->pluck('total_amount', 'type');
-        $sum_of_bc = $draw_details->crossAbcDetail()
-            ->select('type', DB::raw('SUM(amount) as total_amount'))
-            ->where('number', $bc)
-            ->groupBy('type')
-            ->pluck('total_amount', 'type');
+            ->where('type', 'AB')
+            ->where('number', $ab)->sum('amount');
 
+        $sum_of_ac = $draw_details->crossAbcDetail()
+            ->where('type', 'AC')
+            ->where('number', $ac)->sum('amount');
+        $sum_of_bc = $draw_details->crossAbcDetail()
+            ->where('type', 'BC')
+            ->where('number', $bc)->sum('amount');
         // $toal_ab_amt =
 
         $total_qty = $a_claim + $b_claim + $c_claim;
