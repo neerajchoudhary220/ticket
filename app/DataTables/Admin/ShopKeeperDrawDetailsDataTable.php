@@ -94,6 +94,7 @@ class ShopKeeperDrawDetailsDataTable extends DataTable
 
                 return $total_claim * 100;
             })
+
             ->addColumn('p_and_l', function ($row) {
                 $total_amount = ($row->total_a_qty + $row->total_b_qty + $row->total_c_qty) * 100;
                 $claim_amount = ($row->claim_a_qty + $row->claim_b_qty + $row->claim_c_qty) * 100;

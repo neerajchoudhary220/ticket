@@ -23,23 +23,50 @@ class DrawDetailsDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('shop_keeper', function ($user_draw) {
-                $url = route('admin.draw.details.shopkeeper', ['drawDetail' => $user_draw->draw_detail_id, 'user' => $user_draw->user_id]);
+                $url = route('admin.draw.details.shopkeeper', [
+                    'drawDetail' => $user_draw->draw_detail_id,
+                    'user' => $user_draw->user_id,
+                ]);
                 $shopkeeper = $user_draw->user->name;
 
                 return "<a href='$url' class='text-primary'>$shopkeeper</a>";
-
             })
             ->addColumn('tq', function ($user_draw) {
                 $ticket_option = $user_draw->ticketOptions;
-                $total_qty = $ticket_option->sum('a_qty') + $ticket_option->sum('b_qty') + $ticket_option->sum('c_qty');
 
-                return $total_qty;
+                return $ticket_option->sum('a_qty') + $ticket_option->sum('b_qty') + $ticket_option->sum('c_qty');
             })
             ->addColumn('t_amt', function ($user_draw) {
                 $ticket_option = $user_draw->ticketOptions;
-                $t_amt = $ticket_option->sum('a_qty') + $ticket_option->sum('b_qty') + $ticket_option->sum('c_qty');
 
-                return $t_amt * 100;
+                return ($ticket_option->sum('a_qty') + $ticket_option->sum('b_qty') + $ticket_option->sum('c_qty')) * 100;
+            })
+            ->addColumn('cross_amt', function ($user_draw) {
+                $crossAbcDetail = $user_draw->crossAbcDetail ?? collect();
+
+                return (int) $crossAbcDetail
+                    ->where('draw_detail_id', request()->drawDetail->id)
+                    ->where('type', 'AB')
+                    ->where('number', $user_draw->drawDetail->ab)
+                    ->sum('amount')
+                + (int) $crossAbcDetail
+                    ->where('draw_detail_id', request()->drawDetail->id)
+                    ->where('type', 'AC')
+                    ->where('number', $user_draw->drawDetail->ac)
+                    ->sum('amount')
+                + (int) $crossAbcDetail
+                    ->where('draw_detail_id', request()->drawDetail->id)
+                    ->where('type', 'BC')
+                    ->where('number', $user_draw->drawDetail->bc)
+                    ->sum('amount');
+            })
+            ->addColumn('cross_claim', function ($user_draw) {
+                $crossAbcDetail = $user_draw->crossAbcDetail ?? collect();
+
+                return (int) $crossAbcDetail
+                    ->where('draw_detail_id', request()->drawDetail->id)
+                    ->whereIn('type', ['AB', 'AC', 'BC'])
+                    ->sum('amount');
             })
             ->addColumn('claim', function ($user_draw) {
                 $draw_details = $user_draw->drawDetail;
@@ -47,9 +74,8 @@ class DrawDetailsDataTable extends DataTable
                 $total_a_claim = $ticket_option->where('number', $draw_details->claim_a)->sum('a_qty');
                 $total_b_claim = $ticket_option->where('number', $draw_details->claim_b)->sum('b_qty');
                 $total_c_claim = $ticket_option->where('number', $draw_details->claim_c)->sum('c_qty');
-                $total_claim = $total_a_claim + $total_b_claim + $total_c_claim;
 
-                return $total_claim;
+                return $total_a_claim + $total_b_claim + $total_c_claim;
             })
             ->addColumn('c_amt', function ($user_draw) {
                 $draw_details = $user_draw->drawDetail;
@@ -57,39 +83,59 @@ class DrawDetailsDataTable extends DataTable
                 $total_a_claim = $ticket_option->where('number', $draw_details->claim_a)->sum('a_qty');
                 $total_b_claim = $ticket_option->where('number', $draw_details->claim_b)->sum('b_qty');
                 $total_c_claim = $ticket_option->where('number', $draw_details->claim_c)->sum('c_qty');
-                $total_claim = $total_a_claim + $total_b_claim + $total_c_claim;
 
-                return $total_claim * 100;
+                return ($total_a_claim + $total_b_claim + $total_c_claim) * 100;
             })
             ->addColumn('p_and_l', function ($user_draw) {
-
                 $ticket_option = $user_draw->ticketOptions;
                 $total_amount = ($ticket_option->sum('a_qty') + $ticket_option->sum('b_qty') + $ticket_option->sum('c_qty')) * 100;
 
                 $draw_details = $user_draw->drawDetail;
-                $ticket_option = $user_draw->ticketOptions;
                 $total_a_claim = $ticket_option->where('number', $draw_details->claim_a)->sum('a_qty');
                 $total_b_claim = $ticket_option->where('number', $draw_details->claim_b)->sum('b_qty');
                 $total_c_claim = $ticket_option->where('number', $draw_details->claim_c)->sum('c_qty');
                 $c_amt = ($total_a_claim + $total_b_claim + $total_c_claim) * 100;
 
                 $p_and_l = $total_amount - $c_amt;
-
                 $bgClass = $p_and_l < 0 ? 'bg-danger text-white' : 'bg-success text-white';
                 if ($p_and_l == 0) {
                     $bgClass = 'text-dark';
                 }
 
                 return <<<HTML
-                <div class="{$bgClass}  text-center">{$p_and_l}</div>
-                HTML;
-
-                return 0;
+            <div class="{$bgClass} text-center">{$p_and_l}</div>
+            HTML;
+            })
+            ->filterColumn('shop_keeper', function ($query, $keyword) {
+                $query->whereHas('user', function ($q) use ($keyword) {
+                    $q->forName($keyword);
+                });
+            })
+            ->filterColumn('tq', function ($query, $keyword) {
+                $query->whereHas('ticketOptions', function ($q) use ($keyword) {
+                    $q->whereRaw('(a_qty + b_qty + c_qty) LIKE ?', ["%{$keyword}%"]);
+                });
+            })
+            ->filterColumn('cross_amt', function ($query, $keyword) {
+                $query->whereHas('crossAbcDetail', function ($q) use ($keyword) {
+                    $q->where('amount', 'like', "%{$keyword}%");
+                });
+            })
+            ->filterColumn('cross_claim', function ($query, $keyword) {
+                $query->whereHas('crossAbcDetail', function ($q) use ($keyword) {
+                    $q->where('amount', 'like', "%{$keyword}%");
+                });
+            })
+            ->filterColumn('claim', function ($query, $keyword) {
+                $query->whereHas('ticketOptions', function ($q) use ($keyword) {
+                    $q->where('a_qty', 'like', "%{$keyword}%")
+                        ->orWhere('b_qty', 'like', "%{$keyword}%")
+                        ->orWhere('c_qty', 'like', "%{$keyword}%");
+                });
             })
             ->rawColumns([
-                'action',
-                'tq', 't_amt', 'claim',
-                'c_amt', 'p_and_l', 'shop_keeper',
+                'tq', 't_amt', 'claim', 'c_amt', 'p_and_l',
+                'shop_keeper', 'cross_amt', 'cross_claim',
             ]);
     }
 
@@ -119,7 +165,7 @@ class DrawDetailsDataTable extends DataTable
                 [
                     'searching' => true,
                     'language' => [
-                        'searchPlaceholder' => 'Number(0-9)',
+                        'searchPlaceholder' => 'Search By Name',
                     ],
                 ]
             )
@@ -140,9 +186,12 @@ class DrawDetailsDataTable extends DataTable
         return [
             Column::make('shop_keeper')->title('Shopkeeper'),
             Column::make('tq')->title('TQ'),
-            Column::make('t_amt')->title('T Amt'),
+            // Column::make('t_amt')->title('T Amt'),
             Column::make('claim')->title('Claim'),
-            Column::make('c_amt')->title('C Amt.'),
+            Column::make('cross_amt')->title('Cross Amt.'),
+            Column::make('cross_claim')->title('Cross Claim.'),
+
+            // Column::make('c_amt')->title('C Amt.'),
             Column::make('p_and_l')->title('P&L'),
 
         ];

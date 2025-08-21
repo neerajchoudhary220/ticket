@@ -23,6 +23,12 @@ class UserDraw extends Pivot
             ->where('user_id', $this->user_id);
     }
 
+    public function crossAbcDetail(): HasMany
+    {
+        return $this->hasMany(CrossAbcDetail::class, 'draw_detail_id', 'draw_detail_id')
+            ->where('user_id', $this->user_id);
+    }
+
     public function drawDetail(): BelongsTo
     {
         return $this->belongsTo(DrawDetail::class);
