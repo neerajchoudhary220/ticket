@@ -69,7 +69,11 @@
                                         <td class="bg-success text-white text-center">A</td>
 
                                         @foreach ($indices as $i)
-                                            <td>{{ $drawDetail->totalAqty($i) }}</td>
+                                            <td @class([
+                                                'bg-danger text-white' =>
+                                                    $drawDetail->claim_a == $i &&
+                                                    $drawDetail->totalAqty($i) == $claim_a_amt,
+                                            ])>{{ $drawDetail->totalAqty($i) }}</td>
                                         @endforeach
                                         <td>{{ $tq_a }}</td>
                                         <td>{{ $claim_a_amt }}</td>
@@ -82,7 +86,11 @@
                                     <tr>
                                         <td class="bg-warning text-white text-center">B</td>
                                         @foreach ($indices as $i)
-                                            <td>{{ $drawDetail->totalBqty($i) }}</td>
+                                            <td @class([
+                                                'bg-danger text-white' =>
+                                                    $drawDetail->claim_b == $i &&
+                                                    $drawDetail->totalBqty($i) == $claim_b_amt,
+                                            ])>{{ $drawDetail->totalBqty($i) }}</td>
                                         @endforeach
                                         <td>{{ $tq_b }}</td>
                                         <td>{{ $claim_b_amt }}</td>
@@ -96,7 +104,11 @@
                                     <tr>
                                         <td class="bg-info text-white text-center">C</td>
                                         @foreach ($indices as $i)
-                                            <td>{{ $drawDetail->totalCqty($i) }}</td>
+                                            <td @class([
+                                                'bg-danger text-white' =>
+                                                    $drawDetail->claim_c == $i &&
+                                                    $drawDetail->totalCqty($i) == $claim_c_amt,
+                                            ])>{{ $drawDetail->totalCqty($i) }}</td>
                                         @endforeach
                                         <td>{{ $tq_c }}</td>
                                         <td>{{ $claim_c_amt }}</td>
