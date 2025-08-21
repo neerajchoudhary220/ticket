@@ -37,21 +37,17 @@
                         </div>
                         <div class="row mb-2">
                             <div class="col-sm-4 fw-bold">Total Draw:</div>
-                            <div class="col-sm-8">10</div>
+                            <div class="col-sm-8">{{ $user->drawDetails->count() }}</div>
                         </div>
                         <div class="row mb-2">
-                            <div class="col-sm-4 fw-bold">Total Collection:</div>
-                            <div class="col-sm-8">₹15,000</div>
+                            <div class="col-sm-4 fw-bold">Total Tickets:</div>
+                            <div class="col-sm-8">{{ $user->tickets->count() }}</div>
                         </div>
-                        <div class="row mb-2">
-                            <div class="col-sm-4 fw-bold">Total Distributions:</div>
-                            <div class="col-sm-8">₹8,000</div>
-                        </div>
+
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="row">
+            {{-- <div class="row">
             <div class="col-12">
                 <div class="card">
                     <div class="card-header text-white bg-primary d-flex justify-content-start">
@@ -62,11 +58,11 @@
                     </div>
                 </div>
             </div>
+        </div> --}}
         </div>
-    </div>
-    @push('custom-js')
-        @include('admin.includes.datatable-js-plugins')
-        {{ $dataTable->scripts() }}
-    @endpush
+        @push('custom-js')
+            {{-- @include('admin.includes.datatable-js-plugins')
+        {{ $dataTable->scripts() }} --}}
+        @endpush
 
-@endsection
+    @endsection
