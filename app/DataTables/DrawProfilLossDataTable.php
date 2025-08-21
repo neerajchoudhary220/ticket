@@ -57,7 +57,7 @@ class DrawProfilLossDataTable extends DataTable
                 return $draw_detail->claim ?? 0;
             })
             ->addColumn('c_amt', function ($draw_detail) {
-                return $draw_detail->claim ? $draw_detail->claim * 100 : 0;
+                return $draw_detail->claim ? (int) $draw_detail->claim * 100 : 0;
             })
             ->addColumn('cross_amt', function ($draw_detail) {
                 $abc_cross_url = request()->segment(1) === 'admin' ? route('admin.dashboard.cross.abc', ['draw_detail_id' => $draw_detail->id]) : route('dashboard.draw.cross.abc.details.list', ['draw_detail_id' => $draw_detail->id]);
@@ -66,13 +66,13 @@ class DrawProfilLossDataTable extends DataTable
                 return "<a href='$abc_cross_url'  class='text-primary h6'>$total_cross_amt</a>";
             })
             ->addColumn('cross_claim', function ($draw_detail) {
-                return $draw_detail->claim_ab + $draw_detail->claim_ac + $draw_detail->claim_bc;
+                return (int) $draw_detail->claim_ab + (int) $draw_detail->claim_ac + (int) $draw_detail->claim_bc;
             })
             ->addColumn('p_and_l', function ($draw_detail) {
-                $tq_11 = $draw_detail->total_qty ? ($draw_detail->total_qty * 11) : 0;
-                $claim_q_100 = $draw_detail->claim ? $draw_detail->claim * 100 : 0;
-                $cross_amt = $draw_detail->total_cross_amt ?? 0;
-                $cross_claim_100 = ($draw_detail->claim_ab + $draw_detail->claim_ac + $draw_detail->claim_bc) * 100;
+                $tq_11 = $draw_detail->total_qty ? ((int) $draw_detail->total_qty * 11) : 0;
+                $claim_q_100 = $draw_detail->claim ? (int) $draw_detail->claim * 100 : 0;
+                $cross_amt = (int) $draw_detail->total_cross_amt ?? 0;
+                $cross_claim_100 = ((int) $draw_detail->claim_ab + (int) $draw_detail->claim_ac + (int) $draw_detail->claim_bc) * 100;
                 $p_and_l = ($tq_11 - $claim_q_100) + $cross_amt - $cross_claim_100;
                 $bgClass = $p_and_l < 0 ? 'bg-danger text-white' : 'bg-success text-white';
                 if ($p_and_l == 0) {
