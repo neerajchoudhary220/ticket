@@ -4,6 +4,7 @@ namespace App\DataTables\Admin;
 
 use App\Models\Shopkeeper;
 use App\Models\UserDraw;
+use App\Traits\CalculatePL;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Illuminate\Http\Request;
 use Yajra\DataTables\EloquentDataTable;
@@ -14,11 +15,63 @@ use Yajra\DataTables\Services\DataTable;
 
 class DrawDetailsDataTable extends DataTable
 {
+    use CalculatePL;
+
     /**
      * Build the DataTable class.
      *
      * @param  QueryBuilder<Shopkeeper>  $query  Results from query() method.
      */
+    protected function getTq($user_draw)
+    {
+        $ticket_option = $user_draw->ticketOptions;
+
+        return $ticket_option->sum('a_qty') + $ticket_option->sum('b_qty') + $ticket_option->sum('c_qty');
+
+    }
+
+    protected function getClaim($user_draw)
+    {
+        $draw_details = $user_draw->drawDetail;
+        $ticket_option = $user_draw->ticketOptions;
+        $total_a_claim = $ticket_option->where('number', $draw_details->claim_a)->sum('a_qty');
+        $total_b_claim = $ticket_option->where('number', $draw_details->claim_b)->sum('b_qty');
+        $total_c_claim = $ticket_option->where('number', $draw_details->claim_c)->sum('c_qty');
+
+        return $total_a_claim + $total_b_claim + $total_c_claim;
+    }
+
+    protected function getCrossAmt($user_draw)
+    {
+        $draw_detail = $user_draw->drawDetail;
+
+        return $draw_detail->crossAbcDetail()
+            ->where('user_id', $user_draw->user_id)
+            ->sum('amount');
+
+    }
+
+    protected function getCrossClaim($user_draw)
+    {
+        $crossAbcDetail = $user_draw->crossAbcDetail ?? collect();
+
+        return (int) $crossAbcDetail
+            ->where('draw_detail_id', request()->drawDetail->id)
+            ->where('type', 'AB')
+            ->where('number', $user_draw->drawDetail->ab)
+            ->sum('amount')
+        + (int) $crossAbcDetail
+            ->where('draw_detail_id', request()->drawDetail->id)
+            ->where('type', 'AC')
+            ->where('number', $user_draw->drawDetail->ac)
+            ->sum('amount')
+        + (int) $crossAbcDetail
+            ->where('draw_detail_id', request()->drawDetail->id)
+            ->where('type', 'BC')
+            ->where('number', $user_draw->drawDetail->bc)
+            ->sum('amount');
+    }
+
     public function dataTable(QueryBuilder $query, Request $request): EloquentDataTable
     {
         return (new EloquentDataTable($query))
@@ -32,9 +85,7 @@ class DrawDetailsDataTable extends DataTable
                 return "<a href='$url' class='text-primary'>$shopkeeper</a>";
             })
             ->addColumn('tq', function ($user_draw) {
-                $ticket_option = $user_draw->ticketOptions;
-
-                return $ticket_option->sum('a_qty') + $ticket_option->sum('b_qty') + $ticket_option->sum('c_qty');
+                return $this->getTq($user_draw);
             })
             ->addColumn('t_amt', function ($user_draw) {
                 $ticket_option = $user_draw->ticketOptions;
@@ -42,40 +93,13 @@ class DrawDetailsDataTable extends DataTable
                 return ($ticket_option->sum('a_qty') + $ticket_option->sum('b_qty') + $ticket_option->sum('c_qty')) * 100;
             })
             ->addColumn('cross_amt', function ($user_draw) {
-                $crossAbcDetail = $user_draw->crossAbcDetail ?? collect();
-
-                return (int) $crossAbcDetail
-                    ->where('draw_detail_id', request()->drawDetail->id)
-                    ->where('type', 'AB')
-                    ->where('number', $user_draw->drawDetail->ab)
-                    ->sum('amount')
-                + (int) $crossAbcDetail
-                    ->where('draw_detail_id', request()->drawDetail->id)
-                    ->where('type', 'AC')
-                    ->where('number', $user_draw->drawDetail->ac)
-                    ->sum('amount')
-                + (int) $crossAbcDetail
-                    ->where('draw_detail_id', request()->drawDetail->id)
-                    ->where('type', 'BC')
-                    ->where('number', $user_draw->drawDetail->bc)
-                    ->sum('amount');
+                return $this->getCrossAmt($user_draw);
             })
             ->addColumn('cross_claim', function ($user_draw) {
-                $crossAbcDetail = $user_draw->crossAbcDetail ?? collect();
-
-                return (int) $crossAbcDetail
-                    ->where('draw_detail_id', request()->drawDetail->id)
-                    ->whereIn('type', ['AB', 'AC', 'BC'])
-                    ->sum('amount');
+                return $this->getCrossClaim($user_draw);
             })
             ->addColumn('claim', function ($user_draw) {
-                $draw_details = $user_draw->drawDetail;
-                $ticket_option = $user_draw->ticketOptions;
-                $total_a_claim = $ticket_option->where('number', $draw_details->claim_a)->sum('a_qty');
-                $total_b_claim = $ticket_option->where('number', $draw_details->claim_b)->sum('b_qty');
-                $total_c_claim = $ticket_option->where('number', $draw_details->claim_c)->sum('c_qty');
-
-                return $total_a_claim + $total_b_claim + $total_c_claim;
+                return $this->getClaim($user_draw);
             })
             ->addColumn('c_amt', function ($user_draw) {
                 $draw_details = $user_draw->drawDetail;
@@ -87,16 +111,11 @@ class DrawDetailsDataTable extends DataTable
                 return ($total_a_claim + $total_b_claim + $total_c_claim) * 100;
             })
             ->addColumn('p_and_l', function ($user_draw) {
-                $ticket_option = $user_draw->ticketOptions;
-                $total_amount = ($ticket_option->sum('a_qty') + $ticket_option->sum('b_qty') + $ticket_option->sum('c_qty')) * 100;
-
-                $draw_details = $user_draw->drawDetail;
-                $total_a_claim = $ticket_option->where('number', $draw_details->claim_a)->sum('a_qty');
-                $total_b_claim = $ticket_option->where('number', $draw_details->claim_b)->sum('b_qty');
-                $total_c_claim = $ticket_option->where('number', $draw_details->claim_c)->sum('c_qty');
-                $c_amt = ($total_a_claim + $total_b_claim + $total_c_claim) * 100;
-
-                $p_and_l = $total_amount - $c_amt;
+                $tq = $this->getTq($user_draw);
+                $claim = $this->getClaim($user_draw);
+                $crossClaim = $this->getCrossClaim($user_draw);
+                $crossclaimAmt = $this->getCrossAmt($user_draw);
+                $p_and_l = $this->calculateProfitAndLoss($tq, $crossclaimAmt, $claim, $crossClaim);
                 $bgClass = $p_and_l < 0 ? 'bg-danger text-white' : 'bg-success text-white';
                 if ($p_and_l == 0) {
                     $bgClass = 'text-dark';

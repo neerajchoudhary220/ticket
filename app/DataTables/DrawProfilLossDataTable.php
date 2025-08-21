@@ -3,9 +3,11 @@
 namespace App\DataTables;
 
 use App\Models\DrawDetail;
+use App\Traits\CalculatePL;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Button;
@@ -14,11 +16,99 @@ use Yajra\DataTables\Services\DataTable;
 
 class DrawProfilLossDataTable extends DataTable
 {
+    use CalculatePL;
+
     /**
      * Build the DataTable class.
      *
      * @param  QueryBuilder<DrawDetail>  $query
      */
+    protected function isAdminSeg()
+    {
+        return request()->segment(1) === 'admin';
+    }
+
+    protected function getCrossClaim($draw_detail)
+    {
+        $ab_claim = $draw_detail->ab;
+        $ac_claim = $draw_detail->ac;
+        $bc_claim = $draw_detail->bc;
+        if (request()->segment(1) != 'admin') {
+            $ab_claim = $draw_detail->crossAbcDetail()->where('user_id', auth()->id())
+                ->where('number', $ab_claim)
+                ->where('type', 'AB')->sum('amount');
+            $ac_claim = $draw_detail->crossAbcDetail()->where('user_id', auth()->id())
+                ->where('number', $ac_claim)
+                ->where('type', 'AC')->sum('amount');
+            $bc_claim = $draw_detail->crossAbcDetail()->where('user_id', auth()->id())
+                ->where('number', $bc_claim)
+                ->where('type', 'BC')->sum('amount');
+
+            return $ab_claim + $ac_claim + $bc_claim;
+        }
+
+        return $draw_detail->claim_ab + $draw_detail->claim_ac + $draw_detail->claim_bc;
+    }
+
+    protected function getCrossAmt($draw_detail)
+    {
+
+        if (! $this->isAdminSeg()) {
+            return $draw_detail->crossAbcDetail()
+                ->where('user_id', auth()->user()->id)
+                ->sum('amount');
+        }
+
+        return $draw_detail->cross_amt;
+
+    }
+
+    protected function getClaim($draw_detail)
+    {
+        if ($this->isAdminSeg()) {
+            return $draw_detail->claim;
+        } else {
+            $a_claim = $draw_detail->claim_a;
+            $b_claim = $draw_detail->claim_b;
+            $c_claim = $draw_detail->claim_c;
+
+            DB::enableQueryLog();
+            $a_qty = $draw_detail->
+            ticketOptions()->where('user_id', auth()->user()->id)
+                ->where('number', $a_claim)
+                ->sum('a_qty');
+            logger()->info(DB::getQueryLog());
+            $b_qty = $draw_detail->
+         ticketOptions()->where('user_id', auth()->user()->id)
+             ->where('number', $b_claim)
+             ->sum('b_qty');
+
+            $c_qty = $draw_detail->
+         ticketOptions()->where('user_id', auth()->user()->id)
+             ->where('number', $c_claim)
+             ->sum('c_qty');
+
+            return $a_qty + $b_qty + $c_qty;
+            // ->claim_a_qty + $draw_detail->ticketOption->claim_b_qty + $draw_detail->ticketOption->claim_c_qty;
+
+        }
+    }
+
+    protected function getTq($draw_detail)
+    {
+
+        if (! $this->isAdminSeg()) {
+            $a_qty = $draw_detail->ticketOptions()->where('user_id', auth()->user()->id)->sum('a_qty');
+            $b_qty = $draw_detail->ticketOptions()->where('user_id', auth()->user()->id)->sum('b_qty');
+            $c_qty = $draw_detail->ticketOptions()->where('user_id', auth()->user()->id)->sum('c_qty');
+
+            return $a_qty + $b_qty + $c_qty;
+        }
+
+        return $draw_detail->tq;
+
+    }
+
     public function dataTable(QueryBuilder $query, Request $request): EloquentDataTable
     {
         return (new EloquentDataTable($query))
@@ -57,22 +147,33 @@ class DrawProfilLossDataTable extends DataTable
                 $query->whereRaw('((claim_ab + claim_ac + claim_bc) * 100) LIKE ?', ["%{$keyword}%"]);
             })
 
-            ->editColumn('tq', function ($row) {
-                $url = request()->segment(1) === 'admin'
-                    ? route('admin.dashboard.total.qty.details.list', $row->id)
-                    : route('dashboard.draw.total.qty.list.details', $row->id);
+            ->editColumn('tq', function ($draw_detail) {
+                $tq = $this->getTq($draw_detail);
+                $url = $this->isAdminSeg() ? route('admin.dashboard.total.qty.details.list', $draw_detail->id)
+                : route('dashboard.draw.total.qty.list.details', $draw_detail->id);
 
-                return "<a href='$url' class='text-primary h6'>{$row->tq}</a>";
+                return "<a href='$url' class='text-primary h6'>{$tq}</a>";
             })
-            ->editColumn('cross_amt', function ($row) {
-                $url = request()->segment(1) === 'admin'
-                    ? route('admin.dashboard.cross.abc', ['draw_detail_id' => $row->id])
-                    : route('dashboard.draw.cross.abc.details.list', ['draw_detail_id' => $row->id]);
+            ->editColumn('cross_amt', function ($draw_detail) {
+                $cross_amt = $this->getCrossAmt($draw_detail);
+                $url = $this->isAdminSeg() ? route('admin.dashboard.cross.abc', ['draw_detail_id' => $draw_detail->id])
+                : route('dashboard.draw.cross.abc.details.list', ['draw_detail_id' => $draw_detail->id]);
 
-                return "<a href='$url' class='text-primary h6'>{$row->cross_amt}</a>";
+                return "<a href='$url' class='text-primary h6'>{$cross_amt}</a>";
+            })
+            ->editColumn('cross_claim', function ($draw_detail) {
+                return $this->getCrossClaim($draw_detail);
+            })
+            ->editColumn('claim', function ($draw_detail) {
+                return $this->getClaim($draw_detail);
             })
             ->editColumn('p_and_l', function ($row) {
-                $p_and_l = (int) $row->p_and_l;
+                // $p_and_l = (int) $row->p_and_l;
+                $tq = $this->getTq($row) * 11;
+                $cross_amt = $this->getCrossAmt($row);
+                $claim = $this->getClaim($row);
+                $crossClaim = $this->getCrossClaim($row);
+                $p_and_l = $this->calculateProfitAndLoss($tq, $cross_amt, $claim, $crossClaim);
                 $bgClass = $p_and_l < 0 ? 'bg-danger text-white' : 'bg-success text-white';
                 if ($p_and_l == 0) {
                     $bgClass = 'text-dark';
@@ -103,7 +204,7 @@ class DrawProfilLossDataTable extends DataTable
                 return '--';
 
             })
-            ->rawColumns(['end_time', 'tq', 'cross_amt', 'p_and_l', 'action', 'cross_claim']);
+            ->rawColumns(['end_time', 'tq', 'cross_amt', 'p_and_l', 'action', 'cross_claim', 'claim']);
     }
 
     /**

@@ -4,6 +4,7 @@ namespace App\DataTables\Admin;
 
 use App\Models\Shopkeeper;
 use App\Models\TicketOption;
+use App\Traits\CalculatePL;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Illuminate\Http\Request;
 use Yajra\DataTables\EloquentDataTable;
@@ -14,11 +15,61 @@ use Yajra\DataTables\Services\DataTable;
 
 class ShopKeeperDrawDetailsDataTable extends DataTable
 {
+    use CalculatePL;
+
     /**
      * Build the DataTable class.
      *
      * @param  QueryBuilder<Shopkeeper>  $query  Results from query() method.
      */
+    protected function getCrossAmt($ticketOption)
+    {
+        $cross_amt = 0;
+        if (request()->segment(1) === 'admin') {
+            $cross_amt = $ticketOption->drawDetail->crossAbcDetail()->where('ticket_id', $ticketOption->ticket_id)->sum('amount');
+        } else {
+            $cross_amt = $ticketOption->drawDetail->crossAbcDetail()->where('ticket_id', $ticketOption->ticket_id)
+                ->where('user_id', auth()->user()->id)
+                ->sum('amount');
+
+        }
+
+        return $cross_amt;
+    }
+
+    protected function getClaim($ticketOption)
+    {
+        return $ticketOption->claim_a_qty + $ticketOption->claim_b_qty + $ticketOption->claim_c_qty;
+
+    }
+
+    protected function getCrossClaim($ticketOption)
+    {
+        $ab_claim = $ticketOption->drawDetail->ab;
+        $ac_claim = $ticketOption->drawDetail->ac;
+        $bc_claim = $ticketOption->drawDetail->bc;
+
+        if (request()->segment(1) !== 'admin') {
+            $ab_claim_amt = $ticketOption->drawDetail->crossAbcDetail()->where('user_id', auth()->id())
+                ->where('ticket_id', $ticketOption->ticket_id)
+                ->where('number', $ab_claim)
+                ->where('type', 'AB')->sum('amount');
+
+            $ac_claim_amt = $ticketOption->drawDetail->crossAbcDetail()->where('user_id', auth()->id())
+                ->where('ticket_id', $ticketOption->ticket_id)
+                ->where('number', $ac_claim)
+                ->where('type', 'AC')->sum('amount');
+            $bc_claim_amt = $ticketOption->drawDetail->crossAbcDetail()->where('user_id', auth()->id())
+                ->where('ticket_id', $ticketOption->ticket_id)
+                ->where('number', $bc_claim)
+                ->where('type', 'BC')->sum('amount');
+
+            return $ab_claim_amt + $ac_claim_amt + $bc_claim_amt;
+        }
+
+        return $ticketOption->drawDetail->crossAbcDetail()->whereIn('number', [$ab_claim, $ac_claim, $bc_claim])->sum('amount');
+    }
+
     public function query(TicketOption $model, Request $request): QueryBuilder
     {
         $user_id = auth()->user()->id;
@@ -61,7 +112,7 @@ class ShopKeeperDrawDetailsDataTable extends DataTable
                 'draw_details.claim_c'
             )
 
-            ->with('ticket'); // eager load ticket for ticket_number
+            ->with('ticket', 'drawDetail'); // eager load ticket for ticket_number
     }
 
     public function dataTable(QueryBuilder $query): EloquentDataTable
@@ -84,21 +135,56 @@ class ShopKeeperDrawDetailsDataTable extends DataTable
             ->addColumn('t_amt', function ($row) {
                 $total_qty = $row->total_a_qty + $row->total_b_qty + $row->total_c_qty;
 
-                return $total_qty * 100;
+                return $total_qty * 11;
             })
             ->addColumn('claim', function ($row) {
-                return $row->claim_a_qty + $row->claim_b_qty + $row->claim_c_qty;
+                return $this->getClaim($row);
             })
             ->addColumn('c_amt', function ($row) {
                 $total_claim = $row->claim_a_qty + $row->claim_b_qty + $row->claim_c_qty;
 
                 return $total_claim * 100;
             })
+            ->addColumn('cross_claim', function ($ticketOption) {
+                return $this->getCrossClaim($ticketOption);
 
+            })
+            ->addColumn('cross_amt', function ($ticketOption) {
+                return $this->getCrossAmt($ticketOption);
+                // $cross_amt = 0;
+
+                // if (request()->segment(1) === 'admin') {
+                //     $cross_amt = $ticketOption->drawDetail->crossAbcDetail()->where('ticket_id', $ticketOption->ticket_id)->sum('amount');
+                // } else {
+                //     $cross_amt = $ticketOption->drawDetail->crossAbcDetail()->where('ticket_id', $ticketOption->ticket_id)
+                //         ->where('user_id', auth()->user()->id)
+                //         ->sum('amount');
+
+                // }
+
+                // return $cross_amt;
+
+            })
+            ->addColumn('c_amt', function ($row) {
+                $total_claim = $row->claim_a_qty + $row->claim_b_qty + $row->claim_c_qty;
+
+                return $total_claim * 100;
+            })
             ->addColumn('p_and_l', function ($row) {
-                $total_amount = ($row->total_a_qty + $row->total_b_qty + $row->total_c_qty) * 100;
-                $claim_amount = ($row->claim_a_qty + $row->claim_b_qty + $row->claim_c_qty) * 100;
-                $p_and_l = $total_amount - $claim_amount;
+                $total_amount = ($row->total_a_qty + $row->total_b_qty + $row->total_c_qty) * 11;
+                $p_and_l = 0;
+                if (request()->segment(1) === 'admin') {
+                    $claim_amount = ($row->claim_a_qty + $row->claim_b_qty + $row->claim_c_qty) * 100;
+                    $p_and_l = $total_amount - $claim_amount;
+
+                } else {
+                    // $cross_amt = $this->getCrossAmt($row);
+                    $tq = $total_amount;
+
+                    // $p_and_l = ($tq + $cross_amt) - $this->getClaim($row) - $this->getCrossClaim($row);
+                    $p_and_l = $this->calculateProfitAndLoss($tq, $this->getCrossAmt($row), $this->getClaim($row), $this->getCrossClaim($row));
+
+                }
 
                 $bgClass = $p_and_l < 0 ? 'bg-danger text-white' : 'bg-success text-white';
                 if ($p_and_l == 0) {
@@ -122,7 +208,8 @@ class ShopKeeperDrawDetailsDataTable extends DataTable
                 return "<a href='$url' class='btn btn-sm btn-warning text-white'>Edit</a>";
 
             })
-            ->rawColumns(['ticket_no', 'tq', 't_amt', 'claim', 'c_amt', 'p_and_l', 'action']);
+            ->rawColumns(['ticket_no', 'tq', 't_amt', 'claim', 'c_amt', 'p_and_l',
+                'action', 'cross_claim', 'cross_amt']);
     }
 
     /**
@@ -153,9 +240,12 @@ class ShopKeeperDrawDetailsDataTable extends DataTable
         $columes = [
             Column::make('ticket_no')->title('Tno.'),
             Column::make('tq')->title('TQ'),
-            Column::make('t_amt')->title('T amt.'),
+            // Column::make('t_amt')->title('T amt.'),
             Column::make('claim')->title('Claim'),
-            Column::make('c_amt')->title('C Amt'),
+            Column::make('cross_amt')->title('Cross Amt'),
+            Column::make('cross_claim')->title('Cross Claim'),
+
+            // Column::make('c_amt')->title('C Amt'),
             Column::make('p_and_l')->title('P&L'),
 
         ];

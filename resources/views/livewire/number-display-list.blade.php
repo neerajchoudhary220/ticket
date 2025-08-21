@@ -105,7 +105,10 @@
                                    <tfoot>
                                        <div class="col-12 d-flex justify-content-start">
                                            <label class=" me-auto">
-                                               Total Amt:{{ collect($stored_cross_abc_data)->sum('amt') }},
+                                               Total
+                                               Amt:{{ collect($stored_cross_abc_data)->sum(function ($d) {
+                                                   return $d['amt'] * $d['combination'];
+                                               }) }},
                                                Final
                                                Cross Amt:{{ $cross_final_total_qty }}</label>
 

@@ -13,16 +13,7 @@
         <div class="card-body">
             <div class="row mb-3">
                 <div class="col-12">
-                    @php
-                        $ab_claim = $drawDetail->claim_ab ?? 0;
-                        $ac_claim = $drawDetail->claim_ac ?? 0;
-                        $bc_claim = $drawDetail->claim_bc ?? 0;
 
-                        $ab_pl = $drawDetail->totalAbAmt() - $ab_claim * 100;
-                        $ac_pl = $drawDetail->totalAcAmt() - $ac_claim * 100;
-                        $bc_pl = $drawDetail->totalBcAmt() - $bc_claim * 100;
-
-                    @endphp
                     <div class="card">
                         <div class="card-header bg-secondary text-white">
                             <h6 class="text-white">Details Of Cross ABC</h6>
@@ -36,37 +27,37 @@
                                         <th>Claim</th>
                                         <th class="w-25">P&L <small>(Cross Amt. - Claim &times; 100)</small>
                                         </th>
-                                        <th>Result</th>
+                                        <th style="width: 50px;">Result</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
                                         <td class="bg-success text-white">AB</td>
-                                        <td>{{ $drawDetail->totalAbAmt() }}</td>
+                                        <td>{{ $totalAbCrossAmt }}</td>
                                         <td>
-                                            @if ($ab_claim != 0)
-                                                <a href="{{ route('dashboard.draw.details.list', ['drawDetail' => $drawDetail->id, 'claim' => 1]) }}"
-                                                    class="text-primary">{{ $ab_claim }}</a>
+                                            @if ($totalAbCrossClaimAmt != 0)
+                                                <a href="{{ route('dashboard.draw.details.list', ['draw_detail_id' => $drawDetail->id, 'claim' => 1]) }}"
+                                                    class="text-primary">{{ $totalAbCrossClaimAmt }}</a>
                                             @else
-                                                {{ $ab_claim }}
+                                                {{ $totalAbCrossClaimAmt }}
                                             @endif
                                         </td>
                                         <td @class([
                                             'text-white bg-danger' => $ab_pl < 0,
                                             'text-white bg-success' => $ab_pl > 0,
                                         ])>{{ $ab_pl }}</td>
-                                        <td>{{ $drawDetail->ab ?? 'N/A' }}</td>
+                                        <td class="bg-success text-white">{{ $drawDetail->ab ?? 'N/A' }}</td>
                                     </tr>
                                     <tr>
                                         <td class="bg-warning text-white">AC</td>
-                                        <td>{{ $drawDetail->totalAcAmt() }}</td>
+                                        <td>{{ $totalAcCrossAmt }}</td>
 
                                         <td>
-                                            @if ($ac_claim != 0)
-                                                <a href="{{ route('dashboard.draw.details.list', ['drawDetail' => $drawDetail->id, 'claim' => 1]) }}"
-                                                    class="text-primary">{{ $ac_claim }}</a>
+                                            @if ($totalAcCrossClaimAmt != 0)
+                                                <a href="{{ route('dashboard.draw.details.list', ['draw_detail_id' => $drawDetail->id, 'claim' => 1]) }}"
+                                                    class="text-primary">{{ $totalAcCrossClaimAmt }}</a>
                                             @else
-                                                {{ $ac_claim }}
+                                                {{ $totalAcCrossClaimAmt }}
                                             @endif
                                         </td>
 
@@ -74,18 +65,18 @@
                                             'text-white bg-danger' => $ac_pl < 0,
                                             'text-white bg-success' => $ac_pl > 0,
                                         ])>{{ $ac_pl }}</td>
-                                        <td>{{ $drawDetail->ac ?? 'N/A' }}</td>
+                                        <td class="bg-warning text-white">{{ $drawDetail->ac ?? 'N/A' }}</td>
                                     </tr>
                                     <tr>
                                         <td class="bg-info text-white">BC</td>
-                                        <td>{{ $drawDetail->totalBcAmt() }}</td>
+                                        <td>{{ $totalBcCrossAmt }}</td>
 
                                         <td>
-                                            @if ($bc_claim != 0)
+                                            @if ($totalBcCrossClaimAmt != 0)
                                                 <a href="{{ route('dashboard.draw.details.list', ['draw_detail_id' => $drawDetail->id, 'claim' => 1]) }}"
-                                                    class="text-primary">{{ $bc_claim }}</a>
+                                                    class="text-primary">{{ $totalBcCrossClaimAmt }}</a>
                                             @else
-                                                {{ $bc_claim }}
+                                                {{ $totalBcCrossClaimAmt }}
                                             @endif
                                         </td>
 
@@ -93,13 +84,13 @@
                                             'text-white bg-danger' => $bc_pl < 0,
                                             'text-white bg-success' => $bc_pl > 0,
                                         ])>{{ $bc_pl }}</td>
-                                        <td>{{ $drawDetail->bc ?? 'N/A' }}</td>
+                                        <td class="bg-info text-white">{{ $drawDetail->bc ?? 'N/A' }}</td>
                                     </tr>
                                     <tr>
                                         <td><b>Total</b></td>
-                                        <td><b>{{ $drawDetail->totalAbAmt() + $drawDetail->totalAcAmt() + $drawDetail->totalBcAmt() }}</b>
+                                        <td><b>{{ $totalAbCrossAmt + $totalBcCrossAmt + $totalAcCrossAmt }}</b>
                                         </td>
-                                        <td><b>{{ $ab_claim + $ac_claim + $bc_claim }}
+                                        <td><b>{{ $totalAbCrossClaimAmt + $totalBcCrossClaimAmt + $totalAcCrossClaimAmt }}
                                             </b></td>
                                         <td><b>{{ $ab_pl + $ac_pl + $bc_pl }}
                                             </b></td>

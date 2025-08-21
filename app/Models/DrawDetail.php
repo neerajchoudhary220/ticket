@@ -52,23 +52,25 @@ class DrawDetail extends Model
         });
     }
 
-    public function totalAqty($number = null, $user_id = null)
+    public function totalAqty(?int $number = null, $user_id = null)
     {
+
         return $this->ticketOptions()
-            ->when($number, fn ($q) => $q->where('number', $number))
-            ->when($user_id, fn ($q) => $q->where('user_id', $user_id))
+            ->when(! is_null($number), fn ($q) => $q->where('number', $number)) // ✅ works with 0
+            ->when(! is_null($user_id), fn ($q) => $q->where('user_id', $user_id))
             ->sum('a_qty');
+
     }
 
-    public function totalBqty($number = null, $user_id = null)
+    public function totalBqty(?int $number = null, $user_id = null)
     {
-        return $this->ticketOptions()->when($number, fn ($q) => $q->where('number', $number))
+        return $this->ticketOptions()->when(! is_null($number), fn ($q) => $q->where('number', $number))
             ->when($user_id, fn ($q) => $q->where('user_id', $user_id))->sum('b_qty');
     }
 
-    public function totalCqty($number = null, $user_id = null)
+    public function totalCqty(?int $number = null, $user_id = null)
     {
-        return $this->ticketOptions()->when($number, fn ($q) => $q->where('number', $number))
+        return $this->ticketOptions()->when(! is_null($number), fn ($q) => $q->where('number', $number))
             ->when($user_id, fn ($q) => $q->where('user_id', $user_id))->sum('c_qty');
     }
 
