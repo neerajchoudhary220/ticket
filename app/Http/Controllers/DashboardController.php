@@ -12,6 +12,7 @@ use App\Models\Draw;
 use App\Models\DrawDetail;
 use App\Models\Ticket;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class DashboardController extends Controller
 {
@@ -19,7 +20,20 @@ class DashboardController extends Controller
     {
         // return view('web.dashboard.index');
 
-        return $dataTable->render('web.dashboard.index');
+        $current_time = Carbon::now()->timezone('Asia/Kolkata')->format('H:i');
+
+        $drawQuery = DrawDetail::whereDate('date', now())
+            ->where(function ($q) use ($current_time) {
+                $q->where(function ($inner) use ($current_time) {
+                    $inner->where('start_time', '<=', $current_time)
+                        ->where('end_time', '>=', $current_time);
+                })
+                    ->orWhere('start_time', '>', $current_time);
+            });
+
+        $total_available_draws = $drawQuery->count();
+
+        return $dataTable->render('web.dashboard.index', compact('total_available_draws'));
 
     }
 

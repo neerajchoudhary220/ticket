@@ -26,9 +26,11 @@
                                let interval = setInterval(() => {
                                    if (this.timeLeft > 0) {
                                        this.timeLeft--;
+                                       // fire event every step
+                                       this.$dispatch('countdown-tick', { timeLeft: this.timeLeft });
                                    } else {
                                        clearInterval(interval);
-                                       // Optional: location.reload();
+                                       {{-- location.reload(); --}}
                                    }
                                }, 1000);
                            }

@@ -34,7 +34,7 @@ trait TicketFormAction
             $endTime = Carbon::createFromFormat('H:i', $this->active_draw->end_time);
             $current_time = Carbon::now()->setTimezone('Asia/Kolkata')->format('h:i A');
             $this->end_time = $endTime->format('h:i A');
-            $this->duration = $endTime->diffInMinutes($current_time, true);
+            $this->duration = $endTime->diffInMinutes($current_time, true) - 1;
             $this->user_running_ticket = Ticket::firstOrCreate([
                 'user_id' => $this->auth_user->id,
                 'draw_detail_id' => $this->active_draw->id,

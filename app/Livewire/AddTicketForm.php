@@ -7,6 +7,7 @@ use App\Traits\TicketForm\CrossAbcOperation;
 use App\Traits\TicketForm\TicketFormAction;
 use App\Traits\TicketForm\TicketFormPagination;
 use Illuminate\Http\Request;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -96,6 +97,18 @@ class AddTicketForm extends Component
         $this->loadDraws();
         $this->loadTickets();
         $this->loadLatestDraws();
+        if (count($this->draw_list) == 0) {
+            return redirect()->route('dashboard') > with(['message' => 'Draws not available at this time. Please try after some time.']);
+        }
+
+    }
+
+    #[On('countdown-tick')]
+    public function handleTime($timeLeft)
+    {
+        if (count($this->draw_list) == 0) {
+            return redirect()->route('dashboard') > with(['message' => 'Draws not available at this time. Please try after some time.']);
+        }
     }
 
     public function render()

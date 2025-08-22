@@ -38,7 +38,7 @@ Schedule::call(function () {
             ]
         );
     }
-})->dailyAt('00:05');
+})->dailyAt('04:00');
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());

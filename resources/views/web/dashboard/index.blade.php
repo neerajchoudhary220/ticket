@@ -17,8 +17,11 @@
                             <div class="col-12 mb-3">
                                 <div class="d-flex justify-content-start">
                                     <h5 class="me-auto">Draw List</h5>
-                                    <a href="{{ route('ticket.add') }}" class="btn btn-primary">Add A New Ticket <i
-                                            class="fa fa-ticket"></i></a>
+                                    @if ($total_available_draws > 0)
+                                        <a href="{{ route('ticket.add') }}" class="btn btn-primary">Add A New Ticket <i
+                                                class="fa fa-ticket"></i></a>
+                                    @endif
+
                                 </div>
                             </div>
                         </div>
