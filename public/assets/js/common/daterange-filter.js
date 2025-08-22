@@ -21,9 +21,18 @@
                 dateRangePickerSpan.html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
             }
 
-            $('#date-range-picker-form input[name=start_date]').val(start.format('YYYY-MM-DD'));
-            $('#date-range-picker-form input[name=end_date]').val(end.format('YYYY-MM-DD'));
+           if(label==='Today'){
+     $('#date-range-picker-form input[name=start_date]').val(start.format('YYYY-MM-DD'));
+     $('#date-range-picker-form input[name=end_date]').val('');
+            $('#date-range-picker-form input[name=day]').val('');
+           }else{
+     $('#date-range-picker-form input[name=start_date]').val(start.format('YYYY-MM-DD'));
+
+ $('#date-range-picker-form input[name=end_date]').val(end.format('YYYY-MM-DD'));
             $('#date-range-picker-form input[name=day]').val(rangeLabels.includes(label) ? label : '');
+           }
+       
+           
         }
 
         picker = $('.date-range-picker').daterangepicker({
