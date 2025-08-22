@@ -502,7 +502,7 @@ trait CrossAbcOperation
                         'amount' => $row['amt'],
                         'combination' => $row['combination'],
                         'option' => $row['option'],
-                        'ticket_id' => $row['ticket_id'],
+                        'ticket_id' => $this->current_ticket_id,
                         'user_id' => $this->auth_user->id,
                     ];
                 });

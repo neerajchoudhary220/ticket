@@ -63,7 +63,8 @@
 
             // Remove query parameters from URL without reloading
             const baseUrl = window.location.origin + window.location.pathname;
-            window.history.replaceState({}, '', baseUrl);
+            const newUrl = `${baseUrl}?start_date=${moment().format('YYYY-MM-DD')}`;
+            window.history.replaceState({}, '', newUrl);
             window.location.reload();
         });
     });

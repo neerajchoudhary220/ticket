@@ -249,10 +249,10 @@ class ShopKeeperDrawDetailsDataTable extends DataTable
             Column::make('p_and_l')->title('P&L'),
 
         ];
-        if (request()->segment(1) !== 'admin') {
-            $columes[] = Column::make('action');
+        // if (request()->segment(1) !== 'admin') {
+        //     $columes[] = Column::make('action');
 
-        }
+        // }
 
         return $columes;
     }

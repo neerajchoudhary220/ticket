@@ -15,6 +15,8 @@ trait TicketFormAction
 
     public $submit_error = '';
 
+    public string $selected_ticket_number = '';
+
     protected function addTicket()
     {
 
@@ -28,26 +30,16 @@ trait TicketFormAction
 
         $this->active_draw = DrawDetail::runningDraw()->first();
         if ($this->active_draw) {
-            // $this->active_draw_number = $this->active_draw->draw_number;
             $this->draw_detail_id = $this->active_draw->id;
 
             $endTime = Carbon::createFromFormat('H:i', $this->active_draw->end_time);
             $current_time = Carbon::now()->setTimezone('Asia/Kolkata')->format('h:i A');
             $this->end_time = $endTime->format('h:i A');
             $this->duration = $endTime->diffInMinutes($current_time, true) - 1;
-            $this->user_running_ticket = Ticket::firstOrCreate([
-                'user_id' => $this->auth_user->id,
-                'draw_detail_id' => $this->active_draw->id,
-                'status' => 'RUNNING',
 
-            ],
-                [
-                    'ticket_number' => $ticketNumber,
-                ]);
+            $this->selected_ticket_number = $ticketNumber;
 
             $this->selected_ticket = $this->user_running_ticket;
-            $this->current_ticket_id = $this->user_running_ticket->id;
-            // $this->auth_user->drawDetails()->syncWithoutDetaching($this->draw_detail_id);
             $this->loadOptions(true);
             $this->loadTickets(true);
             $this->selected_draw[] = (string) $this->draw_detail_id;
@@ -92,61 +84,68 @@ trait TicketFormAction
     }
 
     // select ticket number
-    public function handleTicketSelect($selected_ticket_id)
+    public function handleTicketSelect($ticket_number)
     {
-        $this->resetError();
-        $this->current_ticket_id = $selected_ticket_id;
-        $this->selected_ticket = $this->auth_user->tickets()->where('id', $selected_ticket_id)->first();
-
-        $drawIds = $this->getActiveDrawIds();
-        // get options
-        $option_query = $this->auth_user->options()
-            ->where('ticket_id', $selected_ticket_id)
-            ->where(function ($query) use ($drawIds) {
-                foreach ($drawIds as $id) {
-                    $query->orWhereJsonContains('draw_details_ids', $id);
-                }
-            });
-
-        $cross_abc_query = $this->auth_user->crossAbc()
-            ->where('ticket_id', $selected_ticket_id)
-            ->where(function ($query) use ($drawIds) {
-                foreach ($drawIds as $id) {
-                    $query->orWhereJsonContains('draw_details_ids', $id);
-                }
-            });
-        $options = $option_query->get(); // empty
-
-        $cross_abc = $cross_abc_query->get(); // empty
         $this->clearAllOptionsIntoCache();
         $this->clearAllCrossAbcIntoCache();
+        $this->resetError();
+        // $this->current_ticket_id = $selected_ticket_id;
+        $this->selected_ticket = $this->auth_user->tickets()->where('ticket_number', $ticket_number)->first() ?? null;
 
-        if ($options->isNotEmpty()) {
-            $this->optionStoreToCache($options);
-            $selected_draw_ids = $options
-                ->pluck('draw_details_ids')      // [[56,58], [58,59], ...]
-                ->flatten()              // [56,58,58,59,...]
-                ->unique()
-                ->intersect($drawIds)    // keep only active draw IDs
-                ->values();
+        if ($this->selected_ticket) {
+            $this->selected_ticket_number = $ticket_number;
+
+            $drawIds = $this->getActiveDrawIds();
+            // get options
+            $option_query = $this->auth_user->options()
+                ->where('ticket_id', $this->selected_ticket->id)
+                ->where(function ($query) use ($drawIds) {
+                    foreach ($drawIds as $id) {
+                        $query->orWhereJsonContains('draw_details_ids', $id);
+                    }
+                });
+
+            $cross_abc_query = $this->auth_user->crossAbc()
+                ->where('ticket_id', $this->selected_ticket->id)
+                ->where(function ($query) use ($drawIds) {
+                    foreach ($drawIds as $id) {
+                        $query->orWhereJsonContains('draw_details_ids', $id);
+                    }
+                });
+
+            $options = $option_query->get(); // empty
+
+            $cross_abc = $cross_abc_query->get(); // empty
+
+            if ($options->isNotEmpty()) {
+                $this->optionStoreToCache($options);
+                $selected_draw_ids = $options
+                    ->pluck('draw_details_ids')      // [[56,58], [58,59], ...]
+                    ->flatten()              // [56,58,58,59,...]
+                    ->unique()
+                    ->intersect($drawIds)    // keep only active draw IDs
+                    ->values();
+            }
+
+            if ($cross_abc->isNotEmpty()) {
+                $this->storeCrossAbcIntoCache($cross_abc);
+                $selected_draw_ids = $options
+                    ->pluck('draw_details_ids')      // [[56,58], [58,59], ...]
+                    ->flatten()              // [56,58,58,59,...]
+                    ->unique()
+                    ->intersect($drawIds)    // keep only active draw IDs
+                    ->values();
+            }
+
+            // reset keys
+
         }
-
-        if ($cross_abc->isNotEmpty()) {
-            $this->storeCrossAbcIntoCache($cross_abc);
-            $selected_draw_ids = $options
-                ->pluck('draw_details_ids')      // [[56,58], [58,59], ...]
-                ->flatten()              // [56,58,58,59,...]
-                ->unique()
-                ->intersect($drawIds)    // keep only active draw IDs
-                ->values();
-        }
-
-        // reset keys
 
         $this->selected_draw = ! empty($selected_draw_ids)
             ? $selected_draw_ids->toArray()
             : [$this->draw_detail_id];
         $this->setStoreOptions($this->selected_draw);
+
         $this->getTimes();
         $this->loadOptions(true);
         $this->loadAbcData(true);

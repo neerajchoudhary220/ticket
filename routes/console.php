@@ -10,9 +10,10 @@ use Illuminate\Support\Facades\Schedule;
 
 Artisan::command('add-details', function () {
     $draws = Draw::get();
+    $today = Carbon::today('Asia/Kolkata')->format('Y-m-d');
     foreach ($draws as $draw) {
         DrawDetail::updateOrCreate([
-            'date' => Carbon::today(),
+            'date' => $today,
             'draw_id' => $draw->id,
         ],
             [
@@ -26,9 +27,11 @@ Artisan::command('add-details', function () {
 });
 Schedule::call(function () {
     $draws = Draw::get();
+    $today = Carbon::today('Asia/Kolkata')->format('Y-m-d');
+
     foreach ($draws as $draw) {
         DrawDetail::updateOrCreate([
-            'date' => Carbon::today(),
+            'date' => $today,
             'draw_id' => $draw->id,
         ],
             [

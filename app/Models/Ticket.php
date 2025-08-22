@@ -3,16 +3,15 @@
 namespace App\Models;
 
 use App\Traits\AuthUser;
-use App\Traits\DrawDetailsTrait;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 
 class Ticket extends Model
 {
-    use AuthUser,DrawDetailsTrait;
+    use AuthUser;
 
-    protected $fillable = ['ticket_number', 'user_id', 'status', 'draw_detail_id'];
+    protected $fillable = ['ticket_number', 'user_id', 'status'];
 
     protected $appends = ['full_ticket_no'];
 

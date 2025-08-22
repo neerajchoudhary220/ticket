@@ -17,11 +17,18 @@ class DrawDetail extends Model
 
     public function scopeRunningDraw(Builder $drawDetail)
     {
-        $currentTime = Carbon::now()->setTimezone('Asia/Kolkata')->format('H:i');
+        $current_time = Carbon::now()->timezone('Asia/Kolkata')->format('H:i');
 
-        return $drawDetail->where('start_time', '<=', $currentTime)
-            ->where('end_time', '>=', $currentTime)
-            ->where('date', Carbon::today());
+        $today = Carbon::today('Asia/Kolkata');
+
+        return DrawDetail::whereDate('date', $today)
+            ->where(function ($q) use ($current_time) {
+                $q->where(function ($inner) use ($current_time) {
+                    $inner->where('start_time', '<=', $current_time)
+                        ->where('end_time', '>=', $current_time);
+                })
+                    ->orWhere('start_time', '>', $current_time);
+            });
 
     }
 

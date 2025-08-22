@@ -7,7 +7,6 @@ use App\Traits\CalculatePL;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Button;
@@ -72,12 +71,10 @@ class DrawProfilLossDataTable extends DataTable
             $b_claim = $draw_detail->claim_b;
             $c_claim = $draw_detail->claim_c;
 
-            DB::enableQueryLog();
             $a_qty = $draw_detail->
             ticketOptions()->where('user_id', auth()->user()->id)
                 ->where('number', $a_claim)
                 ->sum('a_qty');
-            logger()->info(DB::getQueryLog());
             $b_qty = $draw_detail->
          ticketOptions()->where('user_id', auth()->user()->id)
              ->where('number', $b_claim)

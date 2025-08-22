@@ -22,7 +22,8 @@ class DashboardController extends Controller
 
         $current_time = Carbon::now()->timezone('Asia/Kolkata')->format('H:i');
 
-        $drawQuery = DrawDetail::whereDate('date', now())
+        $today = Carbon::today('Asia/Kolkata');
+        $drawQuery = DrawDetail::whereDate('date', $today)
             ->where(function ($q) use ($current_time) {
                 $q->where(function ($inner) use ($current_time) {
                     $inner->where('start_time', '<=', $current_time)

@@ -83,8 +83,8 @@ trait TicketFormPagination
     public function loadDraws()
     {
         $current_time = Carbon::now()->timezone('Asia/Kolkata')->format('H:i');
-
-        $drawQuery = DrawDetail::whereDate('date', now())
+        $today = Carbon::today('Asia/Kolkata')->format('Y-m-d');
+        $drawQuery = DrawDetail::whereDate('date', $today)
             ->where(function ($q) use ($current_time) {
                 $q->where(function ($inner) use ($current_time) {
                     $inner->where('start_time', '<=', $current_time)
@@ -169,23 +169,24 @@ trait TicketFormPagination
         } else {
             $query = Ticket::query()
                 ->whereDate('created_at', Carbon::today())
-                ->where('status', '!=', 'COMPLETED')
                 ->forUser($this->auth_user->id);
         }
 
         $count = (clone $query)->count();
         $this->ticketPerPage = $count <= 5 ? 10 : $this->ticketPerPage;
 
-        $paginatedTickets = $query->orderBy('id', 'desc')
+        $paginatedTickets = $query->orderBy('ticket_number', 'desc')
             ->paginate($this->ticketPerPage, ['*'], 'ticket_page', $this->ticket_page);
 
-        $newTickets = collect($paginatedTickets->items());
-        $uniqueTickets = $newTickets->reject(function ($ticket) {
-            return in_array($ticket['id'], $this->loaded_tickets_ids, true);
-        })->values()->all();
+        $newTickets = collect($paginatedTickets->items())->map(fn ($d) => $d['ticket_number'])->merge(collect($this->selected_ticket_number));
+        $uniqueTickets = $newTickets->reject(function ($ticket_number) {
+            return in_array($ticket_number, $this->loaded_tickets_ids, true);
+        })->sortDesc()
+            ->values()
+            ->all();
 
-        foreach ($uniqueTickets as $uniqueTicket) {
-            $this->loaded_tickets_ids[] = $uniqueTicket['id'];
+        foreach ($uniqueTickets as $ticket_number) {
+            $this->loaded_tickets_ids[] = $ticket_number;
         }
         $this->ticket_list = array_merge($this->ticket_list, $uniqueTickets);
     }
