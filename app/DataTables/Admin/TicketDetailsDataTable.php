@@ -56,7 +56,7 @@ class TicketDetailsDataTable extends DataTable
                 return $row->total_qty;
             })
             ->addColumn('amt', function ($row) {
-                return $row->total_qty * 100;
+                return $row->total_qty * 11;
             })
             ->rawColumns([
                 'option', 'number', 'qty', 'amt',

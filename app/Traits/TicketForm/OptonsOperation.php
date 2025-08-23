@@ -175,7 +175,10 @@ trait OptonsOperation
 
         $digitMatrix = []; // Format: [digit][option] = count
         $selected_draw_ids = $this->selected_draw;
-        $this->current_ticket_id = Ticket::updateOrCreate(['ticket_number' => $this->selected_ticket_number], ['status' => 'COMPLETED', 'user_id' => $this->auth_user->id])->id;
+        $this->current_ticket_id = Ticket::updateOrCreate(['ticket_number' => $this->selected_ticket_number],
+            ['status' => 'COMPLETED', 'user_id' => $this->auth_user->id]
+
+        )->id;
 
         if (count($this->getOptionsIntoCache()) == 0 && count($this->getCrossOptions()) == 0) {
             $this->addError('submit_error', 'Please add at least one entry!');

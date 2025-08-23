@@ -115,7 +115,7 @@ class DrawDetailsDataTable extends DataTable
                 $claim = $this->getClaim($user_draw);
                 $crossClaim = $this->getCrossClaim($user_draw);
                 $crossclaimAmt = $this->getCrossAmt($user_draw);
-                $p_and_l = $this->calculateProfitAndLoss($tq, $crossclaimAmt, $claim, $crossClaim);
+                $p_and_l = $this->calculateProfitAndLoss($tq * 11, $crossclaimAmt, $claim, $crossClaim);
                 $bgClass = $p_and_l < 0 ? 'bg-danger text-white' : 'bg-success text-white';
                 if ($p_and_l == 0) {
                     $bgClass = 'text-dark';

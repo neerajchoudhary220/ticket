@@ -22,17 +22,18 @@ class ShopKeeperDrawDetailsDataTable extends DataTable
      *
      * @param  QueryBuilder<Shopkeeper>  $query  Results from query() method.
      */
+    protected function isAdminSeg()
+    {
+        return request()->segment(1) === 'admin';
+    }
+
     protected function getCrossAmt($ticketOption)
     {
         $cross_amt = 0;
-        if (request()->segment(1) === 'admin') {
-            $cross_amt = $ticketOption->drawDetail->crossAbcDetail()->where('ticket_id', $ticketOption->ticket_id)->sum('amount');
-        } else {
-            $cross_amt = $ticketOption->drawDetail->crossAbcDetail()->where('ticket_id', $ticketOption->ticket_id)
-                ->where('user_id', auth()->user()->id)
-                ->sum('amount');
-
-        }
+        $user_id = $this->isAdminSeg() ? request()->user?->id : auth()->user()->id;
+        $cross_amt = $ticketOption->drawDetail->crossAbcDetail()->where('ticket_id', $ticketOption->ticket_id)
+            ->where('user_id', $user_id)
+            ->sum('amount');
 
         return $cross_amt;
     }
@@ -48,26 +49,24 @@ class ShopKeeperDrawDetailsDataTable extends DataTable
         $ab_claim = $ticketOption->drawDetail->ab;
         $ac_claim = $ticketOption->drawDetail->ac;
         $bc_claim = $ticketOption->drawDetail->bc;
+        $user_id = request()->segment(1) !== 'admin' ? auth()->id() : request()->user?->id;
 
-        if (request()->segment(1) !== 'admin') {
-            $ab_claim_amt = $ticketOption->drawDetail->crossAbcDetail()->where('user_id', auth()->id())
-                ->where('ticket_id', $ticketOption->ticket_id)
-                ->where('number', $ab_claim)
-                ->where('type', 'AB')->sum('amount');
+        $ab_claim_amt = $ticketOption->drawDetail->crossAbcDetail()->where('user_id', $user_id)
+            ->where('ticket_id', $ticketOption->ticket_id)
+            ->where('number', $ab_claim)
+            ->where('type', 'AB')->sum('amount');
 
-            $ac_claim_amt = $ticketOption->drawDetail->crossAbcDetail()->where('user_id', auth()->id())
-                ->where('ticket_id', $ticketOption->ticket_id)
-                ->where('number', $ac_claim)
-                ->where('type', 'AC')->sum('amount');
-            $bc_claim_amt = $ticketOption->drawDetail->crossAbcDetail()->where('user_id', auth()->id())
-                ->where('ticket_id', $ticketOption->ticket_id)
-                ->where('number', $bc_claim)
-                ->where('type', 'BC')->sum('amount');
+        $ac_claim_amt = $ticketOption->drawDetail->crossAbcDetail()->where('user_id', $user_id)
+            ->where('ticket_id', $ticketOption->ticket_id)
+            ->where('number', $ac_claim)
+            ->where('type', 'AC')->sum('amount');
+        $bc_claim_amt = $ticketOption->drawDetail->crossAbcDetail()->where('user_id', $user_id)
+            ->where('ticket_id', $ticketOption->ticket_id)
+            ->where('number', $bc_claim)
+            ->where('type', 'BC')->sum('amount');
 
-            return $ab_claim_amt + $ac_claim_amt + $bc_claim_amt;
-        }
+        return $ab_claim_amt + $ac_claim_amt + $bc_claim_amt;
 
-        return $ticketOption->drawDetail->crossAbcDetail()->whereIn('number', [$ab_claim, $ac_claim, $bc_claim])->sum('amount');
     }
 
     public function query(TicketOption $model, Request $request): QueryBuilder
@@ -151,18 +150,6 @@ class ShopKeeperDrawDetailsDataTable extends DataTable
             })
             ->addColumn('cross_amt', function ($ticketOption) {
                 return $this->getCrossAmt($ticketOption);
-                // $cross_amt = 0;
-
-                // if (request()->segment(1) === 'admin') {
-                //     $cross_amt = $ticketOption->drawDetail->crossAbcDetail()->where('ticket_id', $ticketOption->ticket_id)->sum('amount');
-                // } else {
-                //     $cross_amt = $ticketOption->drawDetail->crossAbcDetail()->where('ticket_id', $ticketOption->ticket_id)
-                //         ->where('user_id', auth()->user()->id)
-                //         ->sum('amount');
-
-                // }
-
-                // return $cross_amt;
 
             })
             ->addColumn('c_amt', function ($row) {
@@ -172,20 +159,8 @@ class ShopKeeperDrawDetailsDataTable extends DataTable
             })
             ->addColumn('p_and_l', function ($row) {
                 $total_amount = ($row->total_a_qty + $row->total_b_qty + $row->total_c_qty) * 11;
-                $p_and_l = 0;
-                if (request()->segment(1) === 'admin') {
-                    $claim_amount = ($row->claim_a_qty + $row->claim_b_qty + $row->claim_c_qty) * 100;
-                    $p_and_l = $total_amount - $claim_amount;
-
-                } else {
-                    // $cross_amt = $this->getCrossAmt($row);
-                    $tq = $total_amount;
-
-                    // $p_and_l = ($tq + $cross_amt) - $this->getClaim($row) - $this->getCrossClaim($row);
-                    $p_and_l = $this->calculateProfitAndLoss($tq, $this->getCrossAmt($row), $this->getClaim($row), $this->getCrossClaim($row));
-
-                }
-
+                $tq = $total_amount;
+                $p_and_l = $this->calculateProfitAndLoss($tq, $this->getCrossAmt($row), $this->getClaim($row), $this->getCrossClaim($row));
                 $bgClass = $p_and_l < 0 ? 'bg-danger text-white' : 'bg-success text-white';
                 if ($p_and_l == 0) {
                     $bgClass = 'text-dark';

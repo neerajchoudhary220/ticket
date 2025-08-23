@@ -3,6 +3,8 @@
 @section('contents')
     <div class="container-fluid">
         <h2>Dashboard</h2>
+        <x-date-range-picker-filter />
+
         <div class="row mb-3">
 
             <div class="col-8">
@@ -12,7 +14,6 @@
 
                     </div>
                     <div class="card-body">
-                        <x-date-range-picker-filter />
 
                         {{ $dataTable->table() }}
                     </div>
@@ -25,7 +26,7 @@
                         <div class="card" role="button"
                             onclick="window.location.href='{{ route('admin.shopkeepers') }}'">
                             <div class="card-header bg-primary text-white d-flex justify-content-center">
-                                <h4 class="text-white">ShopKeepers</h4>
+                                <h4 class="text-white">Total ShopKeepers</h4>
                             </div>
                             <div class="card-body text-center">
                                 <h5>{{ $data['total_shopkeepers'] }}</h5>
@@ -35,20 +36,28 @@
                     <div class="col-12">
                         <div class="card" role="button" onclick="window.location.href='{{ route('admin.draw') }}'">
                             <div class="card-header bg-info text-white d-flex justify-content-center">
-                                <h4 class="text-white">Draw Overview</h4>
+                                <h4 class="text-white">Draw Overview For Today</h4>
                             </div>
                             <div class="card-body">
-                                <div class="row text-center">
+                                <div class="row text-center mb-3">
                                     <div class="col-3">
-                                        Tickets: <strong>{{ $data['total_tickets'] }}</strong>
+                                        TN: <strong>{{ $data['total_tickets'] }}</strong>
 
                                     </div>
                                     <div class="col-4">
-                                        TTL Claim: <strong>{{ $data['total_claims'] }}</strong>
+                                        T Claim: <strong>{{ $data['total_claims'] }}</strong>
                                     </div>
                                     <div class="col-5">
-                                        TTL Cross Claim: <strong>{{ $data['total_cross_claim'] }}</strong>
+                                        T CS Amt: <strong>{{ $data['total_cross_amt'] }}</strong>
                                     </div>
+                                </div>
+
+                                <div class="row text-center mb-3">
+                                    <div class="col-5">
+                                        T CS Claim: <strong>{{ $data['total_cross_claim'] }}</strong>
+
+                                    </div>
+
                                 </div>
 
 

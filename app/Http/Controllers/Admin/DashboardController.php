@@ -15,14 +15,22 @@ use Illuminate\Support\Carbon;
 
 class DashboardController extends Controller
 {
-    public function index(DrawProfilLossDataTable $dataTable)
+    public function index(DrawProfilLossDataTable $dataTable, Request $request)
     {
+        $today = Carbon::today('UTC');
+        $today_1 = Carbon::today('Asia/Kolkata');
+
         $data = [
-            'total_shopkeepers' => User::count(),
-            'total_tickets' => Ticket::count(),
-            'total_claims' => DrawDetail::sum('claim'),
-            'total_cross_claim' => DrawDetail::sum('total_cross_amt'),
-            'claimed' => DrawDetail::where('date', Carbon::today())
+            'total_shopkeepers' => User::count(), // This is none filtered data for range filter
+            'total_tickets' => Ticket::whereDate('created_at', $today)->count(),
+            'total_claims' => DrawDetail::where('date', $today_1)
+                ->sum('claim'),
+            'total_cross_amt' => DrawDetail::where('date', $today_1)->sum('total_cross_amt'),
+            'total_cross_claim' => DrawDetail::where('date', $today_1)->sum('claim_ab')
+            + DrawDetail::where('date', $today_1)->sum('claim_ac')
+           + DrawDetail::where('date', $today_1)->sum('claim_bc'),
+
+            'claimed' => DrawDetail::where('date', $today_1)
                 ->where('claim', '!=', 0)
                 ->count(),
 
